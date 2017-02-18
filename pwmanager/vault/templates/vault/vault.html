@@ -1,0 +1,29 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block body %}
+<h1>Hello</h1>
+
+<section class="crud">
+
+</section>
+
+<section class="vault" id="vault">
+  <article v-for="password in passwords">
+    <div class="">
+      <span v-text="password.name"></span>
+      <button v-on:click="requestPassword">Show</button>
+    </div>
+  </article>
+</section>
+
+
+{% endblock body %}
+
+
+{% block scripts %}
+    <script src="{% static 'vault/js/vault.js' %}"></script>
+{% endblock scripts %}
+
+
