@@ -29,11 +29,19 @@ class Vault(models.Model):
 
 
 class VaultUser(AbstractBaseUser):
-    vault = models.ForeignKey(to=Vault)
+    vault = models.OneToOneField(to=Vault)
+    guid = models.CharField(max_length=255)
 
     def save(self, *args, **kwargs):
-        if self.pk is None or self.vault is None:
+        if self.vault is None:
             vault = Vault(key=self.username)
             vault.save()
             self.vault = vault
 
+        if self.guid is None:
+            self.guid = self.generate_guid()
+
+
+
+    def generate_guid(self):
+        return u"new guid"

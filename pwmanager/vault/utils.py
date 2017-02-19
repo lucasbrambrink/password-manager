@@ -1,7 +1,58 @@
 import requests
+import os
+from .conf import VaultResponse
 
 
 class VaultAPI(object):
+    """
+    interacts w vault over HTTP (more secure than CLI?)
+    over localhost
+
+    once authenticated, puts TOKEN in env variables
+    """
+    PORT = u'8200'
+    HOST = u'127.0.0.1'
+    PROTOCOL = u'https'
+    VERSION = u'v1'
+
+    def __init__(self, token_key, ):
+        self.token_key = token_key
+        self.token = self.get_vault_token()
+
+    def get_vault_token(self):
+        key = os.environ(self.token_key)
+        if key is None:
+            raise Exception(u'Unable to retrieve token')
+
+        return key
+
+    def get_url(self, mount, key):
+        return u'{protocol}://{host}:{port}/{version}/{mount}/{key}'.format(
+            protocol=self.PROTOCOL,
+            host=self.HOST,
+            port=self.PORT,
+            version=self.VERSION,
+            mount=mount,
+            key=key
+        )
+
+    def query_vault(self, url):
+        """add access token here as HTTP header"""
+        header = {u'X-Vault-Token': self.token}
+        response = requests.get(url, header=header)
+        return response
+
+    def read(self):
+        url = self.get_url(u'secret', u'foo')
+        response = self.query_vault(url)
+        if response.status_code == VaultResponse.SUCCESS:
+            return response.content
+        else:
+            raise Exception(response.status_code)
+
+
+    def write(self):
+        pass
 
     def create(self):
 

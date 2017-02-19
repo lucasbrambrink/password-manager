@@ -1,0 +1,9 @@
+class VaultResponse(object):
+    SUCCESS = 200
+    SUCCESS_NO_DATA = 204
+    INVALID = 400
+    FORBIDDEN = 403
+    INVALID__PATH = 404
+    HEALTH_STATUS = 429
+    INTERNAL_ERROR = 500
+    VAULT_MAINTENANCE = 503
