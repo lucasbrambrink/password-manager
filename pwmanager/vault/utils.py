@@ -1,4 +1,5 @@
 import requests
+import json
 import os
 from .conf import VaultResponse
 
@@ -15,7 +16,7 @@ class VaultAPI(object):
     PROTOCOL = u'https'
     VERSION = u'v1'
 
-    def __init__(self, token_key, ):
+    def __init__(self, token_key):
         self.token_key = token_key
         self.token = self.get_vault_token()
 
@@ -36,27 +37,37 @@ class VaultAPI(object):
             key=key
         )
 
-    def query_vault(self, url):
-        """add access token here as HTTP header"""
-        header = {u'X-Vault-Token': self.token}
-        response = requests.get(url, header=header)
-        return response
+    def get_headers(self, is_post=False):
+        """ add access token for unsealed vault """
+        header = {
+            u'X-Vault-Token': self.token
+        }
+        if is_post:
+            header[u'Content-Type'] = u'application/json'
+
+        return header
 
     def read(self):
         url = self.get_url(u'secret', u'foo')
-        response = self.query_vault(url)
+        return requests.get(url, headers=self.get_headers())
+
+    def write(self, dict_obj):
+        url = self.get_url(u'secret', u'foo')
+        if u'value' not in dict_obj:
+            raise Exception(u'Unable to write to vault. Incorrect formatting')
+
+        data = json.dumps(dict_obj)
+        return requests.post(
+            url,
+            data=data,
+            headers=self.get_headers(True))
+
+    @classmethod
+    def handle_response(cls, response):
         if response.status_code == VaultResponse.SUCCESS:
             return response.content
         else:
             raise Exception(response.status_code)
-
-
-    def write(self):
-        pass
-
-    def create(self):
-
-        pass
 
     def get_password(self):
         pass
@@ -68,7 +79,12 @@ class VaultAPI(object):
         pass
 
 
+class GuidSource(object):
 
+
+    @staticmethod
+    def generate():
+        return u'asdfasdfads'
 
 
 # from Crypto.Hash import SHA512
