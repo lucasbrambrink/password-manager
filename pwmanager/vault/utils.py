@@ -3,9 +3,13 @@ import json
 import os
 import uuid
 from .conf import VaultResponse, Env
+from requests_toolbelt.utils import dump
+import logging
+
+log = logging.getLogger(__name__)
 
 
-class VaultAPI(object):
+class VaultApi(object):
     """
     interacts w vault over HTTP (more secure than CLI?)
     over localhost
@@ -17,8 +21,10 @@ class VaultAPI(object):
     PROTOCOL = u'http'  # should be https in prod obviously
     VERSION = u'v1'
 
-    def __init__(self):
-        self.token = self.get_vault_token()
+    def __init__(self, token=None):
+        if token is None:
+            token = self.get_vault_token()
+        self.token = token
 
     @staticmethod
     def get_vault_token():
@@ -31,7 +37,9 @@ class VaultAPI(object):
 
     @classmethod
     def get_url_base(cls):
-        return u'{protocol}://{host}:{port}/{version}'.format(
+        """ gets API base url (w version) and trailing slash
+        """
+        return u'{protocol}://{host}:{port}/{version}/'.format(
             protocol=cls.PROTOCOL,
             host=cls.HOST,
             port=cls.PORT,
@@ -51,11 +59,30 @@ class VaultAPI(object):
 
         return header
 
+    def token_authenticate(self, token):
+        self.token = token
+        url = self.get_url(u'auth/token')
+        return self.vpost(url, data={})
+
     def vget(self, url):
-        return requests.get(url, headers=self.get_headers())
+        response = requests.get(url=url,
+                                headers=self.get_headers())
+        return self.handle_response(response)
 
     def vpost(self, url, data):
-        return requests.post(url, data, headers=self.get_headers(True))
+        serialized_data = json.dumps(data)
+        response = requests.post(url=url,
+                                 data=serialized_data,
+                                 headers=self.get_headers(True))
+        return self.handle_response(response)
+
+    def vput(self, url, data):
+        response = requests.put(url=url,
+                                data=json.dumps(data),
+                                headers=self.get_headers(True))
+        data = dump.dump_all(response)
+        log.debug(data.decode('utf-8'))
+        return self.handle_response(response)
 
     def read(self):
         url = self.get_url(u'secret/foo')
@@ -66,15 +93,16 @@ class VaultAPI(object):
         if u'value' not in dict_obj:
             raise Exception(u'Unable to write to vault. Incorrect formatting')
 
-        data = json.dumps(dict_obj)
-        return self.vpost(url, data)
+        return self.vpost(url, dict_obj)
 
     @classmethod
     def handle_response(cls, response):
         if response.status_code == VaultResponse.SUCCESS:
-            return response.content
+            return response.json()
         else:
-            raise Exception(response.status_code)
+            log.warn(u'RESPONSE: {}'.format(response.status_code))
+            log.warn(response.content)
+            return response.content
 
     def get_password(self):
         pass
@@ -85,30 +113,59 @@ class VaultAPI(object):
     def update(self):
         pass
 
-    ## AppRoleAPI(object):
+
+class RoleApi(VaultApi):
     """
     Role interface w/ Vault to gain temporary access tokens
     """
-    def enable(self):
+    def enable_approle(self):
         url = self.get_url(u'sys/auth/approle')
         return self.vpost(url, {
             'type': "approle"
         })
 
-    def create_approle(self, role_name):
-        url = self.get_url(u'auth/approle/role/{}'.format(role_name))
-        data = {
-            'policies': "dev-policy,test-policy"
-        }
-        return self.vpost(url, data)
+    def generate_policy_hcl(self, policy_name):
+        """grant user write permission to their own subdirectory"""
+        return u'path "secret/%s/*" { policy = "write" }' % policy_name
 
-    def get_role_id(self, role_name):
-        url = self.get_url(u'auth/approle/role/{}/role-id'.format(role_name))
-        return self.vget(url)
+    def create_policy(self, policy_name):
+        url = self.get_url(u'sys/policy/{}'.format(policy_name))
+        data = {"rules": self.generate_policy_hcl(policy_name)}
+        return self.vput(url, data)
 
-    def create_secret_id(self, role_name):
-        url = self.get_url(u'auth/approle/role/{}/secret-id'.format(role_name))
-        return self.vpost(url, {})
+    def create_approle(self, user_name):
+        # 1-to-1 mapping of user to role, access to single path
+        # generate policy for this user
+        policy_name = u'user{}'.format(user_name)
+        self.create_policy(policy_name)
+        url = self.get_url(u'auth/approle/role/{}'.format(policy_name))
+        return self.vpost(url, {
+            'policies': policy_name
+        })
+
+    # Login
+    def get_role_id(self, user_name):
+        url = self.get_url(u'auth/approle/role/user{}/role-id'.format(user_name))
+        resp = self.vget(url)
+
+        role_id = None
+        if type(resp) is dict:
+            role_id = resp\
+                .get('data', {})\
+                .get('role_id', None)
+
+        return role_id
+
+    def create_secret_id(self, user_name):
+        url = self.get_url(u'auth/approle/role/user{}/secret-id'.format(user_name))
+        resp = self.vpost(url, {})
+        secret_id = None
+        if type(resp) is dict:
+            secret_id = resp\
+                .get('data', {})\
+                .get('secret_id', {})
+
+        return secret_id
 
     def login(self, role_id, secret_id):
         url = self.get_url(u'auth/approle/login')
@@ -119,11 +176,36 @@ class VaultAPI(object):
         return self.vpost(url, data)
 
 
+class UserApi(object):
 
+    def __init__(self, username, token):
+        self.username = username
+        self.pathname = u'user{}'.format(username)
+        self.api = VaultApi(token)
 
+    @property
+    def base_path(self):
+        return self.api.get_url(u'secret/{}/'.format(self.pathname))
 
+    @staticmethod
+    def get_data(resp):
+        data = None
+        if type(resp) is dict:
+            data = resp.get(u'data', None)
 
+        return data
 
+    def read(self, key):
+        url = os.path.join(self.base_path, key)
+        resp = self.api.vget(url)
+        return self.get_data(resp)
+
+    def write(self, key, value):
+        url = os.path.join(self.base_path, key)
+        resp = self.api.vpost(url, {
+            'value': value
+        })
+        return self.get_data(resp)
 
 
 
@@ -132,7 +214,9 @@ class GuidSource(object):
 
     @staticmethod
     def generate():
-        """generate based on hostname and current time"""
+        """generate based on hostname and current time
+                - sufficient to avoid clashes
+        """
         return str(uuid.uuid1())
 
 

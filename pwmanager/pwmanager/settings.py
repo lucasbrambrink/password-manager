@@ -128,3 +128,34 @@ STATICFILES_DIRS = (
     ('vault', os.path.join(BASE_DIR, 'vault', 'static')),
 )
 
+SHELL_PLUS_PRE_IMPORTS = (
+    ('vault.utils', ('VaultApi', 'RoleApi', 'UserApi')),
+)
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log')
+        },
+        # 'mail_admins': {
+        #     'level': 'DEBUG',
+        #     'class': 'django.utils.log.AdminEmailHandler',
+        # },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}
