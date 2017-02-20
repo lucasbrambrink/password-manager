@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Dependencies
+    'django_extensions',
     # Custom Apps
     'vault'
 ]
@@ -125,3 +127,4 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     ('vault', os.path.join(BASE_DIR, 'vault', 'static')),
 )
+

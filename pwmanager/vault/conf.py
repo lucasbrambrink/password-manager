@@ -1,3 +1,10 @@
+
+
+class Env(object):
+    ACCESS_TOKEN = 'ACCESS_TOKEN'
+
+
+
 class VaultResponse(object):
     SUCCESS = 200
     SUCCESS_NO_DATA = 204
@@ -6,4 +13,4 @@ class VaultResponse(object):
     INVALID__PATH = 404
     HEALTH_STATUS = 429
     INTERNAL_ERROR = 500
-    VAULT_MAINTENANCE = 503
+    VAULT_MAINTENANCE = 503  # or sealed..

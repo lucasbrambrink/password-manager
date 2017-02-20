@@ -1,7 +1,8 @@
 import requests
 import json
 import os
-from .conf import VaultResponse
+import uuid
+from .conf import VaultResponse, Env
 
 
 class VaultAPI(object):
@@ -13,29 +14,32 @@ class VaultAPI(object):
     """
     PORT = u'8200'
     HOST = u'127.0.0.1'
-    PROTOCOL = u'https'
+    PROTOCOL = u'http'  # should be https in prod obviously
     VERSION = u'v1'
 
-    def __init__(self, token_key):
-        self.token_key = token_key
+    def __init__(self):
         self.token = self.get_vault_token()
 
-    def get_vault_token(self):
-        key = os.environ(self.token_key)
-        if key is None:
+    @staticmethod
+    def get_vault_token():
+        try:
+            key = os.environ[Env.ACCESS_TOKEN]
+        except KeyError:
             raise Exception(u'Unable to retrieve token')
 
         return key
 
-    def get_url(self, mount, key):
-        return u'{protocol}://{host}:{port}/{version}/{mount}/{key}'.format(
-            protocol=self.PROTOCOL,
-            host=self.HOST,
-            port=self.PORT,
-            version=self.VERSION,
-            mount=mount,
-            key=key
+    @classmethod
+    def get_url_base(cls):
+        return u'{protocol}://{host}:{port}/{version}'.format(
+            protocol=cls.PROTOCOL,
+            host=cls.HOST,
+            port=cls.PORT,
+            version=cls.VERSION,
         )
+
+    def get_url(self, url):
+        return '{}{}'.format(self.get_url_base(), url)
 
     def get_headers(self, is_post=False):
         """ add access token for unsealed vault """
@@ -47,20 +51,23 @@ class VaultAPI(object):
 
         return header
 
-    def read(self):
-        url = self.get_url(u'secret', u'foo')
+    def vget(self, url):
         return requests.get(url, headers=self.get_headers())
 
+    def vpost(self, url, data):
+        return requests.post(url, data, headers=self.get_headers(True))
+
+    def read(self):
+        url = self.get_url(u'secret/foo')
+        return self.vget(url)
+
     def write(self, dict_obj):
-        url = self.get_url(u'secret', u'foo')
+        url = self.get_url(u'secret/foo')
         if u'value' not in dict_obj:
             raise Exception(u'Unable to write to vault. Incorrect formatting')
 
         data = json.dumps(dict_obj)
-        return requests.post(
-            url,
-            data=data,
-            headers=self.get_headers(True))
+        return self.vpost(url, data)
 
     @classmethod
     def handle_response(cls, response):
@@ -78,13 +85,55 @@ class VaultAPI(object):
     def update(self):
         pass
 
+    ## AppRoleAPI(object):
+    """
+    Role interface w/ Vault to gain temporary access tokens
+    """
+    def enable(self):
+        url = self.get_url(u'sys/auth/approle')
+        return self.vpost(url, {
+            'type': "approle"
+        })
+
+    def create_approle(self, role_name):
+        url = self.get_url(u'auth/approle/role/{}'.format(role_name))
+        data = {
+            'policies': "dev-policy,test-policy"
+        }
+        return self.vpost(url, data)
+
+    def get_role_id(self, role_name):
+        url = self.get_url(u'auth/approle/role/{}/role-id'.format(role_name))
+        return self.vget(url)
+
+    def create_secret_id(self, role_name):
+        url = self.get_url(u'auth/approle/role/{}/secret-id'.format(role_name))
+        return self.vpost(url, {})
+
+    def login(self, role_id, secret_id):
+        url = self.get_url(u'auth/approle/login')
+        data = {
+            'role_id': role_id,
+            'secret_id': secret_id
+        }
+        return self.vpost(url, data)
+
+
+
+
+
+
+
+
+
+
 
 class GuidSource(object):
 
-
     @staticmethod
     def generate():
-        return u'asdfasdfads'
+        """generate based on hostname and current time"""
+        return str(uuid.uuid1())
 
 
 # from Crypto.Hash import SHA512

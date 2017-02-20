@@ -89,3 +89,6 @@ ENV/
 .ropeproject
 venv/
 .idea/
+*.zip
+.vagrant/
+.DS_STORE

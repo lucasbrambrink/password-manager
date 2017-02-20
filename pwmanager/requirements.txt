@@ -1,9 +1,0 @@
-Django==1.10.5
-psycopg2==2.6.2
-crypto==1.4.1
-Django==1.10.5
-Naked==0.1.31
-psycopg2==2.6.2
-PyYAML==3.12
-requests==2.13.0
-shellescape==3.4.1
