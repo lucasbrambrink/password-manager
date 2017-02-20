@@ -5,6 +5,12 @@ from django.contrib.auth.models import AbstractBaseUser
 from .utils import GuidSource
 
 
+class LoginAttempt(models.Model):
+    username = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    success = models.BooleanField(default=False)
+
+
 class PasswordEntity(models.Model):
     password = models.ForeignKey(to='Password')
     guid = models.CharField(max_length=255, unique=True)
@@ -47,7 +53,7 @@ class VaultUser(AbstractBaseUser):
     django user entity that maps 1-to-1 to Vault mount
     """
     vault = models.OneToOneField(to=Vault)
-    guid = models.CharField(max_length=255)
+    guid = models.CharField(max_length=255, default=u'')
 
     def save(self, *args, **kwargs):
         if self.vault is None:
