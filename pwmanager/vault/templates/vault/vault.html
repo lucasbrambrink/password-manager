@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block body %}
-<h1>Hello</h1>
+<h1>Hello, {{ user_name }}</h1>
 
 <section class="crud">
 
@@ -18,7 +18,8 @@
   </article>
 </section>
 
-
+<input type="hidden" id="guid" value="{{ guid }}">
+<input type="hidden" id="nonce" value="{{ nonce }}">
 {% endblock body %}
 
 

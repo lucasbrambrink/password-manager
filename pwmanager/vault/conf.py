@@ -1,8 +1,20 @@
-
+import os
 
 class Env(object):
     ACCESS_TOKEN = 'ACCESS_TOKEN'
+    APP_HANDLER_TOKEN = u'APP_HANDLER_TOKEN'
+    USER_CREATOR_TOKEN = u'USER_CREATOR_TOKEN'
 
+    @staticmethod
+    def set_var(key, token):
+        os.environ[key] = token
+
+    @staticmethod
+    def get_var(key):
+        try:
+            return os.environ[key]
+        except KeyError:
+            return None
 
 
 class VaultResponse(object):

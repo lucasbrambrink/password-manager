@@ -9,7 +9,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class VaultApi(object):
+class VaultConnection(object):
     """
     interacts w vault over HTTP (more secure than CLI?)
     over localhost
@@ -84,69 +84,182 @@ class VaultApi(object):
         log.debug(data.decode('utf-8'))
         return self.handle_response(response)
 
-    def read(self):
-        url = self.get_url(u'secret/foo')
-        return self.vget(url)
-
-    def write(self, dict_obj):
-        url = self.get_url(u'secret/foo')
-        if u'value' not in dict_obj:
-            raise Exception(u'Unable to write to vault. Incorrect formatting')
-
-        return self.vpost(url, dict_obj)
-
     @classmethod
     def handle_response(cls, response):
         if response.status_code == VaultResponse.SUCCESS:
+            log.info(response.json())
             return response.json()
         else:
             log.warn(u'RESPONSE: {}'.format(response.status_code))
             log.warn(response.content)
             return response.content
 
-    def get_password(self):
-        pass
-
-    def delete(self):
-        pass
-
-    def update(self):
-        pass
 
 
-class RoleApi(VaultApi):
+class TokenApi(object):
+    PATH = u'auth/token'
+    CREATE = u'create'
+    LOOKUP = u'lookup'
+    LOOKUP_SELF = u'lookup-self'
+
+    #custom policies
+    APP_HANDLER = u'app-handler'
+    USER_CREATOR = u'user-creator'
+
+    @classmethod
+    def create_application_token(cls, root):
+        """
+        degraded token without root privileges
+        for application to use to connect to vault
+        and delegate approle
+        """
+        return cls.create_token(root, cls.APP_HANDLER, Env.APP_HANDLER_TOKEN)
+
+    @classmethod
+    def lookup_token(cls, root, token):
+        v = VaultConnection(root)
+        url = v.get_url(os.path.join(cls.PATH, cls.LOOKUP, token))
+        return v.vget(url)
+
+    @classmethod
+    def create_token(cls, root, policies, key):
+        v = VaultConnection(token=root)
+        url = v.get_url(os.path.join(cls.PATH, cls.CREATE))
+        data = {
+            "policies": [policies]
+        }
+        resp = v.vpost(url, data)
+        token = None
+        if type(resp) is dict:
+            token = resp\
+                .get(u'auth', {})\
+                .get(u'client_token', None)
+
+        if token is not None:
+            Env.set_var(key, token)
+        return token
+
+
+    @classmethod
+    def create_user_creator_token(cls, root):
+        """
+        degraded token without root privileges
+        for application to use to connect to vault
+        and delegate approle
+        """
+        return cls.create_token(root, cls.USER_CREATOR, Env.USER_CREATOR_TOKEN)
+
+    def __init__(self, root):
+        self.create_application_token(root)
+        self.create_user_creator_token(root)
+
+
+
+class PolicyConfig(object):
+
+    def __init__(self, path, policy_name=None, capabilities=None):
+        self.path = path
+        self.policy_name = policy_name
+        self.capabilities = capabilities or []
+
+
+class Policy(object):
+
+    def __init__(self, name, rules=None):
+        self.name = name
+        self.rules = rules or []
+
+
+class PolicyApi(object):
+    POLICY_URL = u'sys/policy'
+    WRITE = u'write'
+    CREATE = u'create'
+    UPDATE = u'update'
+    DELETE = u'delete'
+    PATH = u'path'
+
+    # custom policies
+    @classmethod
+    def app_handler(cls):
+        policy = PolicyConfig(u'auth/approle/role/*', cls.WRITE, None)
+        return Policy(
+            u'app-handler',
+            [policy]
+        )
+
+    @classmethod
+    def user_creator(cls):
+        policy_config = PolicyConfig(u'secret/*', None, [cls.UPDATE])
+        return Policy(
+            u"user-creator",
+            [policy_config]
+        )
+
+    @classmethod
+    def generate(cls, path, policy_name=None, capabilities=None):
+        hcl = u'path "%s" { ' % path
+        if policy_name is not None:
+            hcl += u'policy = "{}" '.format(policy_name)
+        if capabilities is not None and type(capabilities) is iter:
+            hcl += u'capabilities = ["{}"]'.format(u", ".join(capabilities))
+        hcl += "}"
+        return hcl
+
+    @classmethod
+    def create(cls, api, policy):
+        url = api.get_url(u'{}/{}'.format(cls.POLICY_URL, policy.name))
+        return api.vpost(url, {
+            "rules": " ".join([
+                cls.generate(p.path, p.policy_name, p.capabilities)
+                for p in policy.rules
+            ])
+        })
+
+    @classmethod
+    def initialize_required_policies(cls, root_token):
+        """run once per vault"""
+        api = VaultConnection(root_token)
+        cls.create(api, cls.app_handler())
+        cls.create(api, cls.user_creator())
+
+
+class AppRoleApi(object):
     """
-    Role interface w/ Vault to gain temporary access tokens
+    AppRole interface w/ Vault to gain temporary access tokens for users
+
+    Notes:
+        policy and role have the same name
     """
+    APP_ROLE_URL = u'auth/approle'
+    ROLE = u'role'
+
+    def __init__(self):
+        self.token = Env.get_var(Env.APP_HANDLER_TOKEN)
+        self.api = VaultConnection(token=self.token)
+
     def enable_approle(self):
-        url = self.get_url(u'sys/auth/approle')
-        return self.vpost(url, {
+        url = self.api.get_url(u'sys/auth/approle')
+        return self.api.vpost(url, {
             'type': "approle"
         })
 
-    def generate_policy_hcl(self, policy_name):
-        """grant user write permission to their own subdirectory"""
-        return u'path "secret/%s/*" { policy = "write" }' % policy_name
-
-    def create_policy(self, policy_name):
-        url = self.get_url(u'sys/policy/{}'.format(policy_name))
-        data = {"rules": self.generate_policy_hcl(policy_name)}
-        return self.vput(url, data)
-
-    def create_approle(self, user_name):
-        # 1-to-1 mapping of user to role, access to single path
-        # generate policy for this user
-        policy_name = u'user{}'.format(user_name)
-        self.create_policy(policy_name)
-        url = self.get_url(u'auth/approle/role/{}'.format(policy_name))
-        return self.vpost(url, {
-            'policies': policy_name
+    def create_app_role_for_user(self, role_name):
+        url = self.api.get_url(os.path.join(self.APP_ROLE_URL, self.ROLE, role_name))
+        self.api.vpost(url, {
+            "policies": role_name
         })
 
-    # Login
-    def get_role_id(self, user_name):
-        url = self.get_url(u'auth/approle/role/user{}/role-id'.format(user_name))
-        resp = self.vget(url)
+    def get_user_access_token(self, role_name):
+        role_id = self.get_role_id(role_name)
+        secret_id = self.create_secret_id(role_name)
+        if None in (role_id, secret_id):
+            return None
+
+        return self.login(role_id, secret_id)
+
+    def get_role_id(self, role_name):
+        url = self.api.get_url(u'auth/approle/role/{}/role-id'.format(role_name))
+        resp = self.api.vget(url)
 
         role_id = None
         if type(resp) is dict:
@@ -156,9 +269,9 @@ class RoleApi(VaultApi):
 
         return role_id
 
-    def create_secret_id(self, user_name):
-        url = self.get_url(u'auth/approle/role/user{}/secret-id'.format(user_name))
-        resp = self.vpost(url, {})
+    def create_secret_id(self, role_name):
+        url = self.api.get_url(u'auth/approle/role/{}/secret-id'.format(role_name))
+        resp = self.api.vpost(url, {})
         secret_id = None
         if type(resp) is dict:
             secret_id = resp\
@@ -168,24 +281,48 @@ class RoleApi(VaultApi):
         return secret_id
 
     def login(self, role_id, secret_id):
-        url = self.get_url(u'auth/approle/login')
+        url = self.api.get_url(u'auth/approle/login')
         data = {
             'role_id': role_id,
             'secret_id': secret_id
         }
-        return self.vpost(url, data)
+        resp = self.api.vpost(url, data)
+        token = None
+        print(resp)
+        if type(resp) is dict:
+            token = resp\
+                .get(u'auth', {})\
+                .get(u'client_token', None)
+        return token
+
+
+class CreateUserPolicyApi(object):
+
+    def __init__(self):
+        self.token = Env.get_var(Env.USER_CREATOR_TOKEN)
+        self.api = VaultConnection(self.token)
+
+    def create_policy_for_user(self, role_name):
+        config = PolicyConfig(
+            path=u'secret/{}/*'.format(role_name),
+            policy_name=PolicyApi.WRITE,
+        )
+        policy = Policy(
+            name=role_name,
+            rules=[config]
+        )
+        return PolicyApi.create(self.api, policy)
 
 
 class UserApi(object):
 
-    def __init__(self, username, token):
-        self.username = username
-        self.pathname = u'user{}'.format(username)
-        self.api = VaultApi(token)
+    def __init__(self, role_name, token):
+        self.role_name = role_name
+        self.api = VaultConnection(token)
 
     @property
     def base_path(self):
-        return self.api.get_url(u'secret/{}/'.format(self.pathname))
+        return self.api.get_url(u'secret/{}/'.format(self.role_name))
 
     @staticmethod
     def get_data(resp):
@@ -208,8 +345,6 @@ class UserApi(object):
         return self.get_data(resp)
 
 
-
-
 class GuidSource(object):
 
     @staticmethod
@@ -218,57 +353,3 @@ class GuidSource(object):
                 - sufficient to avoid clashes
         """
         return str(uuid.uuid1())
-
-
-# from Crypto.Hash import SHA512
-# from Crypto.Cipher import AES
-# from Crypto.Util import randpool
-#
-#
-# class HashingHandler(object):
-#     SALT_SIZE = 126
-#     ITERATIONS = 20
-#     AES_BYTE_LENGTH = 16
-#
-#     @classmethod
-#     def generate_key(cls, encryption_key, salt):
-#         key = encryption_key + salt
-#         for i in range(cls.ITERATIONS):
-#             key = SHA512.new(key).digest()
-#
-#         return key
-#
-#     @classmethod
-#     def pad_key(cls, key):
-#         extra_bytes = len(key) % cls.AES_BYTE_LENGTH
-#         padding_size = cls.AES_BYTE_LENGTH - extra_bytes
-#         padding = chr(padding_size) * padding_size
-#         return key + padding
-#
-#     @classmethod
-#     def strip_padding(cls, padded_key):
-#         padding_size = ord(padded_key[-1])
-#         return padded_key[:-padding_size]
-#
-#     @classmethod
-#     def get_salt(cls):
-#         pool = randpool.RandomPool()
-#         return pool.get_bytes(cls.SALT_SIZE)
-#
-#     @classmethod
-#     def encrypt(cls, plain_text, encryption_key):
-#         salt = cls.get_salt()
-#         key = cls.generate_key(encryption_key, salt)
-#         key = cls.pad_key(key)
-#         cipher = AES.new(key, AES.MODE_ECB)
-#         cipher_text = cipher.encrypt(plain_text)
-#         return salt + cipher_text
-#
-#     @classmethod
-#     def decrypt(cls, cipher_text, encryption_key):
-#         salt, ctext = cipher_text[:cls.SALT_SIZE], cipher_text[cls.SALT_SIZE:]
-#         key = cls.generate_key(encryption_key, salt)
-#         cipher = AES.new(key, AES.MODE_ECB)
-#         return cipher.decrypt(ctext)
-#
-#
