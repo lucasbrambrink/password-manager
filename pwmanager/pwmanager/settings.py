@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'vault'
 ]
 
+AUTH_USER_MODEL = 'vault.VaultUser'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -147,14 +149,14 @@ LOGGING = {
         #     'class': 'django.utils.log.AdminEmailHandler',
         # },
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',
             'propagate': True,
         },
     },

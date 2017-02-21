@@ -1,7 +1,8 @@
 
-<a href="{% url 'registration' %}">Don't have an account? Sign up.</a>
+<a href="{% url 'auth' %}">Already have an account? Login.</a>
 
-<form action="{% url 'auth' %}" method="post">
+
+<form action="{% url 'registration' %}" method="post">
     {% csrf_token %}
 
     {% if error %}
