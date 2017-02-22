@@ -13,14 +13,12 @@
   <article v-for="password in passwords">
     <div class="">
       <span v-text="password.name"></span>
-      <button v-on:click="requestPassword" data-key="password.key">Show</button>
+      <button v-on:click="requestPassword" v-bind:data-key="password.key">Show</button>
     </div>
   </article>
 </section>
 
-<input type="hidden" id="guid" value="{{ guid }}">
-<input type="hidden" id="nonce" value="{{ nonce }}">
-
+{% csrf_token %}
 {% endblock body %}
 
 

@@ -33,8 +33,6 @@ class Authenticate(object):
             return False, None, None
 
         # yield new nonce if last one was correct
-        import ipdb
-        ipdb.set_trace()
         return True, nonce, key
 
     @staticmethod
@@ -166,6 +164,7 @@ class VaultView(TemplateView):
 
         Authenticate.store_nonce(request, nonce)
         vu = VaultUser.objects.get(guid=guid)
+        print(nonce)
         return render(request, self.template_name, {
             u'user_name': vu.username,
             u'guid': vu.guid,

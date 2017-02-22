@@ -14,15 +14,23 @@ function requestPassword() {
 
 var passwords = [{
     name: "Password 1",
-    publicKey: "passwordId",
+    key: "passwordId",
 },{
     name: "Password 2",
-    publicKey: "password2Id",
+    key: "password2Id",
 }];
 
 var AuthSouce = (function($) {
+    var csrfToken = function () {
+        $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+            var token = $('input[name=csrfmiddlewaretoken]').val();
+            jqXHR.setRequestHeader('X-CSRFToken', token);
+        });
+    };
+
     var callService = function (url, data, callback) {
         callback = callback || function () {};
+        csrfToken();
         $.ajax({
             url: url,
             dataType: 'JSON',
@@ -37,6 +45,7 @@ var AuthSouce = (function($) {
     };
 
     return {
+        csrf: csrfToken,
         service: callService,
     };
 
@@ -60,8 +69,7 @@ var vmVault = new Vue({
         },
         requestPassword: function (event) {
             var key = $(event.target).attr('data-key');
-            this.requestNonce();
-
+            this.requestData({'key': key});
         },
             // get password from server using nonce
         requestData: function(data) {
@@ -72,6 +80,7 @@ var vmVault = new Vue({
                 this.requestDataCallback);
         },
         requestDataCallback: function (response) {
+            console.log(response);
             if (response.success) {
                 vmVault.showPassword(response.value)
             } else {

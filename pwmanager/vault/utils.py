@@ -420,8 +420,6 @@ class AuthCache(object):
         if match:
             cls.delete(nonce)
             session_key = cls.get_encryption_key()
-            import ipdb
-            ipdb.set_trace()
             key = SymmetricEncryption.decrypt(session_key, key_token)
             nonce = cls.set_nonce(key)
         else:
