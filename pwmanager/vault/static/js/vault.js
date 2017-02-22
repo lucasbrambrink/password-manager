@@ -45,6 +45,40 @@ var AuthSouce = (function($) {
 
 })(jQuery);
 
+var GeneratePassword = (function () {
+
+
+    var rchoose = function(array) {
+        return array[Math.floor(Math.random() * array.length)];
+    };
+
+    var generatePassword = function(length) {
+        var lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        var upppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        var numbers = '1234567890';
+        var symbols = '!@#$%^&*+=?';
+        var choices = [
+            lowercase,
+            upppercase,
+            numbers,
+            symbols
+        ];
+
+        var password = [],
+            category;
+        for (var x = 0; x < length; x++) {
+            category = rchoose(choices);
+            password.push(rchoose(category));
+        }
+
+        return password.join('');
+    };
+
+    return {
+        generate: generatePassword
+    };
+})();
+
 var vmVault = new Vue({
     el: '#vault',
     data: {
@@ -54,7 +88,12 @@ var vmVault = new Vue({
         showCreatePassword: false,
         create: {
             name: '',
-            password: ''
+            password: '',
+            type: 'password',
+            TYPES: {
+                PASSWORD: 'password',
+                TEXT: 'text'
+            }
         }
     },
     created: function () {
@@ -96,6 +135,10 @@ var vmVault = new Vue({
                 this.createPasswordCallback
             )
         },
+        generatePassword: function() {
+            this.create.password = GeneratePassword.generate(16);
+            this.create.type = this.create.TYPES.TEXT;
+        },
         createPasswordCallback: function (response) {
             console.log(response);
             if (response.success) {
@@ -110,7 +153,8 @@ var vmVault = new Vue({
                 password: this.create.password,
                 guid: this.guid
             };
-            this.create = {};
+            this.create.password = null;
+            this.create.name = null;
             return data;
         },
         loadPasswords: function () {
@@ -129,7 +173,7 @@ var vmVault = new Vue({
                             name: model.fields.name
                         }
                     });
-            }
+             }
         }
 
     }

@@ -24,8 +24,9 @@
     <button v-on:click="showCreatePassword = true">Create new password</button>
     <form v-on:submit.prevent="createPassword" v-show="showCreatePassword">
       <input type="text" name="name" v-model="create.name" />
-      <input type="password" name="password" v-model="create.password" />
+      <input v-bind:type="create.type" name="password" v-model="create.password" />
       <input type="submit" value="Create" />
+      <button type="button" v-on:click.prevent="generatePassword">Generate</button>
     </form>
   </section>
 

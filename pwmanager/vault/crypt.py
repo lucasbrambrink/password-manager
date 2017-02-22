@@ -1,5 +1,7 @@
 from cryptography.fernet import Fernet
 import hashlib
+import random
+
 
 class SymmetricEncryption(object):
 
@@ -22,3 +24,23 @@ class SymmetricEncryption(object):
     @staticmethod
     def hash(key):
         return hashlib.sha512(key).hexdigest()
+
+    @staticmethod
+    def generate_password(length=16):
+        lowercase = u'abcdefghijklmnopqrstuvwxyz'
+        upppercase = u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        numbers = '1234567890'
+        symbols = '!@#$%^&*+=?'
+        choices = [
+            lowercase,
+            upppercase,
+            numbers,
+            symbols
+        ]
+
+        password = []
+        for x in range(length):
+            category = random.choice(choices)
+            password.append(random.choice(category))
+
+        return u''.join(password)
