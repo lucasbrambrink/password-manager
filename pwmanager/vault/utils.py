@@ -93,6 +93,9 @@ class VaultConnection(object):
         if response.status_code == VaultResponse.SUCCESS:
             log.info(response.json())
             return response.json()
+        elif response.status_code == VaultResponse.SUCCESS_NO_DATA:
+            log.info(response)
+            return {}
         else:
             log.warn(u'RESPONSE: {}'.format(response.status_code))
             log.warn(response.content)
@@ -346,7 +349,7 @@ class UserApi(object):
         resp = self.api.vpost(url, {
             'value': value
         })
-        return self.get_data(resp)
+        return type(resp) is dict
 
 
 class AuthCache(object):

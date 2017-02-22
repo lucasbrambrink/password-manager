@@ -1,3 +1,6 @@
 label {
   display: block;
 }
+[v-cloak] {
+  display: none;
+}

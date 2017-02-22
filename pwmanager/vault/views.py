@@ -2,11 +2,15 @@ from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.views.generic import TemplateView, View
 from django.http import JsonResponse
-from .models import LoginAttempt, VaultUser
+from .models import LoginAttempt, VaultUser, PasswordEntity, Password
 from .forms import LoginForm, RegistrationForm
-from .utils import AppRoleApi, AuthCache, UserApi
+from .utils import AppRoleApi, AuthCache, UserApi, GuidSource
 import logging
 import datetime
+import json
+from urllib import parse
+from django.core import serializers
+
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +27,9 @@ class Authenticate(object):
         if not request.user.is_authenticated:
             return False, None, None
 
-        nonce = request.session.pop('nonce')
-        if not nonce:
+        try:
+            nonce = request.session.pop('nonce')
+        except KeyError:
             return False, None, None
 
         # check nonce and generate new one
@@ -88,6 +93,7 @@ class AuthenticationView(TemplateView):
         attempts = LoginAttempt.objects\
             .filter(email=email)\
             .filter(created__lte=datetime.datetime.now() - datetime.timedelta(hours=1))\
+            .filter(success=False)\
             .count()
         if attempts > 3:
             login_attempt.success = False
@@ -168,8 +174,41 @@ class VaultView(TemplateView):
         return render(request, self.template_name, {
             u'user_name': vu.username,
             u'guid': vu.guid,
-            u'passwords': []
         })
+
+
+
+
+
+class DataAccessResponse(object):
+
+    def __init__(self, success=False, data=None):
+        self.success = success
+        self.data = data
+
+
+class PasswordListView(View):
+
+    def get(self, request, guid, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('auth')
+
+        authenticated, nonce, key = Authenticate.check_authentication(request)
+        if not authenticated:
+            return redirect('auth')
+
+        Authenticate.store_nonce(request, nonce)
+        vu = VaultUser.objects.get(guid=guid)
+        passwords = vu.vault.password_set\
+            .all()\
+            .only('name', 'key')
+        return JsonResponse(DataAccessResponse(
+            success=True,
+            data={
+                'passwords': serializers.serialize('json', passwords)
+            }
+        ).__dict__)
+
 
 
 class DataAccessView(View):
@@ -178,10 +217,30 @@ class DataAccessView(View):
     """
 
     def return_none(self):
-        return JsonResponse({
-            'data': None,
-            'success': False
-        })
+        return JsonResponse(DataAccessResponse().__dict__)
+
+    def parse_json(self, request):
+        data = None
+        try:
+            decoded = parse.unquote(request.body.decode('utf-8'))
+            data = json.loads(decoded)
+        except ValueError:
+            pass
+        finally:
+            return data
+
+    def get_user(self, guid):
+        user = None
+        try:
+            user = VaultUser.objects.get(guid=guid)
+        except VaultUser.DoesNotExist:
+            pass
+        finally:
+            return user
+
+
+
+class DataAccessRead(DataAccessView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -191,31 +250,92 @@ class DataAccessView(View):
         if not authenticated:
             return self.return_none()
 
-        query = request.POST.get('query')
-        guid = request.POST.get('guid')
+        data = self.parse_json(request)
+        if not data:
+            return self.return_none()
+
+        query = data.get('query')
+        guid = data.get('guid')
         if None in (query, guid):
             return self.return_none()
 
-        try:
-            user = VaultUser.objects.get(guid=guid)
-        except VaultUser.DoesNotExist:
+        user = self.get_user(guid)
+        if not user:
             return self.return_none()
 
         token = AuthCache.get_token(key)
         access = UserApi(user.role_name, token)
+
+        try:
+            password = Password.objects.get(key=query)
+        except Password.DoesNotExist:
+            return self.return_none()
+
         response = access.read(query)
+        if not response:
+            return self.return_none()
 
-        Authenticate.store_nonce(nonce)
-        return JsonResponse({
-            'success': True,
-            'data': {
-                'value': response,
+        Authenticate.store_nonce(request, nonce)
+        return JsonResponse(DataAccessResponse(
+            success=True,
+            data={
+                'value': response.get('value'),
             }
-        })
+        ).__dict__)
 
 
+class DataAccessWrite(DataAccessView):
 
+    def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return self.return_none()
 
+        authenticated, nonce, key = Authenticate.check_authentication(request)
+        if not authenticated:
+            return self.return_none()
+
+        data = self.parse_json(request)
+        if not data:
+            return self.return_none()
+
+        name = data.get('name')
+        password = data.get('password')
+        guid = data.get('guid')
+
+        if None in (name, password, guid):
+            return self.return_none()
+
+        user = self.get_user(guid)
+        if not user:
+            return self.return_none()
+
+        token = AuthCache.get_token(key)
+        access = UserApi(user.role_name, token)
+
+        password_guid = GuidSource.generate()
+        success = access.write(password_guid, password)
+
+        if not success:
+            return self.return_none()
+
+        # todo: move to obejct manager
+        password = Password(
+            name=name,
+            vault=user.vault,
+            key=password_guid
+        )
+        password.save()
+        entity = PasswordEntity(
+            guid=password_guid,
+            password=password
+        )
+        entity.save()
+
+        Authenticate.store_nonce(request, nonce)
+        return JsonResponse(DataAccessResponse(
+            success=True,
+            data={}
+        ).__dict__)
 
 
 

@@ -9,16 +9,32 @@
 
 </section>
 
-<section class="vault" id="vault">
-  <article v-for="password in passwords">
-    <div class="">
-      <span v-text="password.name"></span>
-      <button v-on:click="requestPassword" v-bind:data-key="password.key">Show</button>
-    </div>
-  </article>
-</section>
+<main class="vault" id="vault" v-cloak>
+  <section class="passwords">
+
+    <article v-for="password in passwords">
+      <div class="">
+        <span v-text="password.name"></span>
+        <button v-on:click="requestPassword" v-bind:data-key="password.key">Show</button>
+      </div>
+    </article>
+  </section>
+
+  <section class="create-password">
+    <button v-on:click="showCreatePassword = true">Create new password</button>
+    <form v-on:submit.prevent="createPassword" v-show="showCreatePassword">
+      <input type="text" name="name" v-model="create.name" />
+      <input type="password" name="password" v-model="create.password" />
+      <input type="submit" value="Create" />
+    </form>
+  </section>
+
+</main>
 
 {% csrf_token %}
+
+<input type="hidden" id="guid" value="{{ guid }}" >
+
 {% endblock body %}
 
 

@@ -26,13 +26,6 @@ class PasswordEntity(models.Model):
     password = models.ForeignKey(to='Password')
     guid = models.CharField(max_length=255, unique=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
-    unique_identifier = models.CharField(max_length=255)
-
-    def save(self, *args, **kwargs):
-        if self.guid is None:
-            guid = GuidSource.generate()
-            self.guid = u'{}{}'.format(self.password.pk, guid)
-        super(VaultUser, self).save(*args, **kwargs)
 
 
 class Password(models.Model):
@@ -46,6 +39,7 @@ class Password(models.Model):
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
 
+    @property
     def current_password(self):
         return self.passwordentity_set.objects.first()
 
