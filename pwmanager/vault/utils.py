@@ -356,7 +356,7 @@ class AuthCache(object):
     @classmethod
     def set_new_encryption_key(cls):
         key = SymmetricEncryption.generate_key()
-        os.environ[cls.ENCRYPTION_KEY] = key
+        os.environ[cls.ENCRYPTION_KEY] = key.decode()
         return key
 
     @classmethod
@@ -420,6 +420,8 @@ class AuthCache(object):
         if match:
             cls.delete(nonce)
             session_key = cls.get_encryption_key()
+            import ipdb
+            ipdb.set_trace()
             key = SymmetricEncryption.decrypt(session_key, key_token)
             nonce = cls.set_nonce(key)
         else:

@@ -10,6 +10,7 @@ import datetime
 
 log = logging.getLogger(__name__)
 
+
 class Authenticate(object):
     """
     continuous exchange of nonce for new nonce
@@ -32,6 +33,8 @@ class Authenticate(object):
             return False, None, None
 
         # yield new nonce if last one was correct
+        import ipdb
+        ipdb.set_trace()
         return True, nonce, key
 
     @staticmethod
@@ -108,7 +111,7 @@ class AuthenticationView(TemplateView):
                 Authenticate.login_user(request, user)
                 login_attempt.success = True
                 login_attempt.save()
-                return redirect(u'vault', user_name=user.guid)
+                return redirect(u'vault', guid=user.guid)
 
         login_attempt.save()
         return render(request, self.template_name, {
