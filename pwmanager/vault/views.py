@@ -4,10 +4,60 @@ from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .models import LoginAttempt, VaultUser
 from .forms import LoginForm, RegistrationForm
+from .utils import AppRoleApi, AuthCache, UserApi
 import logging
 import datetime
 
 log = logging.getLogger(__name__)
+
+class Authenticate(object):
+    """
+    continuous exchange of nonce for new nonce
+        * ensures no possible cross-interference
+    """
+    NONCE = u'nonce'
+
+    @staticmethod
+    def check_authentication(request):
+        if not request.user.is_authenticated:
+            return False, None, None
+
+        nonce = request.session.pop('nonce')
+        if not nonce:
+            return False, None, None
+
+        # check nonce and generate new one
+        authenticated, nonce, key = AuthCache.digest_nonce(nonce)
+        if not authenticated:
+            return False, None, None
+
+        # yield new nonce if last one was correct
+        return True, nonce, key
+
+    @staticmethod
+    def initialize_vault_access_token(user):
+        app_role_api = AppRoleApi()
+        token = app_role_api.get_user_access_token(user.role_name)
+        nonce = None
+        if token is not None:
+            # create key, store encrypted
+            key = AuthCache.set_token(token)
+            # nonce points to encrypted key
+            nonce = AuthCache.set_nonce(key)
+
+        return nonce
+
+    @classmethod
+    def login_user(cls, request, user):
+        """
+        add nonce to session store
+        """
+        nonce = cls.initialize_vault_access_token(user)
+        cls.store_nonce(request, nonce)
+
+    @classmethod
+    def store_nonce(cls, request, nonce):
+        request.session[cls.NONCE] = nonce
 
 
 class AuthenticationView(TemplateView):
@@ -54,14 +104,11 @@ class AuthenticationView(TemplateView):
 
             else:
                 login(request, user)
-                vaulted = VaultUser.authenticate_to_vault(user.guid)
-                if not vaulted:
-                    login_attempt.success = False
-                    login_attempt.error_msg = login_attempt.UNABLE_TO_MOUNT
-                else:
-                    login_attempt.success = True
-                    login_attempt.save()
-                    return redirect(u'vault', user_name=user.guid)
+                # mount to vault
+                Authenticate.login_user(request, user)
+                login_attempt.success = True
+                login_attempt.save()
+                return redirect(u'vault', user_name=user.guid)
 
         login_attempt.save()
         return render(request, self.template_name, {
@@ -94,14 +141,8 @@ class RegistrationView(TemplateView):
                 password=password
             )
             login(request, vu)
-            vaulted = VaultUser.authenticate_to_vault(vu.guid)
-            if not vaulted:
-                raise Exception('Unable to connect to Vault. Misconfigured')
-
+            Authenticate.login_user(request, vu)
             return redirect(u'vault', user_name=vu.username)
-            # except Exception as exc:
-            #     error = u'Unable to register.. Sorry!'
-            #     log.warning(msg=exc)
 
         return render(request, self.template_name, {
             'form': RegistrationForm(),
@@ -112,62 +153,20 @@ class RegistrationView(TemplateView):
 class VaultView(TemplateView):
     template_name = u'vault/vault.html'
 
-    def get(self, request, user_name, *args, **kwargs):
+    def get(self, request, guid, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('auth')
 
-        vu = VaultUser.objects.get(guid=user_name)
+        authenticated, nonce, key = Authenticate.check_authentication(request)
+        if not authenticated:
+            return redirect('auth')
+
+        Authenticate.store_nonce(request, nonce)
+        vu = VaultUser.objects.get(guid=guid)
         return render(request, self.template_name, {
             u'user_name': vu.username,
             u'guid': vu.guid,
-            u'nonce': vu.hashed_nonce,
             u'passwords': []
-        })
-
-
-class Authenticate(View):
-    """
-    requires 1 nonce to yield 2nd one
-    """
-
-    def return_none(self):
-        return JsonResponse({'data': None, 'success': False})
-
-    @staticmethod
-    def authenticate(self, request):
-        if not request.user.is_authenticated:
-            return False, None
-
-        guid = request.POST.get('guid')
-        nonce = request.POST.get('nonce')
-
-        if None in (guid, nonce):
-            return False, None
-
-        try:
-            vu = VaultUser.objects.get(guid=guid)
-        except VaultUser.DoesNotExist:
-            return False, None
-
-        authenticated = vu.match_first_nonce(nonce)
-        if not authenticated:
-            return False, None
-
-        return True, vu
-
-    def post(self, request, *args, **kwargs):
-        is_authenticated, user = self.authenticate(request)
-        if not is_authenticated:
-            return self.return_none()
-
-        user.set_second_nonce()
-        return JsonResponse({
-            'success': True,
-            'data': {
-                'nonce': user.first_hash,
-                'guid': user.guid,
-                'second_nonce': user.second_hash,
-            }
         })
 
 
@@ -175,31 +174,42 @@ class DataAccessView(View):
     """
     requires 2 nonces
     """
+
     def return_none(self):
-        return JsonResponse({'data': None, 'success': False})
+        return JsonResponse({
+            'data': None,
+            'success': False
+        })
 
     def post(self, request, *args, **kwargs):
-        key = request.POST.get('key')
-        is_authenticated, user = Authenticate.authenticate(request)
-        if not is_authenticated or key is None:
+        if not request.user.is_authenticated:
             return self.return_none()
 
-        second_nonce = request.POST.get('second_nonce')
-        is_authenticated = user.match_second_nonce(second_nonce)
-        if not is_authenticated:
+        authenticated, nonce, key = Authenticate.check_authentication(request)
+        if not authenticated:
             return self.return_none()
 
-        access = user.get_authenticated_access()
-        response = access.read(key)
+        query = request.POST.get('query')
+        guid = request.POST.get('guid')
+        if None in (query, guid):
+            return self.return_none()
 
-        # reset nonce per access
-        user.set_nonce(True)
+        try:
+            user = VaultUser.objects.get(guid=guid)
+        except VaultUser.DoesNotExist:
+            return self.return_none()
+
+        token = AuthCache.get_token(key)
+        access = UserApi(user.role_name, token)
+        response = access.read(query)
+
+        Authenticate.store_nonce(nonce)
         return JsonResponse({
             'success': True,
             'data': {
-                'nonce': user.first_hash,
                 'value': response,
-            }})
+            }
+        })
 
 
 

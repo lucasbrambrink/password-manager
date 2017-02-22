@@ -36,17 +36,8 @@ var AuthSouce = (function($) {
         });
     };
 
-    var requestSecondNonce = function (guid, nonce, callback) {
-        var url = '/auth/' + guid;
-        return callService(url, {
-            guid: guid,
-            nonce: nonce
-        }, callback)
-    };
-
     return {
         service: callService,
-        updateNonce: requestUpdatedNonce
     };
 
 })(jQuery);
@@ -66,28 +57,19 @@ var vmVault = new Vue({
     methods: {
         showPassword: function(password) {
             window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
+        },
+        requestPassword: function (event) {
+            var key = $(event.target).attr('data-key');
+            this.requestNonce();
 
         },
-        requestPassword: function () {
-            // get nonce from server
-            this.requestNonce();
             // get password from server using nonce
-            //var password = "Password123";
-            //this.showPassword(password);
-        },
-        requestSecondNonceCallback: function (response) {
-            if (response.success) {
-                var first_hash = response.data.nonce;
-                var second_hash = response.data.second_nonce;
-                var url = '/auth/request-access';
-                return AuthSouce.service(url, {
-                    nonce: first_hash,
-                    second_none: second_hash,
-                    guid: vmVault.guid
-                }, vmVault.requestDataCallback)
-            } else {
-                vmVault.error = true;
-            }
+        requestData: function(data) {
+            var url = '/auth/data';
+            return AuthSouce.service(
+                url,
+                data,
+                this.requestDataCallback);
         },
         requestDataCallback: function (response) {
             if (response.success) {
@@ -95,13 +77,6 @@ var vmVault = new Vue({
             } else {
                 vmVault.error = true;
             }
-        },
-        requestNonce: function () {
-            var url = '/auth/request-nonce';
-            return AuthSouce.service(url, {
-                guid: this.guid,
-                nonce: this.nonce
-            }, this.requestSecondNonceCallback);
         }
     }
 });

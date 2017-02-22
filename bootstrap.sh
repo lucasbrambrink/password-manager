@@ -22,3 +22,15 @@ wget https://releases.hashicorp.com/vault/0.6.5/vault_0.6.5_linux_amd64.zip
 
 consul agent -server -bootstrap-expect 1 -data-dir /tmp/consul -bind 127.0.0.1
 export VAULT_ADDR='http://127.0.0.1:8200'
+
+# R
+wget http://download.redis.io/redis-stable.tar.gz
+tar xvzf redis-stable.tar.gz
+cd redis-stable
+make
+
+
+
+screen -S vault
+screen -S consul
+screen -S redis

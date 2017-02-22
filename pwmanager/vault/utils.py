@@ -4,6 +4,10 @@ import os
 import uuid
 from .conf import VaultResponse, Env
 from requests_toolbelt.utils import dump
+from django.core.cache import cache
+from .crypt import SymmetricEncryption
+from django.conf import settings
+
 import logging
 
 log = logging.getLogger(__name__)
@@ -343,6 +347,87 @@ class UserApi(object):
             'value': value
         })
         return self.get_data(resp)
+
+
+class AuthCache(object):
+    # todo: rotate keys
+    ENCRYPTION_KEY = u'SECRET_KEY'
+
+    @classmethod
+    def set_new_encryption_key(cls):
+        key = SymmetricEncryption.generate_key()
+        os.environ[cls.ENCRYPTION_KEY] = key
+        return key
+
+    @classmethod
+    def get_encryption_key(cls):
+        try:
+            return os.environ[cls.ENCRYPTION_KEY]
+        except KeyError:
+            return cls.set_new_encryption_key()
+
+    @staticmethod
+    def get(key):
+        return cache.get(key)
+
+    @staticmethod
+    def delete(key):
+        return cache.delete(key)
+
+    @staticmethod
+    def set(key, value, timeout=None):
+        return cache.set(key, value, timeout)
+
+    @classmethod
+    def set_token(cls, token):
+        key = SymmetricEncryption.generate_key()
+        hashed_key = SymmetricEncryption.hash(key)
+
+        encrypted_token = SymmetricEncryption.encrypt(key, token)
+        cls.set(hashed_key, encrypted_token)
+
+        return key
+
+    @classmethod
+    def get_token(cls, key):
+        hashed_key = SymmetricEncryption.hash(key)
+        encrypted_token = cls.get(hashed_key)
+
+        token = None
+        if encrypted_token is not None:
+            token = SymmetricEncryption.decrypt(key, encrypted_token)
+
+        return token
+
+    @classmethod
+    def set_nonce(cls, key):
+        """
+        set
+        """
+        session_key = cls.get_encryption_key()
+        nonce = GuidSource.generate()
+        cls.set(nonce, SymmetricEncryption.encrypt(session_key, key))
+        return nonce
+
+    @classmethod
+    def digest_nonce(cls, nonce):
+        """ consumes nonce and generates new one
+            performs carry-over for token
+        """
+        key_token = cls.get(nonce)
+        match = key_token is not None
+        key = None
+        if match:
+            cls.delete(nonce)
+            session_key = cls.get_encryption_key()
+            key = SymmetricEncryption.decrypt(session_key, key_token)
+            nonce = cls.set_nonce(key)
+        else:
+            nonce = None
+
+        return match, nonce, key
+
+
 
 
 class GuidSource(object):

@@ -92,3 +92,4 @@ venv/
 *.zip
 .vagrant/
 .DS_STORE
+redis-stable*
