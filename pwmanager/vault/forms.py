@@ -3,8 +3,9 @@ from .models import VaultUser
 
 
 class LoginForm(forms.ModelForm):
-    email = forms.CharField(label=u'Email', max_length=255)
-    password = forms.CharField(widget=forms.PasswordInput())
+    email = forms.CharField(max_length=255,
+                            widget=forms.TextInput(attrs={'placeholder': 'Email', 'name': ''}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
 
     class Meta:
         model = VaultUser
@@ -12,9 +13,13 @@ class LoginForm(forms.ModelForm):
 
 
 class RegistrationForm(forms.ModelForm):
-    email = forms.CharField(label='Email', max_length=255)
-    username = forms.CharField(label=u'Username', max_length=255)
-    password = forms.CharField(label=u'Password', widget=forms.PasswordInput(), max_length=255)
+    email = forms.CharField(max_length=255,
+                            widget=forms.TextInput(attrs={
+                                'placeholder': 'Email'}))
+    username = forms.CharField(max_length=255,
+                               widget=forms.TextInput(attrs={'placeholder': 'Username'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}),
+                               max_length=255)
 
     class Meta:
         model = VaultUser

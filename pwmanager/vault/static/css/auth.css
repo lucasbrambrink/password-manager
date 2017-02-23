@@ -1,6 +1,262 @@
-label {
-  display: block;
-}
 [v-cloak] {
   display: none;
+}
+body.login {
+  background: url(../images/login.png) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+body.registration {
+  background: url(../images/ElkLakeBC.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+body.registration {
+  background: url(../images/ElkLakeBC.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+body.vault {
+  background: url(../images/zion_down.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+.login .container,
+.registration .container {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  -webkit-justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+  height: 100vh;
+}
+.login main,
+.registration main {
+  color: #fcfcfc;
+  font-family: 'Open Sans', Arial, sans-serif;
+  background: rgba(26, 25, 51, 0.35);
+  width: 65%;
+  height: 60%;
+  padding: 5%;
+}
+.login header,
+.registration header {
+  height: 30%;
+}
+.login article,
+.registration article {
+  height: 70%;
+}
+.login form,
+.registration form {
+  width: 75%;
+  margin: 0 auto;
+}
+.login form label,
+.registration form label {
+  display: none;
+}
+.login form label.error,
+.registration form label.error {
+  display: block;
+  color: #ff6868;
+}
+.login form input,
+.registration form input {
+  margin: 5px 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 18px;
+  padding: 10px 45px;
+}
+.login form input:focus,
+.registration form input:focus {
+  outline: none;
+}
+.login form input::-webkit-input-placeholder,
+.registration form input::-webkit-input-placeholder {
+  color: #fcfcfc;
+}
+.login form input:-moz-placeholder,
+.registration form input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #fcfcfc;
+}
+.login form input::-moz-placeholder,
+.registration form input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #fcfcfc;
+}
+.login form input:-ms-input-placeholder,
+.registration form input:-ms-input-placeholder {
+  color: #fcfcfc;
+}
+.login form input[name=email],
+.registration form input[name=email] {
+  background: url(../icons/mail.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
+.login form input[name=password],
+.registration form input[name=password] {
+  background: url(../icons/padlock.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
+.login form input[name=username],
+.registration form input[name=username] {
+  background: url(../icons/user.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
+.login form input[type=submit],
+.registration form input[type=submit] {
+  margin: 10px 0 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+.login form input[type=submit]:hover,
+.registration form input[type=submit]:hover,
+.login form input[type=submit]:focus,
+.registration form input[type=submit]:focus {
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 130ms ease-in;
+  color: #fcfcfc;
+}
+.vault .container {
+  display: -webkit-flex;
+  display: flex;
+  justify-content: center;
+  -webkit-justify-content: center;
+  -webkit-align-items: center;
+  align-items: center;
+  height: 100vh;
+}
+.vault main {
+  color: #fcfcfc;
+  font-family: 'Open Sans', Arial, sans-serif;
+  background: rgba(26, 25, 51, 0.35);
+  width: 65%;
+  height: 80%;
+  padding: 5%;
+}
+.vault header {
+  position: relative;
+}
+.vault header .push-right {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+.vault .icon-btn {
+  border: 0 solid;
+  background: rgba(0, 0, 0, 0);
+}
+.vault .icon-btn:focus,
+.vault .icon-btn:hover {
+  transition: color 130ms ease-in;
+  color: rgba(255, 255, 255, 0.7);
+  outline: none;
+}
+.vault section.passwords {
+  font-size: 18px;
+  overflow: scroll;
+  height: 418px;
+  margin: 35px -15px;
+  padding: 0 15px;
+}
+.vault section.passwords.open {
+  height: 360px;
+}
+.vault section.passwords article {
+  width: 100%;
+  position: relative;
+  padding: 10px 0;
+  margin: 0 -15px;
+}
+.vault section.passwords article div {
+  padding: 0 15px;
+}
+.vault section.passwords article:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 130ms ease-in;
+}
+.vault section.passwords article:hover .action-container {
+  visibility: visible;
+}
+.vault section.passwords .action-container {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  visibility: hidden;
+}
+.vault section.create-password form {
+  position: relative;
+}
+.vault section.create-password input {
+  margin: 5px 0;
+  width: 60%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 16px;
+  padding: 12px 5px;
+}
+.vault section.create-password input:first-child {
+  width: 30%;
+}
+.vault section.create-password input:focus {
+  outline: none;
+}
+.vault section.create-password input::-webkit-input-placeholder {
+  color: #fcfcfc;
+}
+.vault section.create-password input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #fcfcfc;
+}
+.vault section.create-password input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #fcfcfc;
+}
+.vault section.create-password input:-ms-input-placeholder {
+  color: #fcfcfc;
+}
+.vault section.create-password .generate-btn {
+  height: 47px;
+  width: 47px;
+  background: url(../icons/reload.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+  position: absolute;
+  top: 7px;
+  left: 82%;
+}
+.vault section.create-password .upload-icon {
+  height: 47px;
+  width: 47px;
+  position: absolute;
+  background: url(../icons/padlock.svg) no-repeat;
+  background-size: 25px;
+  background-position: center;
+  top: 5px;
+  left: 91%;
+}
+.vault section.create-password input[type=submit] {
+  margin: 10px 0 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+.vault section.create-password input[type=submit]:hover,
+.vault section.create-password input[type=submit]:focus {
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 130ms ease-in;
+  color: #fcfcfc;
 }

@@ -102,7 +102,6 @@ class VaultConnection(object):
             return response.content
 
 
-
 class TokenApi(object):
     PATH = u'auth/token'
     CREATE = u'create'
@@ -407,7 +406,7 @@ class AuthCache(object):
         """
         set
         """
-        session_key = cls.get_encryption_key()
+        session_key = cls.set_new_encryption_key()
         nonce = GuidSource.generate()
         cls.set(nonce, SymmetricEncryption.encrypt(session_key, key))
         return nonce

@@ -1,14 +1,33 @@
+{% extends 'base/base.html' %}
 
-<a href="{% url 'registration' %}">Don't have an account? Sign up.</a>
+{% block body_class %}login{% endblock %}
 
-<form action="{% url 'auth' %}" method="post">
-    {% csrf_token %}
+{% block body %}
+<main>
 
-    {% if error %}
-      <label>{{ error }}</label>
-    {% endif %}
+    <header class="text-center">
+        <h1>Welcome</h1>
+        <a href="{% url 'registration' %}">Don't have an account? Sign up.</a>
+    </header>
 
-    {{ form }}
+    <article class="text-center">
+        <form action="{% url 'auth' %}" method="post" class="text-center">
+            {% csrf_token %}
 
-    <input type="submit" value="Submit" />
-</form>
+            {% if error %}
+              <label class="error">{{ error }}</label>
+            {% endif %}
+
+            {{ form }}
+
+            <input type="submit" class="btn" value="Submit" />
+        </form>
+    </article>
+</main>
+
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock scripts %}

@@ -2,11 +2,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.contrib.auth.hashers import check_password
-from .utils import GuidSource, CreateUserPolicyApi, AppRoleApi, UserApi, AuthCache
-from .conf import Env
-import hashlib
-import random
+from .utils import GuidSource, CreateUserPolicyApi, AppRoleApi
 
 
 
@@ -104,35 +100,6 @@ class VaultUser(AbstractBaseUser):
     def __str__(self):
         return self.username
 
-    def carry_over_access_token(self, nonce):
-
-        token = Env.get_var(self.nonce)
-        if not token:
-            return False
-
-        Env.set_var(self.nonce, None)
-        Env.set_var(nonce, token)
-        self.nonce = nonce
-        return True
-
-    def set_nonce(self):
-        self.nonce = GuidSource.generate()
-        self.save()
-        return self.hash(self.nonce)
-
-    def digest_nonce(self, nonce):
-        """consumes nonce and generates new one"""
-        match = False
-        if self.hash(self.nonce) == nonce:
-            match = True
-
-        nonce = self.set_nonce()
-        return match, nonce
-
-    def get_token(self):
-        return Env.get_var(self.nonce)
-
-
     @staticmethod
     def get_role_name(guid):
         return u'user{}'.format(guid)
@@ -145,27 +112,6 @@ class VaultUser(AbstractBaseUser):
         app_role = AppRoleApi()
         return app_role.get_user_access_token(self.role_name)
 
-    def get_authenticated_access(self):
-        token = self.get_token()
-        if not token:
-            raise Exception('Unable to access vault')
-
-        return UserApi(self.role_name, token)
-
-    # def authenticate(self, username, password):
-    #     if not username or not password:
-    #         return None
-    #
-    #     try:
-    #         user = self.objects.get(username=username)
-    #     except VaultUser.DoesNotExist:
-    #         return None
-    #
-    #     valid_pass = check_password(password, user.password)
-    #     if not valid_pass:
-    #         return None
-    #
-    #     return self
 
 
 

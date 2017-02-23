@@ -10,6 +10,7 @@ import datetime
 import json
 from urllib import parse
 from django.core import serializers
+from django_otp.decorators import otp_required
 
 
 log = logging.getLogger(__name__)
@@ -149,7 +150,7 @@ class RegistrationView(TemplateView):
             )
             login(request, vu)
             Authenticate.login_user(request, vu)
-            return redirect(u'vault', user_name=vu.username)
+            return redirect(u'vault', guid=vu.guid)
 
         return render(request, self.template_name, {
             'form': RegistrationForm(),

@@ -79,21 +79,58 @@ var GeneratePassword = (function () {
     };
 })();
 
+
+var passwordItem = Vue.component('password-item', {
+    template: '#passwordItem',
+    props: ["lookup-key", "name"],
+    methods: {
+        requestPassword: function () {
+            return this.requestData({
+                query: this.lookupKey,
+                guid: vmVault.guid
+            })
+        },
+        requestData: function(data) {
+            var url = '/auth/data/get';
+            return AuthSouce.service(
+                url,
+                data,
+                this.requestDataCallback);
+        },
+        requestDataCallback: function (response) {
+            console.log(response);
+            if (response.success) {
+                vmVault.showPassword(response.data.value)
+            } else {
+                vmVault.error = true;
+            }
+        },
+        changePassword: function () {},
+        deletePassword: function () {}
+    }
+});
+
+
 var vmVault = new Vue({
     el: '#vault',
+    components: {passwordItem: passwordItem},
     data: {
         guid: '',
         error: false,
-        passwords: [],
+        passwords: [''],
         showCreatePassword: false,
         create: {
             name: '',
             password: '',
-            type: 'password',
-            TYPES: {
-                PASSWORD: 'password',
-                TEXT: 'text'
-            }
+            showPlaintext: false,
+        }
+    },
+    computed: {
+        hideCreatePassword: function () {
+            return !this.showCreatePassword;
+        },
+        isEmpty: function () {
+            return this.passwords.length === 0;
         }
     },
     created: function () {
@@ -104,13 +141,6 @@ var vmVault = new Vue({
     methods: {
         showPassword: function(password) {
             window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
-        },
-        requestPassword: function (event) {
-            var key = $(event.target).attr('data-key');
-            this.requestData({
-                query: key,
-                guid: this.guid
-            });
         },
         requestData: function(data) {
             var url = '/auth/data/get';
@@ -136,12 +166,13 @@ var vmVault = new Vue({
             )
         },
         generatePassword: function() {
-            this.create.password = GeneratePassword.generate(16);
-            this.create.type = this.create.TYPES.TEXT;
+            this.create.password = GeneratePassword.generate(26);
+            this.create.showPlaintext = true;
         },
         createPasswordCallback: function (response) {
             console.log(response);
             if (response.success) {
+                vmVault.showCreatePassword = false;
                 vmVault.loadPasswords();
             } else {
                 vmVault.error = true;

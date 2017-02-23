@@ -39,6 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Dependencies
     'django_extensions',
+    # one time password / MFA
+    'django_otp',
+    'django_otp.plugins.otp_static',
+    'django_otp.plugins.otp_totp',
+    'two_factor',
     # Custom Apps
     'vault'
 ]
@@ -51,8 +56,10 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django_otp.middleware.OTPMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 ]
 
 ROOT_URLCONF = 'pwmanager.urls'
@@ -131,7 +138,7 @@ STATICFILES_DIRS = (
 )
 
 SHELL_PLUS_PRE_IMPORTS = (
-    ('vault.utils', ('VaultApi', 'RoleApi', 'UserApi')),
+    ('vault.utils', ('VaultConnection', 'PolicyApi', 'AppRoleApi', 'TokenApi', 'CreateUserPolicyApi')),
 )
 
 
@@ -177,3 +184,5 @@ SESSION_CACHE_ALIAS = "default"
 
 
 ENCRYPTION_KEY = None
+from django.core.urlresolvers import reverse_lazy
+LOGIN_URL = 'two_factor:login'
