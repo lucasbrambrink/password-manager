@@ -2,8 +2,9 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from .utils import GuidSource, CreateUserPolicyApi, AppRoleApi
-
+from .utils import GuidSource, CreateUserPolicyApi, AppRoleApi, PolicyApi, TokenApi
+from django.conf import settings
+from .crypt import SymmetricEncryption
 
 
 class LoginAttempt(models.Model):
@@ -47,6 +48,13 @@ class Vault(models.Model):
     key = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(auto_now_add=True, null=True)
+
+    @staticmethod
+    def init_vault(root):
+        # enable AppRole
+        PolicyApi.initialize_required_policies(root)
+        app = AppRoleApi()
+        app.enable_approle()
 
 
 class VaultUserManager(BaseUserManager):
@@ -112,6 +120,33 @@ class VaultUser(AbstractBaseUser):
         app_role = AppRoleApi()
         return app_role.get_user_access_token(self.role_name)
 
+
+class ApplicationToken(models.Model):
+    encrypted_token = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True)
+
+    @classmethod
+    def get_key(cls):
+        key = settings['ENCRYPTION_KEY']
+        if key is None:
+            raise Exception('No application level encryption key exists')
+        return key
+
+    @classmethod
+    def get_master_application_token(cls):
+        key = cls.get_key()
+        token = cls.objects\
+            .order_by('-created')\
+            .first()\
+            .only('hashed_token')
+        dtoken = SymmetricEncryption.decrypt(key, token)
+        return dtoken
+
+    @classmethod
+    def set_master_application_token(cls, token):
+        key = cls.get_key()
+        token = SymmetricEncryption.encrypt(key, token)
+        cls.create(encrypted_token=token)
 
 
 

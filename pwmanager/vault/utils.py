@@ -103,6 +103,9 @@ class VaultConnection(object):
 
 
 class TokenApi(object):
+    """
+    TODO: do a periodic exchange of new tokens
+    """
     PATH = u'auth/token'
     CREATE = u'create'
     LOOKUP = u'lookup'
@@ -145,7 +148,6 @@ class TokenApi(object):
             Env.set_var(key, token)
         return token
 
-
     @classmethod
     def create_user_creator_token(cls, root):
         """
@@ -154,6 +156,7 @@ class TokenApi(object):
         and delegate approle
         """
         return cls.create_token(root, cls.USER_CREATOR, Env.USER_CREATOR_TOKEN)
+
 
     def __init__(self, root):
         self.create_application_token(root)
@@ -354,19 +357,20 @@ class UserApi(object):
 class AuthCache(object):
     # todo: rotate keys
     ENCRYPTION_KEY = u'SECRET_KEY'
+    NONCE_ENCRYPTION_KEY = u'NONCE_ENCRYPTION_KEY'
 
     @classmethod
-    def set_new_encryption_key(cls):
+    def set_new_encryption_key(cls, env_key):
         key = SymmetricEncryption.generate_key()
-        os.environ[cls.ENCRYPTION_KEY] = key.decode()
+        os.environ[env_key] = key.decode()
         return key
 
     @classmethod
-    def get_encryption_key(cls):
+    def get_encryption_key(cls, env_key):
         try:
-            return os.environ[cls.ENCRYPTION_KEY]
+            return os.environ[env_key]
         except KeyError:
-            return cls.set_new_encryption_key()
+            return cls.set_new_encryption_key(env_key)
 
     @staticmethod
     def get(key):
@@ -406,22 +410,28 @@ class AuthCache(object):
         """
         set
         """
-        session_key = cls.set_new_encryption_key()
+        session_key = cls.set_new_encryption_key(cls.ENCRYPTION_KEY)
         nonce = GuidSource.generate()
-        cls.set(nonce, SymmetricEncryption.encrypt(session_key, key))
-        return nonce
+        hnonce = SymmetricEncryption.hash(nonce.encode())
+        cls.set(hnonce, SymmetricEncryption.encrypt(session_key, key))
+
+        nonce_key = cls.set_new_encryption_key(cls.NONCE_ENCRYPTION_KEY)
+        return SymmetricEncryption.encrypt(nonce_key, nonce)
 
     @classmethod
     def digest_nonce(cls, nonce):
         """ consumes nonce and generates new one
             performs carry-over for token
         """
-        key_token = cls.get(nonce)
+        nonce_key = cls.get_encryption_key(cls.NONCE_ENCRYPTION_KEY)
+        nonce = SymmetricEncryption.decrypt(nonce_key, nonce)
+
+        key_token = cls.get(SymmetricEncryption.hash(nonce))
         match = key_token is not None
         key = None
         if match:
             cls.delete(nonce)
-            session_key = cls.get_encryption_key()
+            session_key = cls.get_encryption_key(cls.ENCRYPTION_KEY)
             key = SymmetricEncryption.decrypt(session_key, key_token)
             nonce = cls.set_nonce(key)
         else:

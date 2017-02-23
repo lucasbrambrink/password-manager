@@ -29,6 +29,12 @@ body.vault {
   -o-background-size: cover;
   background-size: cover;
 }
+.login a,
+.registration a,
+.login a:hover,
+.registration a:hover {
+  color: #fcfcfc;
+}
 .login .container,
 .registration .container {
   display: -webkit-flex;
@@ -43,7 +49,7 @@ body.vault {
 .registration main {
   color: #fcfcfc;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.35);
+  background: rgba(26, 25, 51, 0.43);
   width: 65%;
   height: 60%;
   padding: 5%;
@@ -144,7 +150,7 @@ body.vault {
 .vault main {
   color: #fcfcfc;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.35);
+  background: rgba(26, 25, 51, 0.43);
   width: 65%;
   height: 80%;
   padding: 5%;
