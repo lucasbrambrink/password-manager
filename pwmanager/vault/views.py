@@ -178,9 +178,6 @@ class VaultView(TemplateView):
         })
 
 
-
-
-
 class DataAccessResponse(object):
 
     def __init__(self, success=False, data=None):

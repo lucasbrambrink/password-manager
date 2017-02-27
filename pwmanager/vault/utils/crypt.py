@@ -1,6 +1,7 @@
 from cryptography.fernet import Fernet
 import hashlib
 import random
+import uuid
 
 
 class SymmetricEncryption(object):
@@ -25,12 +26,15 @@ class SymmetricEncryption(object):
     def hash(key):
         return hashlib.sha512(key).hexdigest()
 
+
+class PasswordGenerator(object):
+
     @staticmethod
     def generate_password(length=16):
         lowercase = u'abcdefghijklmnopqrstuvwxyz'
         upppercase = u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         numbers = '1234567890'
-        symbols = '!@#$%^&*+=?'
+        symbols = '!@#$%^&*+=\}]{[|:;",<>.~`?'
         choices = [
             lowercase,
             upppercase,
@@ -44,3 +48,13 @@ class SymmetricEncryption(object):
             password.append(random.choice(category))
 
         return u''.join(password)
+
+
+class GuidSource(object):
+
+    @staticmethod
+    def generate():
+        """generate based on hostname and current time
+                - sufficient to avoid clashes
+        """
+        return str(uuid.uuid1())

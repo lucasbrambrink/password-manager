@@ -1,10 +1,14 @@
 from __future__ import unicode_literals
 
-from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from .utils import GuidSource, CreateUserPolicyApi, AppRoleApi, PolicyApi, TokenApi
 from django.conf import settings
-from .crypt import SymmetricEncryption
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.db import models
+
+from pwmanager.vault.utils.crypt import SymmetricEncryption
+from .utils.crypt import GuidSource
+from .utils.app_role import AppRoleApi
+from .utils.policies import PolicyApi, CreateUserPolicyApi
+from .utils.otek import RollingEncryptionKeys
 
 
 class LoginAttempt(models.Model):
@@ -103,7 +107,8 @@ class VaultUser(AbstractBaseUser):
     vault = models.OneToOneField(to=Vault,
                                  on_delete=models.CASCADE)
     guid = models.CharField(max_length=255, default=u'')
-    nonce = models.CharField(max_length=255, default=u'')
+    google_authenticator_credentials = models.CharField(max_length=255, default=u'')
+    nonce_e = models.CharField(max_length=255, default=u'')
 
     def __str__(self):
         return self.username
@@ -126,15 +131,8 @@ class ApplicationToken(models.Model):
     created = models.DateTimeField(auto_now_add=True)
 
     @classmethod
-    def get_key(cls):
-        key = settings['ENCRYPTION_KEY']
-        if key is None:
-            raise Exception('No application level encryption key exists')
-        return key
-
-    @classmethod
     def get_master_application_token(cls):
-        key = cls.get_key()
+        key = RollingEncryptionKeys.get_key()
         token = cls.objects\
             .order_by('-created')\
             .first()\
@@ -144,7 +142,7 @@ class ApplicationToken(models.Model):
 
     @classmethod
     def set_master_application_token(cls, token):
-        key = cls.get_key()
+        key = RollingEncryptionKeys.get_key()
         token = SymmetricEncryption.encrypt(key, token)
         cls.create(encrypted_token=token)
 
