@@ -29,8 +29,14 @@ class RollingEncryptionKeys(object):
                 cls.roll_encryption(original_key, new_key, token_e)
             )
 
-    def initialize(self, seed):
-        Env.set_var(self.TRANSIENT_E_KEY, seed)
+    @classmethod
+    def initialize(cls):
+        """
+        sets seed (generated randomly) for otp session
+            - must remain unbroken
+        """
+        Env.set_var(cls.TRANSIENT_E_KEY,
+                    SymmetricEncryption.generate_key().decode())
 
     @classmethod
     def get_key(cls):

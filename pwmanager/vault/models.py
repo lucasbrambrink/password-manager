@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
-from pwmanager.vault.utils.crypt import SymmetricEncryption
+from .utils.crypt import SymmetricEncryption
 from .utils.crypt import GuidSource
 from .utils.app_role import AppRoleApi
 from .utils.policies import PolicyApi, CreateUserPolicyApi

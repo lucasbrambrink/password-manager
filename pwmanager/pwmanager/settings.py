@@ -182,12 +182,12 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-try:
-    from .local_settings import ENCRYPTION_KEY
-except ImportError:
-    ENCRYPTION_KEY = None
-    print('Unable to import local settings')
-
+# try:
+#     from .local_settings import ENCRYPTION_KEY
+# except ImportError:
+#     ENCRYPTION_KEY = None
+#     print('Unable to import local settings')
+#
 
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = 'two_factor:login'

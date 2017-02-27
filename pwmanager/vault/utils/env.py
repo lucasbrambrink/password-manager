@@ -21,7 +21,7 @@ class Env(object):
     @classmethod
     def set_transient_encryption_key(cls, env_key):
         key = SymmetricEncryption.generate_key()
-        os.environ[env_key] = key.decode()
+        environ[env_key] = key.decode()
         return key
 
     @classmethod

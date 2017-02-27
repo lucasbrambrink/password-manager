@@ -48,7 +48,7 @@ class AuthCache(object):
         """
         session_key = Env.set_transient_encryption_key(cls.ENCRYPTION_KEY)
         nonce = SymmetricEncryption.generate_key()
-        hnonce = SymmetricEncryption.hash(nonce.encode())
+        hnonce = SymmetricEncryption.hash(nonce)
         cls.set(hnonce, SymmetricEncryption.encrypt(session_key, key))
 
         nonce_key = Env.set_transient_encryption_key(cls.NONCE_ENCRYPTION_KEY)

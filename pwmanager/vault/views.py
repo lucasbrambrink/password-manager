@@ -4,7 +4,10 @@ from django.views.generic import TemplateView, View
 from django.http import JsonResponse
 from .models import LoginAttempt, VaultUser, PasswordEntity, Password
 from .forms import LoginForm, RegistrationForm
-from .utils import AppRoleApi, AuthCache, UserApi, GuidSource
+from .utils.app_role import AppRoleApi
+from .utils.cache import AuthCache
+from .utils.user import UserApi
+from .utils.crypt import GuidSource
 import logging
 import datetime
 import json

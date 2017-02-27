@@ -1,5 +1,6 @@
 from .env import Env
 from .vault_api import VaultConnection
+from os.path import join
 
 
 class AppRoleApi(object):
@@ -14,6 +15,8 @@ class AppRoleApi(object):
 
     def __init__(self):
         self.token = Env.get_var(Env.APP_HANDLER_TOKEN)
+        if not self.token:
+            raise Exception('App role token not provisioned')
         self.api = VaultConnection(token=self.token)
 
     def enable_approle(self):
@@ -23,7 +26,7 @@ class AppRoleApi(object):
         })
 
     def create_app_role_for_user(self, role_name):
-        url = self.api.get_url(os.path.join(self.APP_ROLE_URL, self.ROLE, role_name))
+        url = self.api.get_url(join(self.APP_ROLE_URL, self.ROLE, role_name))
         self.api.vpost(url, {
             "policies": role_name
         })
