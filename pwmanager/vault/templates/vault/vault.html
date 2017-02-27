@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+
+{% load static %}
+
+{% block body_class %}vault{% endblock %}
+
+
+{% block body %}
+
+<main class="vault" id="vault" v-cloak>
+  <header>
+    <h1>{{ user_name }}</h1>
+
+    <button v-on:click="showCreatePassword = !showCreatePassword"
+            type="button" class="icon-btn push-right" aria-label="Right Align">
+      <span class="glyphicon glyphicon"
+            v-bind:class="{'glyphicon-plus': hideCreatePassword, 'glyphicon-remove': showCreatePassword}"
+            aria-hidden="true"></span>
+    </button>
+
+  </header>
+
+  <section class="create-password">
+    <form v-on:submit.prevent="createPassword" v-show="showCreatePassword">
+      <input type="text"
+             v-model="create.name"
+             placeholder="Name" v-cloak/>
+      <input v-show="!create.showPlaintext"
+             class="gen-password"
+             type="password"
+             placeholder="Password"
+             v-model="create.password" v-cloak/>
+      <input v-show="create.showPlaintext"
+             type="text"
+             placeholder="Password"
+             class="gen-password"
+             v-model="create.password" />
+      <button v-on:click.prevent="generatePassword" class="icon-btn generate-btn">
+        <span class="reload-thin" aria-hidden="true"></span>
+      </button>
+
+      <button type="submit" class="icon-btn upload-icon">
+      </button>
+    </form>
+  </section>
+
+  <section class="passwords" v-bind:class="{open: showCreatePassword}">
+    <password-item v-for="password in passwords"
+                   :lookup-key="password.key"
+                   :name="password.name">
+    </password-item>
+    <div v-show="isEmpty && hideCreatePassword">
+      <p>Looks like you don't have any passwords yet!</p>
+    </div>
+  </section>
+
+
+</main>
+
+{% csrf_token %}
+
+<input type="hidden" id="guid" value="{{ guid }}" >
+
+<template id="passwordItem">
+  <article>
+    <div v-text="name"></div>
+    <div class="action-container">
+      <button v-on:click="requestPassword" class="icon-btn">
+        <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+      </button>
+      <button v-on:click="changePassword" class="icon-btn">
+        <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
+      </button>
+      <button v-on:click="deletePassword" class="icon-btn">
+        <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
+      </button>
+    </div>
+  </article>
+</template>
+
+
+{% endblock body %}
+
+
+{% block scripts %}
+    <script src="{% static 'vault/js/vault.js' %}"></script>
+{% endblock scripts %}
+
+

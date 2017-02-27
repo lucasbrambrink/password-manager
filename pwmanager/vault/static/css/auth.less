@@ -1,0 +1,267 @@
+@black: #191919;
+@white: #FCFCFC;
+@weak-white: rgba(255, 255, 255, 0.4);
+@opaque-bg: rgba(26, 25, 51, .43);
+
+
+
+[v-cloak] {
+  display: none;
+}
+
+body {
+  &.login {
+    background: url(../images/login.png) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+  &.registration {
+    background: url(../images/ElkLakeBC.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+  &.registration {
+    background: url(../images/ElkLakeBC.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+  &.vault {
+    background: url(../images/zion_down.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
+}
+
+
+.login, .registration {
+  a, a:hover {
+    color: @white;
+  }
+  .container {
+    display: -webkit-flex;
+    display: flex;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    height: 100vh;
+  }
+  main {
+    color: @white;
+    font-family: 'Open Sans', Arial, sans-serif;
+    background: @opaque-bg;
+    width: 65%;
+    height: 60%;
+    padding: 5%;
+  }
+  header {
+    height: 30%;
+  }
+  article {
+    height: 70%;
+  }
+  form {
+    width: 75%;
+    margin: 0 auto;
+    label {
+      display: none;
+      &.error {
+        display: block;
+        color: #ff6868;
+      }
+    }
+    input {
+      margin: 5px 0;
+      width: 100%;
+      background: transparent;
+      border: 1px solid @weak-white;
+      font-size: 18px;
+      padding: 10px 45px;
+      &:focus {
+        outline: none;
+      }
+      &::-webkit-input-placeholder {
+        color: @white;
+      }
+
+      &:-moz-placeholder { /* Firefox 18- */
+         color: @white;
+      }
+
+      &::-moz-placeholder {  /* Firefox 19+ */
+         color: @white;
+      }
+
+      &:-ms-input-placeholder {
+         color: @white;
+      }
+      &[name=email] {
+        background: url(../icons/mail.svg) no-repeat;
+        background-size: 25px;
+        background-position: 10px 9px;
+      }
+      &[name=password] {
+        background: url(../icons/padlock.svg) no-repeat;
+        background-size: 25px;
+        background-position: 10px 9px;
+      }
+      &[name=username] {
+        background: url(../icons/user.svg) no-repeat;
+        background-size: 25px;
+        background-position: 10px 9px;
+      }
+    }
+    input[type=submit] {
+      margin: 10px 0 0;
+      background: rgba(0, 0, 0, 0.2);
+      &:hover, &:focus {
+        background: rgba(0, 0, 0, 0.3);
+        transition: background 130ms ease-in;
+        color: @white;
+      }
+    }
+  }
+}
+
+.vault {
+  .container {
+    display: -webkit-flex;
+    display: flex;
+    justify-content: center;
+    -webkit-justify-content: center;
+    -webkit-align-items: center;
+    align-items: center;
+    height: 100vh;
+  }
+  main {
+    color: @white;
+    font-family: 'Open Sans', Arial, sans-serif;
+    background: @opaque-bg;
+    width: 65%;
+    height: 80%;
+    padding: 5%;
+  }
+  header {
+    position: relative;
+    .push-right {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+  }
+  .icon-btn {
+    border: 0 solid;
+    background: rgba(0, 0, 0, 0);
+    &:focus,
+    &:hover {
+      transition: color 130ms ease-in;
+      color: rgba(255, 255, 255, 0.7);
+      outline: none;
+    }
+  }
+
+  section.passwords {
+    font-size: 18px;
+    overflow: scroll;
+    height: 418px;
+    margin: 35px -15px;
+    padding: 0 15px;
+    &.open {
+      height: 360px;
+    }
+    article {
+      width: 100%;
+      position: relative;
+      padding: 10px 0;
+      margin: 0 -15px;
+      div {
+        padding: 0 15px;
+      }
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+        transition: background 130ms ease-in;
+        .action-container {
+          visibility: visible;
+        }
+      }
+    }
+    .action-container {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      visibility: hidden;
+    }
+  }
+
+  section.create-password {
+    form {
+      position: relative;
+    }
+    input {
+      margin: 5px 0;
+      width: 60%;
+      background: transparent;
+      border: 1px solid @weak-white;
+      font-size: 16px;
+      padding: 12px 5px;
+      &:first-child {
+        width: 30%;
+      }
+      &:focus {
+        outline: none;
+      }
+      &::-webkit-input-placeholder {
+        color: @white;
+      }
+
+      &:-moz-placeholder { /* Firefox 18- */
+         color: @white;
+      }
+
+      &::-moz-placeholder {  /* Firefox 19+ */
+         color: @white;
+      }
+
+      &:-ms-input-placeholder {
+         color: @white;
+      }
+    }
+    .generate-btn {
+      height: 47px;
+      width: 47px;
+      background: url(../icons/reload.svg) no-repeat;
+      background-size: 25px;
+      background-position: 10px 9px;
+      position: absolute;
+      top: 7px;
+      left: 82%;
+    }
+    .upload-icon {
+      height: 47px;
+      width: 47px;
+      position: absolute;
+      background: url(../icons/padlock.svg) no-repeat;
+      background-size: 25px;
+      background-position: center;
+      top: 5px;
+      left: 91%;
+    }
+    input[type=submit] {
+      margin: 10px 0 0;
+      background: rgba(0, 0, 0, 0.2);
+      &:hover, &:focus {
+        background: rgba(0, 0, 0, 0.3);
+        transition: background 130ms ease-in;
+        color: @white;
+      }
+    }
+  }
+}

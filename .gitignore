@@ -87,3 +87,9 @@ ENV/
 
 # Rope project settings
 .ropeproject
+venv/
+.idea/
+*.zip
+.vagrant/
+.DS_STORE
+redis-stable*

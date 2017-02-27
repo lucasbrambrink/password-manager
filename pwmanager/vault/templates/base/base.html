@@ -1,0 +1,42 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+
+<head lang="en">
+    <!-- General Meta Data -->
+    <meta charset="UTF-8">
+
+    <title>SimplePass</title>
+
+    <!-- Base Stylesheets -->
+    <!--<link rel="shortcut icon" href="{% static 'reports/images/aptitude_analytics.ico' %}">-->
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="{% static 'vault/css/auth.css' %}" />
+    <!-- Site Stylesheets -->
+    {% block stylesheets %}
+    {% endblock %}
+</head>
+
+
+<body class="{% block body_class %}{% endblock %}">
+<!-- Main Site Body -->
+<div class="container">
+    {% block body %}
+    {% endblock %}
+</div>
+
+<!-- Base Scripts -->
+    <!--<script type="text/javascript" src="{% static 'reports/lib/bower_components/jquery/dist/jquery.js' %}"></script>-->
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+            integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+            crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+
+<!-- Site Scripts -->
+    {% block scripts %}
+    {% endblock %}
+</body>
+</html>
