@@ -7,5 +7,6 @@ class VaultConfig(AppConfig):
     name = 'vault'
 
     def ready(self):
-        InitializeServerEnvironment()
+        pass
+        # InitializeServerEnvironment()
 
