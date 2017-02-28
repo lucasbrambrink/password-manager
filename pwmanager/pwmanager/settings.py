@@ -136,7 +136,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     ('vault', os.path.join(BASE_DIR, 'vault', 'static')),
 )
-# STATIC_ROOT = os.path.join(BASE_DIR, 'vault', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'vault', 'root')
 SHELL_PLUS_PRE_IMPORTS = (
     ('vault.utils', ('VaultConnection', 'PolicyApi', 'AppRoleApi', 'TokenApi', 'CreateUserPolicyApi')),
 )
