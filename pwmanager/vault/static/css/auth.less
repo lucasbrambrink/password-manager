@@ -2,7 +2,7 @@
 @white: #FCFCFC;
 @weak-white: rgba(255, 255, 255, 0.4);
 @opaque-bg: rgba(26, 25, 51, .43);
-
+@error: #ff9494;
 
 
 [v-cloak] {
@@ -75,7 +75,7 @@ body {
       display: none;
       &.error {
         display: block;
-        color: #ff6868;
+        color: @error;
       }
     }
     input {

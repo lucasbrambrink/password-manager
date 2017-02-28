@@ -15,7 +15,7 @@
             {% csrf_token %}
 
             {% if error %}
-              <label>{{ error }}</label>
+              <label class="error">{{ error }}</label>
             {% endif %}
 
             {{ form }}

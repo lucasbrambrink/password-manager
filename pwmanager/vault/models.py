@@ -9,6 +9,8 @@ from .utils.crypt import GuidSource
 from .utils.app_role import AppRoleApi
 from .utils.policies import PolicyApi, CreateUserPolicyApi
 from .utils.otek import RollingEncryptionKeys
+from .utils.vault_api import VaultException
+from .utils.user import UserApi
 
 
 class LoginAttempt(models.Model):
@@ -29,11 +31,40 @@ class PasswordEntity(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True)
 
 
+class PasswordManager(models.Manager):
+
+    def history(self):
+        return
+
+    def create_password(self, user, token, name, password):
+        api = user.access_api(token)
+        password_guid = GuidSource.generate()
+
+        success = api.write(password_guid, password)
+        if not success:
+            raise VaultException("Unable to write to vault")
+
+        password = self.model(
+            name=name,
+            vault=user.vault,
+            key=password_guid
+        )
+        password.save(using=self._db)
+
+        entity = PasswordEntity(
+            guid=password_guid,
+            password=password
+        )
+        entity.save(using=self._db)
+
+
 class Password(models.Model):
     """
     maps to login set
         maintains history via LIFO queue of password entities
     """
+    objects = PasswordManager()
+
     vault = models.ForeignKey(to=u"Vault")
     name = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
@@ -120,6 +151,9 @@ class VaultUser(AbstractBaseUser):
     @property
     def role_name(self):
         return self.get_role_name(self.guid)
+
+    def access_api(self, token):
+        return UserApi(self.role_name, token)
 
     def get_vault_access(self):
         app_role = AppRoleApi()

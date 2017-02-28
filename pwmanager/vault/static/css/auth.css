@@ -74,7 +74,7 @@ body.vault {
 .login form label.error,
 .registration form label.error {
   display: block;
-  color: #ff6868;
+  color: #ff9494;
 }
 .login form input,
 .registration form input {

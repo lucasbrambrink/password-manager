@@ -2,6 +2,15 @@ from .env import Env
 import requests
 import logging
 import json
+"""
+TODO:
+    - use event store to write all traffic permanently
+    - create orphan token of root
+    -
+
+
+"""
+
 
 log = logging.getLogger(__name__)
 
@@ -15,6 +24,10 @@ class VaultResponse(object):
     HEALTH_STATUS = 429
     INTERNAL_ERROR = 500
     VAULT_MAINTENANCE = 503  # or sealed..
+
+
+class VaultException(Exception):
+    pass
 
 
 class VaultConnection(object):

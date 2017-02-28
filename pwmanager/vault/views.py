@@ -13,9 +13,9 @@ import datetime
 import json
 from urllib import parse
 from django.core import serializers
+from django.db import IntegrityError
+from .utils.vault_api import VaultException
 from django_otp.decorators import otp_required
-
-
 log = logging.getLogger(__name__)
 
 
@@ -129,6 +129,7 @@ class AuthenticationView(TemplateView):
 
 
 class RegistrationView(TemplateView):
+    #TODO: registration does not work correctly
     template_name = u'vault/registration.html'
 
     def get(self, request, *args, **kwargs):
@@ -146,14 +147,17 @@ class RegistrationView(TemplateView):
 
         else:
             # try:
-            vu = VaultUser.objects.create_user(
-                username=username,
-                email=email,
-                password=password
-            )
-            login(request, vu)
-            Authenticate.login_user(request, vu)
-            return redirect(u'vault', guid=vu.guid)
+            try:
+                vu = VaultUser.objects.create_user(
+                    username=username,
+                    email=email,
+                    password=password
+                )
+                login(request, vu)
+                Authenticate.login_user(request, vu)
+                return redirect(u'vault', guid=vu.guid)
+            except IntegrityError:
+                error = u"That email exists already. Please log in or try another."
 
         return render(request, self.template_name, {
             'form': RegistrationForm(),
@@ -311,26 +315,12 @@ class DataAccessWrite(DataAccessView):
             return self.return_none()
 
         token = AuthCache.get_token(key)
-        access = UserApi(user.role_name, token)
-
-        password_guid = GuidSource.generate()
-        success = access.write(password_guid, password)
-
-        if not success:
+        try:
+            Password.objects.create_password(
+                user, token, name, password
+            )
+        except VaultException:
             return self.return_none()
-
-        # todo: move to obejct manager
-        password = Password(
-            name=name,
-            vault=user.vault,
-            key=password_guid
-        )
-        password.save()
-        entity = PasswordEntity(
-            guid=password_guid,
-            password=password
-        )
-        entity.save()
 
         Authenticate.store_nonce(request, nonce)
         return JsonResponse(DataAccessResponse(
@@ -340,3 +330,5 @@ class DataAccessWrite(DataAccessView):
 
 
 
+# TODO: add logout
+# TODO: search
