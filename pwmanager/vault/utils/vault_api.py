@@ -1,4 +1,4 @@
-from .env import Env
+from .mem_store import TokenStore
 import requests
 import logging
 import json
@@ -49,7 +49,7 @@ class VaultConnection(object):
 
     @staticmethod
     def get_vault_token():
-        key = Env.get_var(Env.ACCESS_TOKEN)
+        key = TokenStore.ACCESS_TOKEN
         if not key:
             raise Exception(u'Unable to retrieve token')
 

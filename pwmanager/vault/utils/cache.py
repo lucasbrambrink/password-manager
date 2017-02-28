@@ -1,6 +1,6 @@
 from .crypt import SymmetricEncryption
 from django.core.cache import cache
-from .env import Env
+from .mem_store import EncryptionStore
 
 
 class AuthCache(object):
@@ -46,12 +46,15 @@ class AuthCache(object):
         """
         set
         """
-        session_key = Env.set_transient_encryption_key(cls.ENCRYPTION_KEY)
+        session_key = EncryptionStore.get_new()
+        EncryptionStore.ENCRYPTION_KEY = session_key
+
         nonce = SymmetricEncryption.generate_key()
         hnonce = SymmetricEncryption.hash(nonce)
         cls.set(hnonce, SymmetricEncryption.encrypt(session_key, key))
 
-        nonce_key = Env.set_transient_encryption_key(cls.NONCE_ENCRYPTION_KEY)
+        nonce_key = EncryptionStore.get_new()
+        EncryptionStore.NONCE_ENCRYPTION_KEY = nonce_key
         return SymmetricEncryption.encrypt(nonce_key, nonce)
 
     @classmethod
@@ -59,16 +62,14 @@ class AuthCache(object):
         """ consumes nonce and generates new one
             performs carry-over for token
         """
-        nonce_key = Env.get_encryption_key(cls.NONCE_ENCRYPTION_KEY)
-        nonce = SymmetricEncryption.decrypt(nonce_key, nonce)
+        nonce = SymmetricEncryption.decrypt(EncryptionStore.NONCE_ENCRYPTION_KEY, nonce)
 
         key_token = cls.get(SymmetricEncryption.hash(nonce))
         match = key_token is not None
         key = None
         if match:
             cls.delete(nonce)
-            session_key = Env.get_encryption_key(cls.ENCRYPTION_KEY)
-            key = SymmetricEncryption.decrypt(session_key, key_token)
+            key = SymmetricEncryption.decrypt(EncryptionStore.ENCRYPTION_KEY, key_token)
             nonce = cls.set_nonce(key)
         else:
             nonce = None

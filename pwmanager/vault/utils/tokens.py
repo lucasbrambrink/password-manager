@@ -1,6 +1,6 @@
 from .vault_api import VaultConnection
 from os.path import join
-from .env import Env
+from .mem_store import TokenStore
 
 
 class TokenApi(object):
@@ -23,7 +23,7 @@ class TokenApi(object):
         for application to use to connect to vault
         and delegate approle
         """
-        return cls.create_token(root, cls.APP_HANDLER, Env.APP_HANDLER_TOKEN)
+        TokenStore.APP_HANDLER_TOKEN = cls.create_token(root, cls.APP_HANDLER)
 
     @classmethod
     def lookup_token(cls, root, token):
@@ -32,7 +32,7 @@ class TokenApi(object):
         return v.vget(url)
 
     @classmethod
-    def create_token(cls, root, policies, key):
+    def create_token(cls, root, policies):
         v = VaultConnection(token=root)
         url = v.get_url(join(cls.PATH, cls.CREATE))
         data = {
@@ -45,8 +45,6 @@ class TokenApi(object):
                 .get(u'auth', {})\
                 .get(u'client_token', None)
 
-        if token is not None:
-            Env.set_var(key, token)
         return token
 
     @classmethod
@@ -56,7 +54,7 @@ class TokenApi(object):
         for application to use to connect to vault
         and delegate approle
         """
-        return cls.create_token(root, cls.USER_CREATOR, Env.USER_CREATOR_TOKEN)
+        TokenStore.USER_CREATOR_TOKEN = cls.create_token(root, cls.USER_CREATOR)
 
     def __init__(self, root):
         self.create_application_token(root)

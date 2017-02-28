@@ -1,4 +1,4 @@
-from .env import Env
+from .mem_store import TokenStore
 from .vault_api import VaultConnection
 from os.path import join
 
@@ -14,7 +14,7 @@ class AppRoleApi(object):
     ROLE = u'role'
 
     def __init__(self):
-        self.token = Env.get_var(Env.APP_HANDLER_TOKEN)
+        self.token = TokenStore.APP_HANDLER_TOKEN
         if not self.token:
             raise Exception('App role token not provisioned')
         self.api = VaultConnection(token=self.token)

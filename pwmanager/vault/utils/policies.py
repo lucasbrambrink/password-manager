@@ -1,4 +1,4 @@
-from .env import Env
+from .mem_store import TokenStore
 from .vault_api import VaultConnection
 
 
@@ -73,7 +73,7 @@ class PolicyApi(object):
 class CreateUserPolicyApi(object):
 
     def __init__(self):
-        self.token = Env.get_var(Env.USER_CREATOR_TOKEN)
+        self.token = TokenStore.USER_CREATOR_TOKEN
         self.api = VaultConnection(self.token)
 
     def create_policy_for_user(self, role_name):

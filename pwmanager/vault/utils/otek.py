@@ -1,5 +1,5 @@
 from .crypt import SymmetricEncryption
-from .env import Env
+from .mem_store import EncryptionStore
 import logging
 
 
@@ -10,7 +10,6 @@ class RollingEncryptionKeys(object):
     -> daemon to ping?
     -> generate random seed
     """
-    TRANSIENT_E_KEY = u'NON_LOCAL_TIME_HASH'
 
     @staticmethod
     def roll_encryption(original_key, new_key, token_e):
@@ -35,12 +34,11 @@ class RollingEncryptionKeys(object):
         sets seed (generated randomly) for otp session
             - must remain unbroken
         """
-        Env.set_var(cls.TRANSIENT_E_KEY,
-                    SymmetricEncryption.generate_key().decode())
+        EncryptionStore.TRANSIENT_E_KEY = SymmetricEncryption.generate_key().decode()
 
     @classmethod
     def get_key(cls):
-        key = Env.get_var(cls.TRANSIENT_E_KEY)
+        key = EncryptionStore.TRANSIENT_E_KEY
         if not key:
             raise Exception('Process environment not provisioned')
 
@@ -49,6 +47,6 @@ class RollingEncryptionKeys(object):
     def update(self, updates):
         key = self.get_key()
         new_key = SymmetricEncryption.generate_key()
-        Env.set_var(self.TRANSIENT_E_KEY, new_key)
+        EncryptionStore.TRANSIENT_E_KEY = new_key
         self.roll_all(key, new_key, updates)
 
