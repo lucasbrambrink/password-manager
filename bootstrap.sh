@@ -34,3 +34,5 @@ make
 screen -S vault
 screen -S consul
 screen -S redis
+
+ln -s /srv/password-manager/pwmanager/nginx.conf /etc/nginx/sites-enabled/
