@@ -1,10 +1,10 @@
 from .otek import RollingEncryptionKeys
 from .tokens import TokenApi
-
+import os
 
 class InitializeServerEnvironment(object):
 
     def __init__(self):
         RollingEncryptionKeys.initialize()
-        token = input('Please provide seedling token:\n')
+        token = os.environ['ACCESS_TOKEN']
         TokenApi(token)
