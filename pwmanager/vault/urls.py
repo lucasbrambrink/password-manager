@@ -1,5 +1,9 @@
 from django.conf.urls import url
-from .views import VaultView, AuthenticationView, RegistrationView, PasswordListView, DataAccessRead, DataAccessWrite
+from .views.authentication import AuthenticationView
+from .views.registration import RegistrationView
+from .views.data_access import DataAccessRead, DataAccessWrite, PasswordListView
+from .views.vault import VaultView
+
 
 urlpatterns = [
     url(r'^registration', RegistrationView.as_view(), name=u'registration'),

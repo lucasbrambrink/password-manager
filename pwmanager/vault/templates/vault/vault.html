@@ -18,7 +18,9 @@
     <h1>{{ user_name }}</h1>
 
     <button v-on:click="showCreatePassword = !showCreatePassword"
-            type="button" class="icon-btn push-right" aria-label="Right Align">
+            type="button" class="icon-btn push-right"
+            title="Create a new password"
+            aria-label="Right Align">
       <span class="glyphicon glyphicon"
             v-bind:class="{'glyphicon-plus': hideCreatePassword, 'glyphicon-remove': showCreatePassword}"
             aria-hidden="true"></span>
@@ -41,7 +43,9 @@
              placeholder="Password"
              class="gen-password"
              v-model="create.password" />
-      <button v-on:click.prevent="generatePassword" class="icon-btn generate-btn">
+      <button v-on:click.prevent="generatePassword"
+              title="Store new password"
+              class="icon-btn generate-btn">
         <span class="reload-thin" aria-hidden="true"></span>
       </button>
 
@@ -71,13 +75,19 @@
   <article>
     <div v-text="name"></div>
     <div class="action-container">
-      <button v-on:click="requestPassword" class="icon-btn">
+      <button v-on:click="requestPassword"
+              title="Show password"
+              class="icon-btn">
         <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
       </button>
-      <button v-on:click="changePassword" class="icon-btn">
+      <button v-on:click="changePassword"
+              title="Replace password"
+              class="icon-btn">
         <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
       </button>
-      <button v-on:click="deletePassword" class="icon-btn">
+      <button v-on:click="deletePassword"
+              title="Delete password"
+              class="icon-btn">
         <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
       </button>
     </div>

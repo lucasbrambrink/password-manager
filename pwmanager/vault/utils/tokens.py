@@ -3,6 +3,10 @@ from os.path import join
 from .mem_store import TokenStore
 
 
+class TokenException(Exception):
+    """Unable to obtain token"""
+
+
 class TokenApi(object):
     """
     TODO: do a periodic exchange of new tokens
