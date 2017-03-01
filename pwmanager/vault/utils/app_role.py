@@ -3,6 +3,10 @@ from .vault_api import VaultConnection
 from os.path import join
 
 
+class AppRoleException(Exception):
+    """General issue for app role"""
+
+
 class AppRoleApi(object):
     """
     AppRole interface w/ Vault to gain temporary access tokens for users

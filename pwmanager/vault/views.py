@@ -54,7 +54,8 @@ class Authenticate(object):
             key = AuthCache.set_token(token)
             # nonce points to encrypted key
             nonce = AuthCache.set_nonce(key)
-
+        else:
+            raise Exception('Unable to obtain token...')
         return nonce
 
     @classmethod
