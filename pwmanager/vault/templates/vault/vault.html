@@ -38,12 +38,13 @@
              class="gen-password"
              v-model="create.password" />
       <button v-on:click.prevent="generatePassword"
-              title="Store new password"
+              title="Generate random password"
               class="icon-btn generate-btn">
         <span class="reload-thin" aria-hidden="true"></span>
       </button>
 
-      <button type="submit" class="icon-btn upload-icon">
+      <button type="submit" class="icon-btn upload-icon"
+        title="Store new password">
       </button>
     </form>
   </section>
