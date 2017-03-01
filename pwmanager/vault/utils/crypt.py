@@ -1,8 +1,7 @@
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
 import hashlib
 import random
 import uuid
-
 
 class SymmetricEncryption(object):
 

@@ -7,7 +7,7 @@ from .forms import LoginForm, RegistrationForm
 from .utils.app_role import AppRoleApi
 from .utils.cache import AuthCache
 from .utils.user import UserApi
-from .utils.crypt import GuidSource
+from .utils.crypt import InvalidSignature, InvalidToken
 import logging
 import datetime
 import json
@@ -16,6 +16,8 @@ from django.core import serializers
 from django.db import IntegrityError
 from .utils.vault_api import VaultException
 from django_otp.decorators import otp_required
+
+
 log = logging.getLogger(__name__)
 
 
@@ -37,8 +39,11 @@ class Authenticate(object):
             return False, None, None
 
         # check nonce and generate new one
-        authenticated, nonce, key = AuthCache.digest_nonce(nonce)
-        if not authenticated:
+        try:
+            authenticated, nonce, key = AuthCache.digest_nonce(nonce)
+            if not authenticated:
+                return False, None, None
+        except (InvalidToken, InvalidSignature):
             return False, None, None
 
         # yield new nonce if last one was correct
