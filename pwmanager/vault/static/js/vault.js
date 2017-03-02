@@ -55,17 +55,22 @@
             return array[Math.floor(Math.random() * array.length)];
         };
 
-        var generatePassword = function (length) {
+        var generatePassword = function (length, withLetters, withDigits, withSymbols) {
             var lowercase = 'abcdefghijklmnopqrstuvwxyz';
             var upppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             var numbers = '1234567890';
             var symbols = '!@#$%^&*+=?';
-            var choices = [
-                lowercase,
-                upppercase,
-                numbers,
-                symbols
-            ];
+            var choices = [];
+            if (withLetters) {
+                choices.push(lowercase);
+                choices.push(upppercase);
+            }
+            if (withDigits) {
+                choices.push(numbers);
+            }
+            if (withSymbols) {
+                choices.push(symbols);
+            }
 
             var password = [],
                 category;
@@ -85,7 +90,7 @@
 
     var passwordItem = Vue.component('password-item', {
         template: '#passwordItem',
-        props: ["lookup-key", "name"],
+        props: ["lookup-key", "domain-name"],
         methods: {
             requestPassword: function () {
                 return this.requestData({
@@ -124,10 +129,18 @@
             error: false,
             passwords: [''],
             showCreatePassword: false,
+            TITLES: {
+                NEW: "Create new password",
+                HIDE: "Hide form"
+            },
             create: {
-                name: '',
+                domainName: '',
                 password: '',
                 showPlaintext: false,
+                length: 20,
+                letters: true,
+                digits: true,
+                symbols: true,
             },
         },
         computed: {
@@ -139,6 +152,9 @@
             },
             isEmpty: function () {
                 return this.passwords.length === 0;
+            },
+            toggleTitle: function () {
+                return this.showCreatePassword ? this.TITLES.HIDE : this.TITLES.NEW;
             }
         },
         created: function () {
@@ -169,6 +185,11 @@
                 }
             },
             createPassword: function (event) {
+                var isValid = EzForms.formIsValid('form', false);
+                if (!isValid) {
+                    return;
+                }
+                $('form').ezFormValidation();
                 var url = '/auth/data/create';
                 return AuthSouce.service(
                     url,
@@ -177,7 +198,12 @@
                 )
             },
             generatePassword: function () {
-                this.create.password = GeneratePassword.generate(26);
+                this.create.password = GeneratePassword.generate(
+                    this.create.length,
+                    this.create.letters,
+                    this.create.digits,
+                    this.create.symbols
+                );
                 this.create.showPlaintext = true;
             },
             createPasswordCallback: function (response) {
@@ -191,12 +217,12 @@
             },
             consumeCreateForm: function () {
                 var data = {
-                    name: this.create.name,
+                    domainName: this.create.domainName,
                     password: this.create.password,
                     guid: this.guid
                 };
                 this.create.password = null;
-                this.create.name = null;
+                this.create.domainName = null;
                 return data;
             },
             loadPasswords: function () {
@@ -212,7 +238,7 @@
                         .map(function (model) {
                             return {
                                 key: model.fields.key,
-                                name: model.fields.name
+                                domainName: model.fields.domain_name
                             }
                         });
                 }

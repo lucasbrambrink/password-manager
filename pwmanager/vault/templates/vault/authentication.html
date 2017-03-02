@@ -11,7 +11,7 @@
     </header>
 
     <article class="text-center">
-        <form action="{% url 'auth' %}" method="post" class="text-center">
+        <form action="{% url 'auth' %}" method="post" class="text-center validate">
             {% csrf_token %}
 
             {% if error %}

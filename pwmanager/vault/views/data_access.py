@@ -35,7 +35,9 @@ class PasswordListView(View):
         vu = VaultUser.objects.get(guid=guid)
         passwords = vu.vault.password_set\
             .all()\
-            .only('name', 'key')
+            .order_by('-created')\
+            .only('domain_name', 'key')
+
         return JsonResponse(DataAccessResponse(
             success=True,
             data={
@@ -130,7 +132,7 @@ class DataAccessWrite(DataAccessView):
         if not data:
             return self.return_none()
 
-        name = data.get('name')
+        name = data.get('domainName')
         password = data.get('password')
         guid = data.get('guid')
 

@@ -37,7 +37,7 @@ class PasswordManager(models.Manager):
     def history(self):
         return
 
-    def create_password(self, user, token, name, password):
+    def create_password(self, user, token, domain_name, password):
         api = user.access_api(token)
         password_guid = GuidSource.generate()
 
@@ -46,7 +46,7 @@ class PasswordManager(models.Manager):
             raise VaultException("Unable to write to vault")
 
         password = self.model(
-            name=name,
+            domain_name=domain_name,
             vault=user.vault,
             key=password_guid
         )
@@ -67,11 +67,12 @@ class Password(models.Model):
     objects = PasswordManager()
 
     vault = models.ForeignKey(to=u"Vault")
-    name = models.CharField(max_length=255)
+    domain_name = models.CharField(max_length=255)
     key = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
     is_active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
 
     @property
     def current_password(self):

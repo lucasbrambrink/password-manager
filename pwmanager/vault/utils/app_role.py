@@ -23,9 +23,11 @@ class AppRoleApi(object):
             raise Exception('App role token not provisioned')
         self.api = VaultConnection(token=self.token)
 
-    def enable_approle(self):
-        url = self.api.get_url(u'sys/auth/approle')
-        return self.api.vpost(url, {
+    @classmethod
+    def enable_approle(cls, root):
+        api = VaultConnection(token=root)
+        url = api.get_url(u'sys/auth/approle')
+        return api.vpost(url, {
             'type': "approle"
         })
 

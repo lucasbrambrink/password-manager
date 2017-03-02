@@ -271,11 +271,11 @@ var EzForms = (function ($) {
                 : Utils.setInvalid(element, validator.message);
     };
 
-    var formIsValid = function (form) {
+    var formIsValid = function (form, propagate) {
         $(form)
             .find('[data-validate]')
             .map(function() {
-                validateInput(this, true);
+                validateInput(this, propagate);
             });
         var formIsValid = $(form).find('.' + STATES.INVALID).length === 0;
         Utils.setState(form, formIsValid);
@@ -297,22 +297,27 @@ var EzForms = (function ($) {
     };
 
     var setSubmittable = function() {
-        var isValid = formIsComplete(this) && formIsValid(this);
+        var isValid = formIsComplete(this) && formIsValid(this, true);
         Utils.setSubmittable(this, isValid);
     };
 
     var init = function (form) {
         var $form = $(form);
+        if (!$form.length) return;
         $form
-            .find('[data-validate]')
+            .find('[input]')
             .on('blur', function() {
+                if ($(this).hasClass('skip-blur')) {
+                    return;
+                }
                 validateInput(this);
             })
             .on('keyup', function() {
-                validateInput(this, true);
+                Utils.setNeutral(this);
+                validateInput(this, false);
             });
 
-        if ($form.data(DATA.NEVER_DISABLED) !== 'true') {
+        if ($form.data(DATA.NEVER_DISABLED) !== true) {
             $form
                 .ready(setSubmittable)
                 .on('focus keyup change', setSubmittable)
@@ -320,7 +325,7 @@ var EzForms = (function ($) {
         $form
             .on('submit',
                 function(event) {
-                    if (!formIsValid(form)) {
+                    if (!formIsValid(form, true)) {
                         event.preventDefault();
                     }
                 });
@@ -360,6 +365,9 @@ var EzForms = (function ($) {
         },
         setFormNeutral: function() {
             EzForms.setFormNeutral(this);
+        },
+        validate: function () {
+            EzForms.validateInput(this);
         }
     });
     $('form').ezFormValidation();

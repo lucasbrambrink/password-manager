@@ -13,7 +13,7 @@
 
     <button v-on:click="showCreatePassword = !showCreatePassword"
             type="button" class="icon-btn push-right"
-            title="Create a new password"
+            v-bind:title="toggleTitle"
             aria-label="Right Align">
       <span class="glyphicon glyphicon"
             v-bind:class="{'glyphicon-plus': hideCreatePassword, 'glyphicon-remove': showCreatePassword}"
@@ -22,29 +22,44 @@
 
   </header>
 
-  <section class="create-password">
+  <section class="create-password" v-bind:class="{open: showCreatePassword}">
     <form v-on:submit.prevent="createPassword"
-          v-bind:class="{invalid: hideCreatePassword}"
-          v-show="showCreatePassword">
+          v-show="showCreatePassword"
+          data-never-disabled="true">
       <div>
         <input type="text"
-               v-model="create.name"
+               v-model="create.domainName"
                data-validate="required"
-               placeholder="Name" v-cloak/>
+               class="domain-name skip-blur"
+               placeholder="Domain Name" v-cloak/>
       </div>
-      <div v-show="!create.showPlaintext">
-        <input class="gen-password"
-               type="password"
-               data-validate="required"
-               placeholder="Password"
-               v-model="create.password" v-cloak/>
-      </div>
-      <div v-show="create.showPlaintext">
+      <div>
         <input type="text"
                placeholder="Password"
                data-validate="required"
-               class="gen-password"
+               class="gen-password skip-blur"
                v-model="create.password" />
+        <ul>
+          <li>
+            <input type="range"
+              v-model="create.length"
+              min="8"
+              max="36"
+              step="1">
+          </li>
+          <li>
+            <input id="letters" type="checkbox" value="letters" v-model="create.letters">
+            <label for="letters">Letters</label>
+          </li>
+          <li>
+            <input id="digits" type="checkbox" value="digits" v-model="create.digits">
+            <label for="digits">Digits</label>
+          </li>
+          <li>
+            <input id="symbols" type="checkbox" value="Symbols" v-model="create.symbols">
+            <label for="symbols">Symbols</label>
+          </li>
+        </ul>
       </div>
       <button v-on:click.prevent="generatePassword"
               title="Generate random password"
@@ -61,7 +76,7 @@
   <section class="passwords" v-bind:class="{open: showCreatePassword}">
     <password-item v-for="password in passwords"
                    :lookup-key="password.key"
-                   :name="password.name">
+                   :domain-name="password.domainName">
     </password-item>
     <div v-show="isEmpty && hideCreatePassword">
       <p>Looks like you don't have any passwords yet!</p>
@@ -77,7 +92,7 @@
 
 <template id="passwordItem">
   <article>
-    <div v-text="name"></div>
+    <div v-text="domainName"></div>
     <div class="action-container">
       <button v-on:click="requestPassword"
               title="Show password"
