@@ -14,8 +14,6 @@ import datetime
 log = logging.getLogger(__name__)
 
 
-
-
 class Authenticate(object):
     """
     continuous exchange of nonce for new nonce

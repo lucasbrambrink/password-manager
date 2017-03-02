@@ -69,7 +69,8 @@ body.vault {
   color: #fcfcfc;
   font-family: 'Open Sans', Arial, sans-serif;
   background: rgba(26, 25, 51, 0.43);
-  width: 65%;
+  width: 100%;
+  max-width: 675px;
   height: 60%;
   padding: 5%;
 }
@@ -83,7 +84,8 @@ body.vault {
 }
 .login form,
 .registration form {
-  width: 75%;
+  width: 100%;
+  max-width: 375px;
   margin: 0 auto;
 }
 .login form label,
@@ -94,6 +96,7 @@ body.vault {
 .registration form label.error {
   display: block;
   color: #ff9494;
+  text-align: left;
 }
 .login form input,
 .registration form input {
@@ -227,16 +230,26 @@ body.vault {
 .vault section.create-password form {
   position: relative;
 }
+.vault section.create-password form div {
+  display: inline-block;
+  width: 70%;
+  height: 83px;
+  float: left;
+}
+.vault section.create-password form div:first-child {
+  width: 29%;
+  margin-right: 5px;
+}
+.vault section.create-password label.error {
+  color: #ff9494;
+}
 .vault section.create-password input {
   margin: 5px 0;
-  width: 60%;
+  width: 100%;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
   font-size: 16px;
   padding: 12px 5px;
-}
-.vault section.create-password input:first-child {
-  width: 30%;
 }
 .vault section.create-password input:focus {
   outline: none;

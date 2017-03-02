@@ -29,6 +29,7 @@ class PasswordEntity(models.Model):
     password = models.ForeignKey(to='Password')
     guid = models.CharField(max_length=255, unique=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
+    is_active = models.BooleanField(default=True)
 
 
 class PasswordManager(models.Manager):
@@ -70,6 +71,7 @@ class Password(models.Model):
     key = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
+    is_active = models.BooleanField(default=True)
 
     @property
     def current_password(self):
@@ -83,6 +85,7 @@ class Vault(models.Model):
     key = models.CharField(max_length=255)
     created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(auto_now_add=True, null=True)
+    is_active = models.BooleanField(default=True)
 
     @staticmethod
     def init_vault(root):
@@ -140,6 +143,7 @@ class VaultUser(AbstractBaseUser):
     guid = models.CharField(max_length=255, default=u'')
     google_authenticator_credentials = models.CharField(max_length=255, default=u'')
     nonce_e = models.CharField(max_length=255, default=u'')
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.username

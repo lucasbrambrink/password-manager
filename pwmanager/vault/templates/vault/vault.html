@@ -24,19 +24,26 @@
 
   <section class="create-password">
     <form v-on:submit.prevent="createPassword" v-show="showCreatePassword">
-      <input type="text"
-             v-model="create.name"
-             placeholder="Name" v-cloak/>
-      <input v-show="!create.showPlaintext"
-             class="gen-password"
-             type="password"
-             placeholder="Password"
-             v-model="create.password" v-cloak/>
-      <input v-show="create.showPlaintext"
-             type="text"
-             placeholder="Password"
-             class="gen-password"
-             v-model="create.password" />
+      <div>
+        <input type="text"
+               v-model="create.name"
+               data-validate="required"
+               placeholder="Name" v-cloak/>
+      </div>
+      <div v-show="!create.showPlaintext">
+        <input class="gen-password"
+               type="password"
+               data-validate="required"
+               placeholder="Password"
+               v-model="create.password" v-cloak/>
+      </div>
+      <div v-show="create.showPlaintext">
+        <input type="text"
+               placeholder="Password"
+               data-validate="required"
+               class="gen-password"
+               v-model="create.password" />
+      </div>
       <button v-on:click.prevent="generatePassword"
               title="Generate random password"
               class="icon-btn generate-btn">

@@ -80,7 +80,8 @@ body {
     color: @white;
     font-family: 'Open Sans', Arial, sans-serif;
     background: @opaque-bg;
-    width: 65%;
+    width: 100%;
+    max-width: 675px;
     height: 60%;
     padding: 5%;
   }
@@ -91,13 +92,15 @@ body {
     height: 70%;
   }
   form {
-    width: 75%;
+    width: 100%;
+    max-width: 375px;
     margin: 0 auto;
     label {
       display: none;
       &.error {
         display: block;
         color: @error;
+        text-align: left;
       }
     }
     input {
@@ -226,17 +229,27 @@ body {
   section.create-password {
     form {
       position: relative;
+      div {
+        display: inline-block;
+        width: 70%;
+        height: 83px;
+        float: left;
+        &:first-child {
+          width: 29%;
+          margin-right: 5px;
+        }
+      }
+    }
+    label.error {
+      color: @error;
     }
     input {
       margin: 5px 0;
-      width: 60%;
+      width: 100%;
       background: transparent;
       border: 1px solid @weak-white;
       font-size: 16px;
       padding: 12px 5px;
-      &:first-child {
-        width: 30%;
-      }
       &:focus {
         outline: none;
       }

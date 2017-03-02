@@ -18,7 +18,12 @@
               <label class="error">{{ error }}</label>
             {% endif %}
 
-            {{ form }}
+            {% for field in form %}
+                <div class="">
+                    {{ field.errors }}
+                    {{ field }}
+                </div>
+            {% endfor %}
 
             <input type="submit" class="btn" value="Submit" />
         </form>

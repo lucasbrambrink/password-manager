@@ -143,6 +143,9 @@
             AuthSouce.csrf();
             this.loadPasswords()
         },
+        mounted: function () {
+            $('form').ezFormValidation();
+        },
         methods: {
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
