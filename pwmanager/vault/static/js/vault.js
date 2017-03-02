@@ -128,10 +128,13 @@
                 name: '',
                 password: '',
                 showPlaintext: false,
-            }
+            },
         },
         computed: {
             hideCreatePassword: function () {
+                if (!this.showCreatePassword) {
+                    $('form').setFormNeutral();
+                }
                 return !this.showCreatePassword;
             },
             isEmpty: function () {

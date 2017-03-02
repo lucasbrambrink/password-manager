@@ -327,6 +327,14 @@ var EzForms = (function ($) {
 
     };
 
+    var setFormNeutral = function (form) {
+        $('form')
+            .find('[data-validate]')
+            .each(function () {
+                Utils.setNeutral(this);
+            });
+    };
+
     var initAll = function(selector) {
         $(selector)
             .map(function() {
@@ -339,6 +347,7 @@ var EzForms = (function ($) {
         STATES: STATES,
         validateInput: validateInput,
         formIsValid: formIsValid,
+        setFormNeutral: setFormNeutral,
         init: init,
         initAll: initAll
     }
@@ -348,6 +357,9 @@ var EzForms = (function ($) {
     $.fn.extend({
         ezFormValidation: function () {
             EzForms.init(this);
+        },
+        setFormNeutral: function() {
+            EzForms.setFormNeutral(this);
         }
     });
     $('form').ezFormValidation();

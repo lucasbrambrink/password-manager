@@ -23,7 +23,9 @@
   </header>
 
   <section class="create-password">
-    <form v-on:submit.prevent="createPassword" v-show="showCreatePassword">
+    <form v-on:submit.prevent="createPassword"
+          v-bind:class="{invalid: hideCreatePassword}"
+          v-show="showCreatePassword">
       <div>
         <input type="text"
                v-model="create.name"
