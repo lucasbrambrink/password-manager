@@ -173,7 +173,8 @@ body.vault {
   color: #fcfcfc;
   font-family: 'Open Sans', Arial, sans-serif;
   background: rgba(26, 25, 51, 0.43);
-  width: 65%;
+  width: 100%;
+  max-width: 625px;
   height: 80%;
   padding: 5%;
 }
@@ -232,7 +233,7 @@ body.vault {
 }
 .vault section.create-password form div {
   display: inline-block;
-  width: 70%;
+  width: 69%;
   height: 83px;
   float: left;
 }
@@ -276,7 +277,7 @@ body.vault {
   background-position: 10px 9px;
   position: absolute;
   top: 7px;
-  left: 82%;
+  right: 37px;
 }
 .vault section.create-password .upload-icon {
   height: 47px;
@@ -286,7 +287,7 @@ body.vault {
   background-size: 25px;
   background-position: center;
   top: 5px;
-  left: 91%;
+  right: 5px;
 }
 .vault section.create-password input[type=submit] {
   margin: 10px 0 0;
