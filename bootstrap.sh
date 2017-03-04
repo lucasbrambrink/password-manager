@@ -7,7 +7,7 @@ sudo apt-get install -y python3
 sudo apt-get install -y python-virtualenv
 
 virtualenv -p python3 /vagrant/venv
-sudo apt-get install -y build-essential python3-dev postgresql postgresql-contrib libpq-dev
+sudo apt-get install -y build-essential python3-dev postgresql postgresql-contrib libpq-dev libssl-dev libffi-dev python-dev
 
 source vagrant/venv/bin/activate
 pip install --upgrade pip

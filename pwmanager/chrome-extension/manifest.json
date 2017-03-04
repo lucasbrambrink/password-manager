@@ -7,10 +7,11 @@
 
   "browser_action": {
     "default_icon": "locked.png",
-    "default_popup": "test.html"
+    "default_popup": "index.html"
   },
   "permissions": [
     "activeTab",
-    "https://ajax.googleapis.com/"
+    "https://ajax.googleapis.com/",
+    "https://simple-vault.tk/"
   ]
 }

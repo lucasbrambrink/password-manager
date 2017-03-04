@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Dependencies
     'django_extensions',
+    'rest_framework',
     # one time password / MFA
     'django_otp',
     'django_otp.plugins.otp_static',
