@@ -142,7 +142,6 @@ class VaultUser(AbstractBaseUser):
     """
     django user entity that maps 1-to-1 to Vault mount
     """
-    DECRYPTION_KEY = None
     USERNAME_FIELD = u'email'
     REQUIRED_FIELDS = [u'username', u'password']
     objects = VaultUserManager()

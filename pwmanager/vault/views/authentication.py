@@ -7,6 +7,7 @@ from ..utils.app_role import AppRoleApi
 from ..utils.cache import AuthCache
 from ..utils.tokens import TokenException
 from ..utils.crypt import InvalidSignature, InvalidToken, SymmetricEncryption
+from ..utils.mem_store import EncryptionStore
 import logging
 import datetime
 
@@ -20,6 +21,7 @@ class Authenticate(object):
         * ensures no possible cross-interference
     """
     NONCE = u'nonce'
+    SESSION_KEY = u'session-key'
 
     @staticmethod
     def check_authentication(request):
@@ -60,7 +62,9 @@ class Authenticate(object):
         add nonce to session store
         """
         encryption_key = SymmetricEncryption.build_encryption_key(password, user.salt)
-        user.DECRYPTION_KEY = SymmetricEncryption.decrypt(encryption_key, user.decryption_key_e)
+        # put this key in the cache for the user session
+        request.session[cls.SESSION_KEY] = SymmetricEncryption\
+            .encrypt(EncryptionStore.TRANSIENT_E_KEY, encryption_key)
 
         nonce = cls.initialize_vault_access_token(user)
         cls.store_nonce(request, nonce)
