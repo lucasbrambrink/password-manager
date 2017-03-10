@@ -7,31 +7,18 @@
     <link rel="stylesheet" type="text/css" href="vault-styles.css" />
 </head>
 
-<body>
-    <section class="login" v-cloak>
-        <h1>Welcome</h1>
-        <p>Please sign-in to unlock your vault.</p>
-        <form>
-            <input name="email" title="email" type="text" />
-            <input name="password" title="password" type="password" />
-            <input type="submit" class="btn" value="Submit" />
-        </form>
+<body id="vault">
+    <section class="login" v-show="showLogin">
+        <div v-html="loginHtml"></div>
     </section>
 
-    <section class="registration" v-cloak>
-        <h1>Register now!</h1>
-        <p>Join the safest, most convenient password manager yet.</p>
-        <form>
-            <input name="email" title="email" type="text" />
-            <input name="username" title="username" type="text" />
-            <input name="password" title="password" type="text" />
-            <input type="submit" class="btn" value="Submit" />
-        </form>
+    <section class="registration" v-show="showRegistration">
+        <div v-html="registrationHtml"></div>
     </section>
 
     <section class="vault">
       <header>
-        <h1>{{ user_name }}</h1>
+        <h1>{{ userName }}</h1>
 
         <button v-on:click="showCreatePassword = !showCreatePassword"
                 type="button" class="icon-btn push-right"

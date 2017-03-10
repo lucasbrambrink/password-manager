@@ -1,9 +1,28 @@
 
-<form>
-  <div>
-    <input name="username" />
-  </div>
-  <div>
-    <input name="password" />
-  </div>
-</form>
+<main>
+
+    <header class="text-center">
+        <h1>Welcome</h1>
+        <a href="{% url 'registration' %}">Don't have an account? Sign up.</a>
+    </header>
+
+    <article class="text-center">
+        <form action="{% url 'auth' %}" method="post" class="text-center validate">
+            {% csrf_token %}
+
+            {% if error %}
+              <label class="error">{{ error }}</label>
+            {% endif %}
+
+            {% for field in form %}
+                <div class="">
+                    {{ field.errors }}
+                    {{ field }}
+                </div>
+            {% endfor %}
+
+            <input type="submit" class="btn" value="Submit" />
+        </form>
+    </article>
+</main>
+

@@ -93,3 +93,4 @@ venv/
 .vagrant/
 .DS_STORE
 redis-stable*
+consul

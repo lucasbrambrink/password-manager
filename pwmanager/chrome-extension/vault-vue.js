@@ -4,7 +4,7 @@
 (function() {
 
     var AuthSouce = (function ($) {
-        var BASE_URL = 'https://simple-vault.tk/api/v0';
+        var BASE_URL = 'http://127.0.0.1:8000';
         var csrfToken = function () {
             $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
                 var token = $('input[name=csrfmiddlewaretoken]').val();
@@ -42,7 +42,8 @@
         };
 
         return {
-            API_URL: BASE_URL,
+            BASE_URL: BASE_URL,
+            API_URL: BASE_URL + '/api/v0',
             csrf: csrfToken,
             service: callService,
             get: getService
@@ -131,6 +132,11 @@
             error: false,
             passwords: [''],
             showCreatePassword: false,
+            showRegistration: false,
+            showLogin: true,
+            loginHtml: '',
+            userName: '',
+            registrationHtml: '',
             TITLES: {
                 NEW: "Create new password",
                 HIDE: "Hide form"
@@ -162,12 +168,29 @@
         created: function () {
             this.guid = $('#guid').val();
             AuthSouce.csrf();
-            this.loadPasswords()
+            // this.loadPasswords()
+            this.loadLoginHtml();
         },
         mounted: function () {
             $('form').ezFormValidation();
         },
         methods: {
+            loadLoginHtml: function () {
+                var url = AuthSouce.BASE_URL + '/chrome-extension/auth';
+                return AuthSouce.get(
+                    url,
+                    function (response) {
+                        vmVault.loginHtml = response;
+                    });
+            },
+            registrationLoginHtml: function () {
+                var url = AuthSouce.BASE_URL + '/chrome-extension/registration';
+                return AuthSouce.get(
+                    url,
+                    function (response) {
+                        vmVault.registrationHtml = response;
+                    });
+            },
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
             },

@@ -11,7 +11,10 @@ from .utils.policies import PolicyApi, CreateUserPolicyApi
 from .utils.otek import RollingEncryptionKeys
 from .utils.vault_api import VaultException
 from .utils.user import UserApi
-
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 class LoginAttempt(models.Model):
     EMPTY = u'Both inputs are required'
@@ -41,7 +44,8 @@ class PasswordManager(models.Manager):
         api = user.access_api(token)
         password_guid = GuidSource.generate()
 
-        success = api.write(password_guid, password)
+        encrypted_password = SymmetricEncryption.encrypt(user.DECRYPTION_KEY, password)
+        success = api.write(password_guid, encrypted_password)
         if not success:
             raise VaultException("Unable to write to vault")
 
@@ -128,11 +132,17 @@ class VaultUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+    def set_password(self, user, password):
+        encryption_key, salt = SymmetricEncryption.generate_key_from_password(password)
+        user.set_password(password)
+        user.salt = salt
+
 
 class VaultUser(AbstractBaseUser):
     """
     django user entity that maps 1-to-1 to Vault mount
     """
+    DECRYPTION_KEY = None
     USERNAME_FIELD = u'email'
     REQUIRED_FIELDS = [u'username', u'password']
     objects = VaultUserManager()
@@ -141,6 +151,7 @@ class VaultUser(AbstractBaseUser):
     email = models.EmailField(blank=False, unique=True, default=u'')
     vault = models.OneToOneField(to=Vault,
                                  on_delete=models.CASCADE)
+    salt = models.CharField(max_length=255, default=u'')
     guid = models.CharField(max_length=255, default=u'')
     google_authenticator_credentials = models.CharField(max_length=255, default=u'')
     nonce_e = models.CharField(max_length=255, default=u'')
@@ -164,6 +175,13 @@ class VaultUser(AbstractBaseUser):
         app_role = AppRoleApi()
         return app_role.get_user_access_token(self.role_name)
 
+    def set_password(self, raw_password):
+        super(VaultUser, self).set_password(raw_password)
+        # archive encryption key
+        encryption_key, salt = SymmetricEncryption.generate_key_from_password(raw_password)
+        self.salt = salt
+        return salt
+
 
 class ApplicationToken(models.Model):
     encrypted_token = models.CharField(max_length=255)
@@ -186,5 +204,7 @@ class ApplicationToken(models.Model):
         cls.create(encrypted_token=token)
 
 
-
-
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.create(user=instance)

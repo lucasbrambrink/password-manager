@@ -1,10 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+<main>
 
-</body>
-</html>
+    <header class="text-center">
+        <h1>Sign up for free!</h1>
+        <a href="{% url 'auth' %}">Already have an account? Login.</a>
+    </header>
+
+    <article class="text-center">
+        <form action="{% url 'registration' %}" method="post" class="text-center validate">
+            {% csrf_token %}
+
+            {% if error %}
+              <label class="error">{{ error }}</label>
+            {% endif %}
+
+            {{ form }}
+
+            <input type="submit" class="btn" value="Register" />
+        </form>
+    </article>
+</main>

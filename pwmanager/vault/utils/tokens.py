@@ -17,7 +17,7 @@ class TokenApi(object):
     LOOKUP_SELF = u'lookup-self'
 
     #custom policies
-    APP_HANDLER = u'app-handler'
+    APP_ROLE_HANDLER = u'app-handler'
     USER_CREATOR = u'user-creator'
 
     @classmethod
@@ -27,7 +27,7 @@ class TokenApi(object):
         for application to use to connect to vault
         and delegate approle
         """
-        TokenStore.APP_HANDLER_TOKEN = cls.create_token(root, cls.APP_HANDLER)
+        TokenStore.APP_HANDLER_TOKEN = cls.create_token(root, cls.APP_ROLE_HANDLER)
 
     @classmethod
     def lookup_token(cls, root, token):
@@ -60,7 +60,13 @@ class TokenApi(object):
         """
         TokenStore.USER_CREATOR_TOKEN = cls.create_token(root, cls.USER_CREATOR)
 
-    def __init__(self, root):
-        self.create_application_token(root)
-        self.create_user_creator_token(root)
+    @classmethod
+    def create_server_sufficient_child_of_root_token(cls, root_token):
+        return cls.create_token(root_token, [
+            cls.USER_CREATOR, cls.APP_ROLE_HANDLER
+        ])
+
+    def __init__(self, server_token):
+        self.create_application_token(server_token)
+        self.create_user_creator_token(server_token)
 

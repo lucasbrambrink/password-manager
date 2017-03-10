@@ -1,6 +1,8 @@
-from cryptography.fernet import Fernet, InvalidToken, InvalidSignature
+from cryptography.fernet import Fernet, base64, InvalidSignature, InvalidToken
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import rsa
 import hashlib
-import random
+import os
 import uuid
 
 class SymmetricEncryption(object):
@@ -8,6 +10,26 @@ class SymmetricEncryption(object):
     @staticmethod
     def generate_key():
         return Fernet.generate_key()
+
+    @staticmethod
+    def generate_salt(password):
+        p = base64.urlsafe_b64encode(password.encode('utf-8'))
+        return os.urandom(32 - len(p))
+
+    @classmethod
+    def generate_key_from_password(cls, password):
+        # archive encryption key
+        salt = cls.generate_salt(password)
+        decoded_salt = base64.urlsafe_b64encode(salt).decode('utf-8')
+        return cls.build_encryption_key(password, salt), decoded_salt
+
+    @classmethod
+    def build_encryption_key(cls, password, salt):
+        if type(salt) is str:
+            salt = salt.encode('utf-8')
+        salted_string = base64.urlsafe_b64encode(password.encode('utf-8')) + salt
+        return base64.urlsafe_b64encode(salted_string)
+
 
     @staticmethod
     def encrypt(key, secret):
@@ -26,27 +48,15 @@ class SymmetricEncryption(object):
         return hashlib.sha512(key).hexdigest()
 
 
-class PasswordGenerator(object):
+class RSA(object):
 
     @staticmethod
-    def generate_password(length=16):
-        lowercase = u'abcdefghijklmnopqrstuvwxyz'
-        upppercase = u'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-        numbers = '1234567890'
-        symbols = '!@#$%^&*+=\}]{[|:;",<>.~`?'
-        choices = [
-            lowercase,
-            upppercase,
-            numbers,
-            symbols
-        ]
-
-        password = []
-        for x in range(length):
-            category = random.choice(choices)
-            password.append(random.choice(category))
-
-        return u''.join(password)
+    def generate_private_key():
+        private_key = rsa.generate_private_key(
+            public_exponent=65537,
+            key_size=2048,
+            backend=default_backend()
+        )
 
 
 class GuidSource(object):

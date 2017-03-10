@@ -6,7 +6,7 @@ from ..forms import LoginForm
 from ..utils.app_role import AppRoleApi
 from ..utils.cache import AuthCache
 from ..utils.tokens import TokenException
-from ..utils.crypt import InvalidSignature, InvalidToken
+from ..utils.crypt import InvalidSignature, InvalidToken, SymmetricEncryption
 import logging
 import datetime
 
@@ -55,10 +55,13 @@ class Authenticate(object):
         return nonce
 
     @classmethod
-    def login_user(cls, request, user):
+    def login_user(cls, request, user, password):
         """
         add nonce to session store
         """
+        encryption_key = SymmetricEncryption.build_encryption_key(password, user.salt)
+        user.DECRYPTION_KEY = SymmetricEncryption.decrypt(encryption_key, user.decryption_key_e)
+
         nonce = cls.initialize_vault_access_token(user)
         cls.store_nonce(request, nonce)
 
@@ -114,7 +117,7 @@ class AuthenticationView(TemplateView):
 
             login(request, user)
             # mount to vault
-            Authenticate.login_user(request, user)
+            Authenticate.login_user(request, user, password)
             login_attempt.success = True
             login_attempt.save()
             return redirect(u'vault', guid=user.guid)
@@ -130,3 +133,17 @@ class AuthenticationView(TemplateView):
         })
 
 
+class ChromeExtensionLoginView(TemplateView):
+    template_name = u'vault/components/login.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        only allow 3 attempts
+        perhaps perform some kind of MFA
+        """
+        # authenticate user
+        # perhaps return json response?
+        return render(request, self.template_name, {
+            'error': '',
+            'form': LoginForm()
+        })

@@ -19,7 +19,10 @@ class Policy(object):
 
 class PolicyApi(object):
     POLICY_URL = u'sys/policy'
+    # POLICY NAMES
     WRITE = u'write'
+
+    # CAPABILITIES
     CREATE = u'create'
     UPDATE = u'update'
     DELETE = u'delete'
@@ -27,7 +30,7 @@ class PolicyApi(object):
 
     # custom policies
     @classmethod
-    def app_handler(cls):
+    def app_role_handler(cls):
         policy = PolicyConfig(u'auth/approle/role/*', cls.WRITE, None)
         return Policy(
             u'app-handler',
@@ -66,7 +69,7 @@ class PolicyApi(object):
     def initialize_required_policies(cls, root_token):
         """run once per vault"""
         api = VaultConnection(root_token)
-        cls.create(api, cls.app_handler())
+        cls.create(api, cls.app_role_handler())
         cls.create(api, cls.user_creator())
 
 

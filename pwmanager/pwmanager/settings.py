@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     # Dependencies
     'django_extensions',
     'rest_framework',
+    'rest_framework.authtoken',
+
     # one time password / MFA
     'django_otp',
     'django_otp.plugins.otp_static',
@@ -192,3 +194,11 @@ SESSION_CACHE_ALIAS = "default"
 
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = 'two_factor:login'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    )
+}
