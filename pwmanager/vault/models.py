@@ -40,12 +40,10 @@ class PasswordManager(models.Manager):
     def history(self):
         return
 
-    def create_password(self, user, token, domain_name, password):
-        api = user.access_api(token)
+    def create_password(self, user, token, domain_name, password, user_key):
+        api = user.access_api(token, user_key)
         password_guid = GuidSource.generate()
-
-        encrypted_password = SymmetricEncryption.encrypt(user.DECRYPTION_KEY, password)
-        success = api.write(password_guid, encrypted_password)
+        success = api.write(password_guid, password)
         if not success:
             raise VaultException("Unable to write to vault")
 
@@ -123,8 +121,8 @@ class VaultUserManager(BaseUserManager):
         user.vault = vault
 
         # create policy for user
-        c = CreateUserPolicyApi()
-        c.create_policy_for_user(user.role_name)
+        c = CreateUserPolicyApi(user)
+        c.create_policy_for_user()
 
         app_role = AppRoleApi()
         app_role.create_app_role_for_user(user.role_name)
@@ -167,8 +165,8 @@ class VaultUser(AbstractBaseUser):
     def role_name(self):
         return self.get_role_name(self.guid)
 
-    def access_api(self, token):
-        return UserApi(self.role_name, token)
+    def access_api(self, token, encryption_key):
+        return UserApi(self.role_name, token, encryption_key)
 
     def get_vault_access(self):
         app_role = AppRoleApi()

@@ -89,31 +89,33 @@ class VaultConnection(object):
                                 headers=self.get_headers())
         return self.handle_response(response)
 
-    def vpost(self, url, data):
+    def vpost(self, url, data, throw_exception=False):
         serialized_data = json.dumps(data)
         response = requests.post(url=url,
                                  data=serialized_data,
                                  headers=self.get_headers(True))
-        return self.handle_response(response)
+        return self.handle_response(response, throw_exception=throw_exception)
 
     def vput(self, url, data):
         response = requests.put(url=url,
                                 data=json.dumps(data),
                                 headers=self.get_headers(True))
-        data = dump.dump_all(response)
-        log.debug(data.decode('utf-8'))
         return self.handle_response(response)
 
     @classmethod
-    def handle_response(cls, response):
+    def handle_response(cls, response, throw_exception=False):
+        result = {}
         if response.status_code == VaultResponse.SUCCESS:
             log.info(response.json())
-            return response.json()
+            result = response.json()
         elif response.status_code == VaultResponse.SUCCESS_NO_DATA:
             log.info(response)
-            return {}
         else:
-            log.warn(u'RESPONSE: {}'.format(response.status_code))
-            log.warn(response.content)
-            return response.content
+            log.warning(u'RESPONSE: {}'.format(response.status_code))
+            log.warning(response.content)
+            if throw_exception:
+                raise Exception(response.raise_for_status())
+            result = response.content
+
+        return result
 

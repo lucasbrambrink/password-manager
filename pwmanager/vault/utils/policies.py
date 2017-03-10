@@ -39,7 +39,7 @@ class PolicyApi(object):
 
     @classmethod
     def user_creator(cls):
-        policy_config = PolicyConfig(u'secret/*', None, [cls.UPDATE])
+        policy_config = PolicyConfig(u'secret/*', cls.WRITE, None)
         return Policy(
             u"user-creator",
             [policy_config]
@@ -74,18 +74,23 @@ class PolicyApi(object):
 
 
 class CreateUserPolicyApi(object):
+    """
+    DOES NOT WORK CURRENTLY!! TOKEN NOT STRONG ENOUGH TO CREATE user-policies
+    (might need sudo?)
+    """
 
-    def __init__(self):
+    def __init__(self, user):
+        self.user = user
         self.token = TokenStore.USER_CREATOR_TOKEN
         self.api = VaultConnection(self.token)
 
-    def create_policy_for_user(self, role_name):
+    def create_policy_for_user(self):
         config = PolicyConfig(
-            path=u'secret/{}/*'.format(role_name),
+            path=u'secret/{}/*'.format(self.user.role_name),
             policy_name=PolicyApi.WRITE,
         )
         policy = Policy(
-            name=role_name,
+            name=self.user.role_name,
             rules=[config]
         )
         return PolicyApi.create(self.api, policy)

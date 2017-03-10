@@ -4,7 +4,7 @@
 nav {
   width: 100%;
   height: 40px;
-  color: #fcfcfc;
+  color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
   background: rgba(26, 25, 51, 0.43);
 }
@@ -52,7 +52,7 @@ body.vault {
 .registration a,
 .login a:hover,
 .registration a:hover {
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .login .container,
 .registration .container {
@@ -66,7 +66,7 @@ body.vault {
 }
 .login main,
 .registration main {
-  color: #fcfcfc;
+  color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
   background: rgba(26, 25, 51, 0.43);
   width: 100%;
@@ -113,21 +113,21 @@ body.vault {
 }
 .login form input::-webkit-input-placeholder,
 .registration form input::-webkit-input-placeholder {
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .login form input:-moz-placeholder,
 .registration form input:-moz-placeholder {
   /* Firefox 18- */
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .login form input::-moz-placeholder,
 .registration form input::-moz-placeholder {
   /* Firefox 19+ */
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .login form input:-ms-input-placeholder,
 .registration form input:-ms-input-placeholder {
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .login form input[name=email],
 .registration form input[name=email] {
@@ -158,7 +158,7 @@ body.vault {
 .registration form input[type=submit]:focus {
   background: rgba(0, 0, 0, 0.3);
   transition: background 130ms ease-in;
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .vault .container {
   display: -webkit-flex;
@@ -170,7 +170,7 @@ body.vault {
   height: 100vh;
 }
 .vault main {
-  color: #fcfcfc;
+  color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
   background: rgba(26, 25, 51, 0.43);
   width: 100%;
@@ -260,7 +260,13 @@ body.vault {
 }
 .vault section.create-password form li:first-child {
   width: 100%;
+  position: relative;
   margin-bottom: 10px;
+}
+.vault section.create-password form li:first-child span {
+  position: absolute;
+  right: 15px;
+  top: -10px;
 }
 .vault section.create-password label.error {
   color: #ff9494;
@@ -280,18 +286,18 @@ body.vault {
   border: 1px solid #ff9494;
 }
 .vault section.create-password input::-webkit-input-placeholder {
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .vault section.create-password input:-moz-placeholder {
   /* Firefox 18- */
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .vault section.create-password input::-moz-placeholder {
   /* Firefox 19+ */
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .vault section.create-password input:-ms-input-placeholder {
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 .vault section.create-password .generate-btn {
   height: 47px;
@@ -321,11 +327,11 @@ body.vault {
 .vault section.create-password input[type=submit]:focus {
   background: rgba(0, 0, 0, 0.3);
   transition: background 130ms ease-in;
-  color: #fcfcfc;
+  color: #FCFCFC;
 }
 input[type=range] {
   -webkit-appearance: none;
-  width: 100%;
+  width: 90% !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;

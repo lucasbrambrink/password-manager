@@ -23,26 +23,39 @@ class Authenticate(object):
     NONCE = u'nonce'
     SESSION_KEY = u'session-key'
 
-    @staticmethod
-    def check_authentication(request):
+    @classmethod
+    def check_authentication(cls, request):
         if not request.user.is_authenticated:
-            return False, None, None
+            log.warning('Unauthenticated user request')
+            return False, None, None, None
 
         try:
             nonce = request.session.pop('nonce')
         except KeyError:
-            return False, None, None
+            log.warning('Request without nonce')
+            return False, None, None, None
 
         # check nonce and generate new one
         try:
             authenticated, nonce, key = AuthCache.digest_nonce(nonce)
             if not authenticated:
-                return False, None, None
-        except (InvalidToken, InvalidSignature):
-            return False, None, None
+                return False, None, None, None
+        except (InvalidToken, InvalidSignature) as ex:
+            log.warning('Unable to digest nonce')
+            return False, None, None, None
+
+        try:
+            user_key = SymmetricEncryption.decrypt(
+                EncryptionStore.TRANSIENT_E_KEY,
+                request.session[cls.SESSION_KEY])
+
+        except (KeyError, InvalidSignature, InvalidToken) as ex:
+            log.warning('Unable to retrieve user encryption key')
+            return False, None, None, None
+
 
         # yield new nonce if last one was correct
-        return True, nonce, key
+        return True, nonce, key, user_key
 
     @staticmethod
     def initialize_vault_access_token(user):
@@ -63,8 +76,9 @@ class Authenticate(object):
         """
         encryption_key = SymmetricEncryption.build_encryption_key(password, user.salt)
         # put this key in the cache for the user session
-        request.session[cls.SESSION_KEY] = SymmetricEncryption\
-            .encrypt(EncryptionStore.TRANSIENT_E_KEY, encryption_key)
+        request.session[cls.SESSION_KEY] = SymmetricEncryption.encrypt(
+            EncryptionStore.TRANSIENT_E_KEY,
+            encryption_key)
 
         nonce = cls.initialize_vault_access_token(user)
         cls.store_nonce(request, nonce)
@@ -128,7 +142,8 @@ class AuthenticationView(TemplateView):
         except LoginException as ex:
             login_attempt.error_msg = ex
         except TokenException:
-            login_attempt.error_msg = u'Unable to authenticate securely. Please contact a system administrator.'
+            login_attempt.error_msg = u'Unable to authenticate to security layer. ' \
+                                      u'Our administrators are definitely freaking out right now.'
 
         login_attempt.save()
         return render(request, self.template_name, {

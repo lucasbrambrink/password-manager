@@ -256,7 +256,13 @@ body {
         display: inline-block;
         &:first-child {
           width: 100%;
+          position: relative;
           margin-bottom: 10px;
+          span {
+            position: absolute;
+            right: 15px;
+            top: -10px;
+          }
         }
       }
     }
@@ -327,7 +333,7 @@ body {
 
 input[type=range] {
   -webkit-appearance: none;
-  width: 100%;
+  width: 90% !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;

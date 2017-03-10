@@ -12,6 +12,12 @@ class SymmetricEncryption(object):
         return Fernet.generate_key()
 
     @staticmethod
+    def safe_encode(value):
+        if type(value) is str:
+            value = value.encode('utf-8')
+        return base64.urlsafe_b64encode(value)
+
+    @staticmethod
     def generate_salt(password):
         p = base64.urlsafe_b64encode(password.encode('utf-8'))
         return os.urandom(32 - len(p))
@@ -28,15 +34,19 @@ class SymmetricEncryption(object):
         if type(salt) is str:
             salt = salt.encode('utf-8')
         salted_string = base64.urlsafe_b64encode(password.encode('utf-8')) + salt
-        return base64.urlsafe_b64encode(salted_string)
+        reduced = salted_string.decode()[:32].encode('utf-8')
+        return base64.urlsafe_b64encode(reduced)
 
 
     @staticmethod
     def encrypt(key, secret):
+        if type(key) is bytes:
+            pass
         if type(secret) is str:
             secret = secret.encode('utf-8')
         if type(secret) is not bytes:
             raise Exception('Encryption requires string or bytes')
+
         return Fernet(key).encrypt(secret)
 
     @staticmethod

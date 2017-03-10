@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from ..models import VaultUser, Password
 from ..utils.cache import AuthCache
 from ..utils.user import UserApi
+from ..utils.crypt import InvalidSignature, InvalidToken
 from ..utils.vault_api import VaultException
 import logging
 import json
@@ -27,7 +28,7 @@ class PasswordListView(View):
         if not request.user.is_authenticated:
             return redirect('auth')
 
-        authenticated, nonce, key = Authenticate.check_authentication(request)
+        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
         if not authenticated:
             return redirect('auth')
 
@@ -80,7 +81,7 @@ class DataAccessRead(DataAccessView):
         if not request.user.is_authenticated:
             return self.return_none()
 
-        authenticated, nonce, key = Authenticate.check_authentication(request)
+        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
         if not authenticated:
             return self.return_none()
 
@@ -98,22 +99,26 @@ class DataAccessRead(DataAccessView):
             return self.return_none()
 
         token = AuthCache.get_token(key)
-        access = UserApi(user.role_name, token)
+        access = UserApi(user.role_name, token, user_key)
 
         try:
             password = Password.objects.get(key=query)
         except Password.DoesNotExist:
             return self.return_none()
 
-        response = access.read(query)
-        if not response:
+        try:
+            value = access.read(query)
+        except (InvalidSignature, InvalidToken, TypeError):
+            value = None
+
+        if not value:
             return self.return_none()
 
         Authenticate.store_nonce(request, nonce)
         return JsonResponse(DataAccessResponse(
             success=True,
             data={
-                'value': response.get('value'),
+                'value': value,
             }
         ).__dict__)
 
@@ -124,7 +129,7 @@ class DataAccessWrite(DataAccessView):
         if not request.user.is_authenticated:
             return self.return_none()
 
-        authenticated, nonce, key = Authenticate.check_authentication(request)
+        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
         if not authenticated:
             return self.return_none()
 
@@ -146,7 +151,7 @@ class DataAccessWrite(DataAccessView):
         token = AuthCache.get_token(key)
         try:
             Password.objects.create_password(
-                user, token, name, password
+                user, token, name, password, user_key
             )
         except VaultException:
             return self.return_none()

@@ -17,7 +17,7 @@ class VaultView(TemplateView):
         if not request.user.is_authenticated:
             return redirect('auth')
 
-        authenticated, nonce, key = Authenticate.check_authentication(request)
+        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
         if not authenticated:
             return redirect('auth')
 

@@ -1,6 +1,7 @@
 from .mem_store import TokenStore
 from .vault_api import VaultConnection
 from os.path import join
+from requests import HTTPError
 
 
 class AppRoleException(Exception):
@@ -27,9 +28,12 @@ class AppRoleApi(object):
     def enable_approle(cls, root):
         api = VaultConnection(token=root)
         url = api.get_url(u'sys/auth/approle')
-        return api.vpost(url, {
-            'type': "approle"
-        })
+        try:
+            return api.vpost(url, {
+                'type': "approle"
+            }, throw_exception=True)
+        except HTTPError:
+            print("App Role already enabled")
 
     def create_app_role_for_user(self, role_name):
         url = self.api.get_url(join(self.APP_ROLE_URL, self.ROLE, role_name))
