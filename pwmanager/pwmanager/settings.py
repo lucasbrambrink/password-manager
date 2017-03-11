@@ -185,12 +185,6 @@ CACHES = {
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
-# try:
-#     from .local_settings import ENCRYPTION_KEY
-# except ImportError:
-#     ENCRYPTION_KEY = None
-#     print('Unable to import local settings')
-#
 
 from django.core.urlresolvers import reverse_lazy
 LOGIN_URL = 'two_factor:login'
@@ -208,3 +202,9 @@ REST_FRAMEWORK = {
         'djangorestframework_camel_case.parser.CamelCaseJSONParser', # Any other parsers
     ),
 }
+
+try:
+    from .local_settings import DEBUG
+except ImportError:
+    DEBUG = True
+    print('Unable to import local settings')
