@@ -1,10 +1,13 @@
 from django.conf.urls import url
 # from .views import
 from rest_framework.authtoken import views
+from .views import PasswordList
 # urlpatterns += [
 # ]
 urlpatterns = [
     url(r'^auth/get-token/', views.obtain_auth_token),
+    url(r'^password/(?P<guid>[A-Za-z0-9-]+)/', PasswordList.as_view(), name=u'vault-list'),
+
     # url(r'^auth/login'),
     # url(r'^authenticate', AuthenticationView.)
     # url(r'^registration', RegistrationView.as_view(), name=u'registration'),

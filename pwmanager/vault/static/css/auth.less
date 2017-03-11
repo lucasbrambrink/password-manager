@@ -186,12 +186,20 @@ body {
   .icon-btn {
     border: 0 solid;
     background: rgba(0, 0, 0, 0);
+    float: left;
     &:focus,
     &:hover {
       transition: color 130ms ease-in;
       color: rgba(255, 255, 255, 0.7);
       outline: none;
     }
+  }
+  .password-history {
+    background: url(../icons/history.svg) no-repeat;
+    background-size: 20px;
+    background-position: 6px 3px;
+    width: 30px;
+    height: 30px;
   }
 
   section.passwords {
@@ -202,6 +210,9 @@ body {
     padding: 0 15px;
     &.open {
       height: 360px;
+    }
+    .show-on-hover {
+      display: none;
     }
     article {
       width: 100%;
@@ -217,12 +228,24 @@ body {
         .action-container {
           visibility: visible;
         }
+        .show-on-hover {
+          display: block;
+        }
+      }
+      ul {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0 10px;
+      }
+      li {
+        text-align: right;
+        cursor: pointer;
       }
     }
     .action-container {
       position: absolute;
       right: 10px;
-      top: 10px;
+      top: 0px;
       visibility: hidden;
     }
   }
@@ -327,6 +350,14 @@ body {
         transition: background 130ms ease-in;
         color: @white;
       }
+    }
+  }
+  section.update-password {
+    height: 48px;
+    input {
+      position: relative;
+      margin: 10px 0 0;
+      padding: 12px 10px;
     }
   }
 }

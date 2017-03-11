@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from vault.models import VaultUser, Password
+from vault.models import VaultUser, Password, PasswordEntity
 
 
 class VaultUserSerializer(serializers.ModelSerializer):
@@ -13,21 +13,23 @@ class VaultUserSerializer(serializers.ModelSerializer):
         """
         return VaultUser.objects.create(**validated_data)
 
-    def update(self, instance, validated_data):
-        """
-        Update and return an existing `Snippet` instance, given the validated data.
-        """
-        instance.title = validated_data.get('title', instance.title)
-        instance.code = validated_data.get('code', instance.code)
-        instance.linenos = validated_data.get('linenos', instance.linenos)
-        instance.language = validated_data.get('language', instance.language)
-        instance.style = validated_data.get('style', instance.style)
-        instance.save()
-        return instance
+
+class PasswordEntitySerializer(serializers.ModelSerializer):
+    created_time = serializers.SerializerMethodField()
+
+    def get_created_time(self, obj):
+        created = obj.created
+        return created.strftime("%B %d, %Y, %I:%M %p")
+
+    class Meta:
+        model = PasswordEntity
+        fields = ('id', 'created', 'guid', 'created_time')
 
 
 class PasswordSerializer(serializers.ModelSerializer):
+    passwordentity_set = PasswordEntitySerializer(many=True, read_only=True)
+
     class Meta:
         model = Password
-        fields = ('id', 'domain_name', 'key',)
+        fields = ('id', 'domain_name', 'key', 'passwordentity_set')
 

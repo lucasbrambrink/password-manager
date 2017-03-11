@@ -77,7 +77,12 @@
   <section class="passwords" v-bind:class="{open: showCreatePassword}">
     <password-item v-for="password in passwords"
                    :lookup-key="password.key"
-                   :domain-name="password.domainName">
+                   :domain-name="password.domainName"
+                   :is-hovering="password.isHovering"
+                   :new-password="password.newPassword"
+                   :show-create-new="password.showCreateNew"
+                   :show-history="password.showPasswordHistory"
+                   :password-entities="password.passwordentitySet">
     </password-item>
     <div v-show="isEmpty && hideCreatePassword">
       <p>Looks like you don't have any passwords yet!</p>
@@ -93,27 +98,57 @@
 
 <template id="passwordItem">
   <article>
-    <div v-text="domainName"></div>
-    <div class="action-container">
-      <button v-on:click="requestPassword"
-              title="Show password"
-              class="icon-btn">
-        <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
-      </button>
-      <button v-on:click="changePassword"
-              title="Replace password"
-              class="icon-btn">
-        <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
-      </button>
-      <button v-on:click="deletePassword"
-              title="Delete password"
-              class="icon-btn">
-        <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
-      </button>
-    </div>
+    <header>
+      <div v-text="domainName"></div>
+      <div class="action-container">
+        <button v-on:click="requestPassword"
+                title="Show most recent password"
+                class="icon-btn">
+          <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+        </button>
+        <button v-on:click="changePassword"
+                title="Replace password"
+                class="icon-btn">
+          <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
+        </button>
+        <button v-on:click="showPasswordHistory"
+                title="Show password history"
+                class="icon-btn password-history">
+        </button>
+        <button v-on:click="deletePassword"
+                title="Delete password"
+                class="icon-btn">
+          <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
+        </button>
+      </div>
+    </header>
+
+    <section class="create-password update-password show-on-hover" v-show="showCreateNew">
+      <input class="gen-password"
+             placeholder="Enter new password here"
+             v-bind:id="lookupKey"
+             type="password" />
+    </section>
+    <section class="show-on-hover">
+      <ul v-show="showHistory">
+        <password-history-item
+                class=text-right"
+                v-for="entity in passwordEntities"
+                :created-time="entity.createdTime"
+                :lookup-key="entity.guid">
+        </password-history-item>
+      </ul>
+    </section>
   </article>
 </template>
 
+
+<template id="passwordHistoryItem">
+  <li class=text-right"
+      v-on:click="showHistoryItem"
+      v-text="createdTime">
+  </li>
+</template>
 
 {% endblock body %}
 

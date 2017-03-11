@@ -6,7 +6,6 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from .serializers import VaultUserSerializer, PasswordSerializer
 from django.contrib.auth import login, logout
-from vault.models import Password
 
 
 
@@ -21,8 +20,10 @@ class AuthenticationView(generics.GenericAPIView):
 class PasswordList(mixins.ListModelMixin,
                    mixins.CreateModelMixin,
                    generics.GenericAPIView):
-    queryset = Password.objects.all()
     serializer_class = PasswordSerializer
+
+    def get_queryset(self):
+        return self.request.user.vault.password_set.all()
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)

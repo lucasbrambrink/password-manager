@@ -90,7 +90,13 @@
 
     var passwordItem = Vue.component('password-item', {
         template: '#passwordItem',
-        props: ["lookup-key", "domain-name"],
+        props: ["lookup-key",
+            "domain-name",
+            "is-hovering",
+            "password-entities",
+            "new-password",
+            "show-create-new",
+            "show-history"],
         methods: {
             requestPassword: function () {
                 return this.requestData({
@@ -106,16 +112,69 @@
                     this.requestDataCallback);
             },
             requestDataCallback: function (response) {
-                console.log(response);
                 if (response.success) {
                     vmVault.showPassword(response.data.value)
                 } else {
                     vmVault.error = true;
                 }
             },
+            showPasswordHistory: function () {
+                vmVault.updatePasswordItem(
+                    this.lookupKey,
+                    "showCreateNew",
+                    false
+                );
+                vmVault.updatePasswordItem(
+                    this.lookupKey,
+                    "showPasswordHistory",
+                    !this.showHistory
+                );
+            },
             changePassword: function () {
+                vmVault.updatePasswordItem(
+                    this.lookupKey,
+                    "showPasswordHistory",
+                    false
+                );
+                vmVault.updatePasswordItem(
+                    this.lookupKey,
+                    "showCreateNew",
+                    !this.showCreateNew
+                );
+            },
+            submitNewPassword: function() {
+                var key = $('#' + this.lookupKey).val();
+
             },
             deletePassword: function () {
+            }
+        }
+    });
+
+    var passwordHistoryItem = Vue.component('password-history-item', {
+        template: '#passwordHistoryItem',
+        props: ["lookup-key",
+                "created-time",],
+        methods: {
+            showHistoryItem: function () {
+                return this.requestData({
+                    query: this.lookupKey,
+                    guid: vmVault.guid
+                })
+            },
+            requestData: function (data) {
+                var url = '/auth/data/get';
+                return AuthSouce.service(
+                    url,
+                    data,
+                    this.requestDataCallback);
+            },
+            requestDataCallback: function (response) {
+                if (response.success) {
+                    vmVault.showPassword(response.data.value)
+                } else {
+                    vmVault.error = true;
+                }
             }
         }
     });
@@ -127,7 +186,7 @@
         data: {
             guid: '',
             error: false,
-            passwords: [''],
+            passwords: [],
             showCreatePassword: false,
             TITLES: {
                 NEW: "Create new password",
@@ -227,23 +286,34 @@
             },
             loadPasswords: function () {
                 return AuthSouce.get(
-                    '/vault/' + this.guid + '/list',
+                    '/api/v0/password/' + this.guid + '/',
                     this.loadPasswordCallback
                 )
             },
-            loadPasswordCallback: function (response) {
-                console.log(response);
-                if (response.success) {
-                    vmVault.passwords = JSON.parse(response.data.passwords)
-                        .map(function (model) {
-                            return {
-                                key: model.fields.key,
-                                domainName: model.fields.domain_name
-                            }
-                        });
+            updatePasswordItem: function(passwordKey, key, value) {
+                var password;
+                var found = false;
+                for (var i = 0; i < this.passwords.length; i++) {
+                    password = this.passwords[i];
+                    if (password.key === passwordKey) {
+                        found = true;
+                        break;
+                    }
                 }
+                if (found) {
+                    password[key] = value;
+                }
+            },
+            loadPasswordCallback: function (passwords) {
+                vmVault.passwords = passwords.map(function (password) {
+                    password.isHovering = false;
+                    password.newPassword = "";
+                    password.showCreateNew = false;
+                    password.showPasswordHistory = false;
+                    return password;
+                });
+                console.log(vmVault.passwords);
             }
-
         }
     });
 })();

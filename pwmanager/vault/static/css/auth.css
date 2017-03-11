@@ -189,12 +189,20 @@ body.vault {
 .vault .icon-btn {
   border: 0 solid;
   background: rgba(0, 0, 0, 0);
+  float: left;
 }
 .vault .icon-btn:focus,
 .vault .icon-btn:hover {
   transition: color 130ms ease-in;
   color: rgba(255, 255, 255, 0.7);
   outline: none;
+}
+.vault .password-history {
+  background: url(../icons/history.svg) no-repeat;
+  background-size: 20px;
+  background-position: 6px 3px;
+  width: 30px;
+  height: 30px;
 }
 .vault section.passwords {
   font-size: 18px;
@@ -205,6 +213,9 @@ body.vault {
 }
 .vault section.passwords.open {
   height: 360px;
+}
+.vault section.passwords .show-on-hover {
+  display: none;
 }
 .vault section.passwords article {
   width: 100%;
@@ -222,10 +233,22 @@ body.vault {
 .vault section.passwords article:hover .action-container {
   visibility: visible;
 }
+.vault section.passwords article:hover .show-on-hover {
+  display: block;
+}
+.vault section.passwords article ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0 10px;
+}
+.vault section.passwords article li {
+  text-align: right;
+  cursor: pointer;
+}
 .vault section.passwords .action-container {
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 0px;
   visibility: hidden;
 }
 .vault section.create-password {
@@ -328,6 +351,14 @@ body.vault {
   background: rgba(0, 0, 0, 0.3);
   transition: background 130ms ease-in;
   color: #FCFCFC;
+}
+.vault section.update-password {
+  height: 48px;
+}
+.vault section.update-password input {
+  position: relative;
+  margin: 10px 0 0;
+  padding: 12px 10px;
 }
 input[type=range] {
   -webkit-appearance: none;
