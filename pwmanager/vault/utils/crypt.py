@@ -19,7 +19,7 @@ class SymmetricEncryption(object):
 
     @staticmethod
     def generate_salt(password):
-        p = base64.urlsafe_b64encode(password.encode('utf-8'))
+        p = base64.urlsafe_b64encode(password.encode('utf-8')).decode()
         return os.urandom(32 - len(p))
 
     @classmethod
@@ -27,7 +27,7 @@ class SymmetricEncryption(object):
         # archive encryption key
         salt = cls.generate_salt(password)
         decoded_salt = base64.urlsafe_b64encode(salt).decode('utf-8')
-        return cls.build_encryption_key(password, salt), decoded_salt
+        return cls.build_encryption_key(password, decoded_salt), decoded_salt
 
     @classmethod
     def build_encryption_key(cls, password, salt):
