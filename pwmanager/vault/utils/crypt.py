@@ -37,7 +37,6 @@ class SymmetricEncryption(object):
         reduced = salted_string.decode()[:32].encode('utf-8')
         return base64.urlsafe_b64encode(reduced)
 
-
     @staticmethod
     def encrypt(key, secret):
         if type(key) is bytes:

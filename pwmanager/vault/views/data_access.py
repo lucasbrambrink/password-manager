@@ -139,6 +139,7 @@ class DataAccessWrite(DataAccessView):
 
         name = data.get('domainName')
         password = data.get('password')
+        password_pk = data.get('password-key')
         guid = data.get('guid')
 
         if None in (name, password, guid):
