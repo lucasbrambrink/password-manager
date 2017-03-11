@@ -40,25 +40,31 @@ class PasswordManager(models.Manager):
     def history(self):
         return
 
-    def create_password(self, user, token, domain_name, password, user_key):
+    def create_password(self, user, token, domain_name, password, user_key, password_guid=None):
         api = user.access_api(token, user_key)
-        password_guid = GuidSource.generate()
-        success = api.write(password_guid, password)
+        entity = PasswordEntity(
+            guid=GuidSource.generate(),
+        )
+        success = api.write(entity.guid, password)
         if not success:
             raise VaultException("Unable to write to vault")
 
-        password = self.model(
+        password_obj = None
+        if password_guid:
+            try:
+                password_obj = Password.objects.get(key=password_guid)
+            except Password.DoesNotExist:
+                pass
+
+        password_obj = password_obj or self.model(
             domain_name=domain_name,
             vault=user.vault,
-            key=password_guid
+            key=GuidSource.generate()
         )
-        password.save(using=self._db)
-
-        entity = PasswordEntity(
-            guid=password_guid,
-            password=password
-        )
+        password_obj.save(using=self._db)
+        entity.password = password_obj
         entity.save(using=self._db)
+
 
 
 class Password(models.Model):

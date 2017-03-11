@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from vault.models import VaultUser, Password, PasswordEntity
+from vault.models import VaultUser, Password, PasswordEntity, VaultException
 
 
 class VaultUserSerializer(serializers.ModelSerializer):
@@ -27,9 +27,32 @@ class PasswordEntitySerializer(serializers.ModelSerializer):
 
 
 class PasswordSerializer(serializers.ModelSerializer):
-    passwordentity_set = PasswordEntitySerializer(many=True, read_only=True)
+    passwordentity_set = PasswordEntitySerializer(many=True,
+                                                  read_only=True,
+                                                  allow_null=True)
 
     class Meta:
         model = Password
         fields = ('id', 'domain_name', 'key', 'passwordentity_set')
+
+
+
+class PasswordCreateSerializer(serializers.Serializer):
+    VaultException = VaultException
+    password = serializers.CharField(max_length=255)
+    domain_name = serializers.CharField(max_length=255)
+    password_guid = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+
+    @staticmethod
+    def create_or_update(*args):
+        return Password.objects.create_password(*args)
+
+
+class PasswordValueSerializer(serializers.Serializer):
+    query = serializers.CharField(max_length=255)
+    value = serializers.CharField(max_length=255,
+                                  allow_blank=True,
+                                  allow_null=True)
 

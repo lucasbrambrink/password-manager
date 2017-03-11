@@ -55,6 +55,7 @@ class Authenticate(object):
 
 
         # yield new nonce if last one was correct
+        cls.store_nonce(request, nonce)
         return True, nonce, key, user_key
 
     @staticmethod

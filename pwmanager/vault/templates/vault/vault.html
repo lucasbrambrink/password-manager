@@ -25,6 +25,7 @@
   <section class="create-password" v-bind:class="{open: showCreatePassword}">
     <form v-on:submit.prevent="createPassword"
           v-show="showCreatePassword"
+          class="generate-password"
           data-never-disabled="true">
       <div>
         <input type="text"
@@ -103,7 +104,7 @@
     <header v-on:click.capture="setFocus">
       <div v-text="domainName"></div>
       <div class="action-container">
-        <button v-on:click="requestPassword"
+        <button v-on:click="requestCurrentPassword"
                 title="Show most recent password"
                 class="icon-btn">
           <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
@@ -155,7 +156,7 @@
 
 <template id="passwordHistoryItem">
   <li class=text-right"
-      v-on:click="showHistoryItem"
+      v-on:click="requestPassword"
       v-text="createdTime">
   </li>
 </template>

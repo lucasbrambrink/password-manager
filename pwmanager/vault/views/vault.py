@@ -21,9 +21,7 @@ class VaultView(TemplateView):
         if not authenticated:
             return redirect('auth')
 
-        Authenticate.store_nonce(request, nonce)
         vu = VaultUser.objects.get(guid=guid)
-        print(nonce)
         return render(request, self.template_name, {
             u'user_name': vu.username,
             u'guid': vu.guid,

@@ -11,15 +11,14 @@
             });
         };
 
-        var callService = function (url, data, callback) {
-            callback = callback || function () {
-                };
+        var callService = function (url, method, data, callback) {
+            callback = callback || function () { };
             $.ajax({
                 url: url,
                 processData: false,
                 data: JSON.stringify(data),
                 contentType: 'application/json',
-                type: 'POST',
+                type: method,
                 dataType: "json",
             }).done(function (response) {
                 callback(response)
@@ -87,9 +86,36 @@
         };
     })();
 
+    var requestPasswordMixin = {
+        methods: {
+            requestPassword: function () {
+                return this.requestData({
+                    query: this.lookupKey,
+                    guid: vmVault.guid
+                })
+            },
+            requestData: function (data) {
+                var url = '/api/v0/password/';
+                return AuthSouce.service(
+                    url,
+                    "POST",
+                    data,
+                    this.requestDataCallback);
+            },
+            requestDataCallback: function (response) {
+                if (response.value) {
+                    vmVault.showPassword(response.value)
+                } else {
+                    vmVault.error = true;
+                }
+            }
+        }
+    };
+
 
     var passwordItem = Vue.component('password-item', {
         template: '#passwordItem',
+        mixins: [requestPasswordMixin],
         props: ["lookup-key",
             "domain-name",
             "is-hovering",
@@ -137,28 +163,10 @@
 
         },
         methods: {
-            requestPassword: function () {
+            requestCurrentPassword: function () {
                 return this.requestData({
-                    query: this.lookupKey,
-                    guid: vmVault.guid
+                    query: this.passwordEntities[0].guid
                 })
-            },
-            requestData: function (data) {
-                var url = '/auth/data/get';
-                return AuthSouce.service(
-                    url,
-                    data,
-                    this.requestDataCallback);
-            },
-            requestDataCallback: function (response) {
-                if (response.success) {
-                    vmVault.showPassword(response.data.value)
-                } else {
-                    vmVault.error = true;
-                }
-            },
-            submitNewPassword: function() {
-
             },
             deletePassword: function () {
             },
@@ -181,13 +189,23 @@
                     .split('')
                     .map(function() {return '*'})
                     .join(''));
-                $('form').ezFormValidation();
-                var url = '/auth/data/update';
+
+                var url = '/api/v0/password/create/';
                 return AuthSouce.service(
                     url,
-                    newPassword,
+                    "POST",
+                    {
+                        password: newPassword,
+                        passwordGuid: this.lookupKey,
+                        domainName: this.domainName
+                    },
                     this.createPasswordCallback
                 )
+            },
+            createPasswordCallback: function (resp) {
+                vmVault.createPasswordCallback(resp);
+                this.showPasswordHistory = true;
+                this.isFocused = true;
             }
         }
     });
@@ -196,28 +214,7 @@
         template: '#passwordHistoryItem',
         props: ["lookup-key",
                 "created-time",],
-        methods: {
-            showHistoryItem: function () {
-                return this.requestData({
-                    query: this.lookupKey,
-                    guid: vmVault.guid
-                })
-            },
-            requestData: function (data) {
-                var url = '/auth/data/get';
-                return AuthSouce.service(
-                    url,
-                    data,
-                    this.requestDataCallback);
-            },
-            requestDataCallback: function (response) {
-                if (response.success) {
-                    vmVault.showPassword(response.data.value)
-                } else {
-                    vmVault.error = true;
-                }
-            }
-        }
+        mixins: [requestPasswordMixin]
     });
 
 
@@ -259,7 +256,6 @@
             }
         },
         created: function () {
-            this.guid = $('#guid').val();
             AuthSouce.csrf();
             this.loadPasswords()
         },
@@ -270,30 +266,16 @@
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
             },
-            requestData: function (data) {
-                var url = '/auth/data/get';
-                return AuthSouce.service(
-                    url,
-                    data,
-                    this.requestDataCallback);
-            },
-            requestDataCallback: function (response) {
-                console.log(response);
-                if (response.success) {
-                    vmVault.showPassword(response.data.value)
-                } else {
-                    vmVault.error = true;
-                }
-            },
             createPassword: function (event) {
-                var isValid = EzForms.formIsValid('form', false);
+                var selector = 'form.generate-password';
+                var isValid = EzForms.formIsValid(selector, false);
                 if (!isValid) {
                     return;
                 }
-                $('form').ezFormValidation();
-                var url = '/auth/data/create';
+                var url = '/api/v0/password/create/';
                 return AuthSouce.service(
                     url,
+                    "POST",
                     this.consumeCreateForm(),
                     this.createPasswordCallback
                 )
@@ -308,45 +290,36 @@
                 this.create.showPlaintext = true;
             },
             createPasswordCallback: function (response) {
-                console.log(response);
-                if (response.success) {
+                if (response.status !== undefined) {
+                    vmVault.error = true;
+                } else {
                     vmVault.showCreatePassword = false;
                     vmVault.loadPasswords();
-                } else {
-                    vmVault.error = true;
                 }
             },
             consumeCreateForm: function () {
                 var data = {
                     domainName: this.create.domainName,
                     password: this.create.password,
-                    guid: this.guid
+                    passwordGuid: '',
                 };
                 this.create.password = null;
                 this.create.domainName = null;
                 return data;
             },
             loadPasswords: function () {
-                return AuthSouce.get(
-                    '/api/v0/password/' + this.guid + '/',
+                return AuthSouce.service(
+                    '/api/v0/password/list/',
+                    "POST",
+                    {},
                     this.loadPasswordCallback
                 )
             },
-            updatePasswordItem: function(passwordKey, key, value) {
-                var password;
-                var found = false;
-                for (var i = 0; i < this.passwords.length; i++) {
-                    password = this.passwords[i];
-                    if (password.key === passwordKey) {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) {
-                    password[key] = value;
-                }
-            },
             loadPasswordCallback: function (passwords) {
+                if (passwords.status !== undefined) {
+                    console.log(passwords);
+                    return;
+                }
                 var obj = {};
                 vmVault.passwords = passwords.map(function (password) {
                     password.isHovering = false;

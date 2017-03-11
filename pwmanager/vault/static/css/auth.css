@@ -225,6 +225,7 @@ body.vault {
 }
 .vault section.passwords article div {
   padding: 0 15px;
+  cursor: pointer;
 }
 .vault section.passwords article:hover {
   background: rgba(0, 0, 0, 0.2);
@@ -254,6 +255,13 @@ body.vault {
 .vault section.passwords article li {
   text-align: right;
   cursor: pointer;
+  padding: 5px 10px;
+  margin: 0 -10px;
+  border-radius: 3px;
+}
+.vault section.passwords article li:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 130ms ease-in;
 }
 .vault section.passwords .action-container {
   position: absolute;

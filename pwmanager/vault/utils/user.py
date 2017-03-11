@@ -1,6 +1,6 @@
 from .vault_api import VaultConnection
 from os.path import join
-from .crypt import SymmetricEncryption
+from .crypt import SymmetricEncryption, InvalidToken, InvalidSignature
 
 class UserApi(object):
 
@@ -36,3 +36,11 @@ class UserApi(object):
             'value': value_e.decode()
         })
         return type(resp) is dict
+
+    def safe_read(self, query):
+        try:
+            value = self.read(query)
+        except (InvalidSignature, InvalidToken, TypeError):
+            value = None
+        finally:
+            return value

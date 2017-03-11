@@ -44,7 +44,7 @@ class SymmetricEncryption(object):
         if type(secret) is str:
             secret = secret.encode('utf-8')
         if type(secret) is not bytes:
-            raise Exception('Encryption requires string or bytes')
+            raise TypeError('%s: Encryption requires string or bytes' % type(secret))
 
         return Fernet(key).encrypt(secret)
 
