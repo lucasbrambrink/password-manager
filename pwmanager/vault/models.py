@@ -57,14 +57,13 @@ class PasswordManager(models.Manager):
                 pass
 
         password_obj = password_obj or self.model(
-            domain_name=domain_name,
             vault=user.vault,
             key=GuidSource.generate()
         )
+        password_obj.domain_name = domain_name
         password_obj.save(using=self._db)
         entity.password = password_obj
         entity.save(using=self._db)
-
 
 
 class Password(models.Model):
@@ -85,6 +84,10 @@ class Password(models.Model):
     @property
     def current_password(self):
         return self.passwordentity_set.objects.first()
+
+    def soft_delete(self):
+        self.is_active = False
+        self.save()
 
 
 class Vault(models.Model):

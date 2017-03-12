@@ -80,10 +80,12 @@
                    :key="password.key"
                    :lookup-key="password.key"
                    :domain-name="password.domainName"
+                   :domain-name-new="password.domainName"
                    :is-hovering="password.isHovering"
                    :new-password="password.newPassword"
                    :show-create-new="password.showCreateNew"
                    :show-history="password.showPasswordHistory"
+                   :show-delete="password.showDelete"
                    :is-focused="password.isFocused"
                    :password-entities="password.passwordentitySet">
     </password-item>
@@ -96,8 +98,6 @@
 </main>
 
 {% csrf_token %}
-
-<input type="hidden" id="guid" value="{{ guid }}" >
 
 <template id="passwordItem">
   <article v-bind:class="{focused: isFocused}">
@@ -119,7 +119,7 @@
                 title="Show password history"
                 class="icon-btn password-history" v-bind:class="{pinned: showPasswordHistory}">
         </button>
-        <button v-on:click="deletePassword"
+        <button v-on:click="toggleDelete"
                 title="Delete password"
                 class="icon-btn">
           <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -130,10 +130,19 @@
     <section class="show-on-focus create-password update-password" v-show="showCreateNew">
       <form v-on:submit.prevent="updatePassword"
             v-bind:id="lookupKey" >
-        <input class="gen-password"
-               placeholder="Enter new password here"
-               data-validate="required"
-               type="password" />
+        <div>
+          <input type="text"
+                 v-model="domainNameNew"
+                 data-validate="required"
+                 class="domain-name skip-blur"
+                 placeholder="Domain Name" v-cloak/>
+        </div>
+        <div>
+          <input class="gen-password"
+                 placeholder="Enter new password here"
+                 data-validate="required"
+                 type="password" />
+        </div>
         <button type="submit" class="icon-btn upload-icon"
           title="Store new password">
         </button>
@@ -149,6 +158,24 @@
                 :lookup-key="entity.guid">
         </password-history-item>
       </ul>
+    </section>
+    <section class="show-on-focus delete-password" v-show="showDelete > 0">
+      <div v-show="showDelete === 1">
+        <p>Are you sure you want to remove?</p>
+        <button v-on:click="showDelete = 2"
+                title="Delete password"
+                class="icon-btn remove-icon">
+          Yes
+        </button>
+      </div>
+      <div v-show="showDelete === 2">
+        <p>Are you absolute sure?</p>
+        <button v-on:click="deletePassword"
+                title="Delete password"
+                class="icon-btn remove-icon">
+          Yes!
+        </button>
+      </div>
     </section>
   </article>
 </template>

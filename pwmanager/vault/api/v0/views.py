@@ -28,7 +28,9 @@ class PasswordListView(mixins.ListModelMixin,
     serializer_class = PasswordSerializer
 
     def get_queryset(self):
-        return self.request.user.vault.password_set.all()
+        return self.request.user\
+            .vault.password_set\
+            .filter(is_active=True)
 
     def post(self, request, *args, **kwargs):
         authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
@@ -44,12 +46,16 @@ class PasswordView(mixins.CreateModelMixin,
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordCreateSerializer
 
-    def update(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
         if not authenticated:
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
-        return self.create(request)
+
+        serializer = PasswordCreateSerializer(data=request.data)
+        serializer.is_valid()
+        serializer.delete(serializer.data.get("password_guid"))
+        return Response({}, status=status.HTTP_202_ACCEPTED)
 
     def post(self, request, *args, **kwargs):
         authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
@@ -81,7 +87,7 @@ class PasswordView(mixins.CreateModelMixin,
 
         del serializer.validated_data['password']
         return Response(serializer.validated_data,
-                        status=status.HTTP_202_ACCEPTED)
+                        status=status.HTTP_201_CREATED)
 
 
 class PasswordGetView(generics.GenericAPIView):

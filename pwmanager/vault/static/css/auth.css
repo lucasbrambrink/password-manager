@@ -206,10 +206,21 @@ body.vault {
 }
 .vault section.passwords {
   font-size: 18px;
-  overflow: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
   height: 418px;
   margin: 35px -15px;
   padding: 0 15px;
+}
+.vault section.passwords::-webkit-scrollbar {
+  width: 5px;
+}
+.vault section.passwords::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+.vault section.passwords::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
 .vault section.passwords.open {
   height: 360px;
@@ -221,7 +232,6 @@ body.vault {
   width: 100%;
   position: relative;
   padding: 10px 0;
-  margin: 0 -15px;
 }
 .vault section.passwords article div {
   padding: 0 15px;
@@ -379,12 +389,34 @@ body.vault {
   margin: 10px 0 0;
   padding: 12px 10px;
 }
+.vault section.update-password div {
+  margin: 0 !important;
+  padding: 0 !important;
+}
 .vault section.update-password .icon-btn {
   top: 10px;
   right: 16px;
 }
 .vault section.update-password label.error {
   display: none;
+}
+.vault section.delete-password {
+  position: relative;
+}
+.vault section.delete-password p {
+  margin: 10px 0 10px;
+}
+.vault section.delete-password .remove-icon {
+  top: -2px;
+  right: 13px;
+  height: 33px;
+  width: 55px;
+  border-radius: 3px;
+  position: absolute;
+}
+.vault section.delete-password .remove-icon:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 130ms ease-in;
 }
 input[type=range] {
   -webkit-appearance: none;

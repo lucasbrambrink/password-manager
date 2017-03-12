@@ -33,7 +33,10 @@ class PasswordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Password
-        fields = ('id', 'domain_name', 'key', 'passwordentity_set')
+        fields = ('id',
+                  'domain_name',
+                  'key',
+                  'passwordentity_set')
 
 
 
@@ -48,6 +51,15 @@ class PasswordCreateSerializer(serializers.Serializer):
     @staticmethod
     def create_or_update(*args):
         return Password.objects.create_password(*args)
+
+    @staticmethod
+    def delete(key):
+        try:
+            password = Password.objects\
+                .get(key=key)
+            password.soft_delete()
+        except Password.DoesNotExist:
+            pass
 
 
 class PasswordValueSerializer(serializers.Serializer):

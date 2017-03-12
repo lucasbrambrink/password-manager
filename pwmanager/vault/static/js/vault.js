@@ -103,6 +103,7 @@
                     this.requestDataCallback);
             },
             requestDataCallback: function (response) {
+                console.log(response);
                 if (response.value) {
                     vmVault.showPassword(response.value)
                 } else {
@@ -122,8 +123,10 @@
             "password-entities",
             "new-password",
             "show-create-new",
+            "show-delete",
             "is-focused",
-            "show-history"],
+            "show-history",
+            "domain-name-new"],
         computed: {
             passwordObj: function () {
                 return vmVault.objPasswords[this.lookupKey];
@@ -133,8 +136,9 @@
                     return this.passwordObj.showPasswordHistory;
                 },
                 set: function (value) {
-                    if (this.changePassword) {
+                    if (this.changePassword || this.showDeleteSection) {
                         this.changePassword = false;
+                        this.showDeleteSection = 0;
                     }
                     this.isFocused = true;
                     this.passwordObj.showPasswordHistory = value;
@@ -145,11 +149,25 @@
                     return this.passwordObj.showCreateNew;
                 },
                 set: function (value) {
-                    if (this.showPasswordHistory) {
+                    if (this.showPasswordHistory || this.showDeleteSection) {
                         this.showPasswordHistory = false;
+                        this.showDeleteSection = 0;
                     }
                     this.isFocused = true;
                     this.passwordObj.showCreateNew = value;
+                }
+            },
+            showDeleteSection: {
+                get: function () {
+                    return this.passwordObj.showDelete;
+                },
+                set: function (value) {
+                    if (this.showPasswordHistory || this.changePassword) {
+                        this.showPasswordHistory = false;
+                        this.changePassword = false;
+                    }
+                    this.isFocused = true;
+                    this.passwordObj.showDelete = value;
                 }
             },
             isFocused: {
@@ -168,7 +186,24 @@
                     query: this.passwordEntities[0].guid
                 })
             },
+            toggleDelete: function () {
+                if (this.showDelete > 0) {
+                    this.showDelete = 0;
+                } else {
+                    this.showDelete = 1;
+                }
+            },
             deletePassword: function () {
+                return AuthSouce.service(
+                    "/api/v0/password/create/",
+                    "DELETE",
+                    {
+                        passwordGuid: this.lookupKey
+                    },
+                    function () {
+                        vmVault.loadPasswords();
+                    }
+                )
             },
             setFocus: function(event) {
                 var initialValue = !this.isFocused;
@@ -197,7 +232,7 @@
                     {
                         password: newPassword,
                         passwordGuid: this.lookupKey,
-                        domainName: this.domainName
+                        domainName: this.domainNameNew
                     },
                     this.createPasswordCallback
                 )
@@ -326,7 +361,9 @@
                     password.newPassword = "";
                     password.showCreateNew = false;
                     password.showPasswordHistory = false;
+                    password.showDelete = 0;
                     password.isFocused = false;
+                    password.domainNameNew = password.domainName;
                     obj[password.key] = password;
                     return password;
                 });
