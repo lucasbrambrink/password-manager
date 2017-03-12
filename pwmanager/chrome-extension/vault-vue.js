@@ -5,14 +5,29 @@
 
     var AuthSouce = (function ($) {
         var BASE_URL = "http://127.0.0.1:8000";
-        var csrfToken = function () {
+        var provisionToken = function (csrf_token) {
             $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                var token = $('input[name=csrfmiddlewaretoken]').val();
-                jqXHR.setRequestHeader('X-CSRFToken', token);
+                jqXHR.setRequestHeader('X-CSRFToken', csrf_token);
             });
         };
 
-        var callService = function (url, method, data, callback) {
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var callService = function (url, method, data, callback, token) {
             callback = callback || function () { };
             var requestObj = {
                 url: url,
@@ -22,17 +37,17 @@
                 type: method,
                 dataType: "json",
             };
-            if (window.token !== undefined) {
+            if (token !== undefined || token !== null) {
                 requestObj.headers = {
-                    'Authorization':'Token ' + window.token
+                    'Authorization':'Token ' + token
                 };
             }
             $.ajax(requestObj)
-                .done(function (response) {
-                    callback(response)
-                }).fail(function (errResponse) {
-                    callback(errResponse)
-                });
+            .done(function (response) {
+                callback(response)
+            }).fail(function (errResponse) {
+                callback(errResponse)
+            });
         };
 
         var getService = function (url, callback) {
@@ -49,7 +64,8 @@
 
         return {
             BASE_URL: BASE_URL,
-            csrf: csrfToken,
+            provisionToken: provisionToken,
+            getCookie: getCookie,
             service: callService,
             get: getService
         };
@@ -269,17 +285,22 @@
             guid: '',
             error: false,
             objPasswords: {},
+            username: '',
             passwords: [],
             showCreatePassword: false,
             showVault: false,
             showLogin: true,
             showRegistration: false,
-            loginHtml: '',
-            registrationHtml: '',
-            vaultHtml: '',
+            viewNavIndex: 1,
+            token: '',
+            csrf: '',
             TITLES: {
                 NEW: "Create new password",
                 HIDE: "Hide form"
+            },
+            login: {
+                email: '',
+                password: '',
             },
             create: {
                 domainName: '',
@@ -292,6 +313,12 @@
             },
         },
         computed: {
+            // token: function () {
+            //     return window.token;
+            // },
+            isAuthenticated: function () {
+                return this.token !== undefined && this.token.length > 0;
+            },
             hideCreatePassword: function () {
                 if (!this.showCreatePassword) {
                     $('form').setFormNeutral();
@@ -306,65 +333,134 @@
             }
         },
         created: function () {
-            AuthSouce.csrf();
-            // this.loadPasswords();
-            this.loadLoginHtml();
+            var cb = function (self) {
+                return function(item) {
+                    console.log(self, item);
+                    self.token = item.public_token;
+                    if (self.isAuthenticated) {
+                        self.activateSession();
+                    }
+                }
+            };
+            chrome.storage.local.get(["public_token"], cb(this));
+            this.provisionCsrfToken();
+
+            // this.loadLoginHtml();
             // this.loadVaultHtml()
+
         },
         mounted: function () {
             $('form').ezFormValidation();
         },
         methods: {
-            loadLoginHtml: function () {
-                var self = this;
-                var url = AuthSouce.BASE_URL + '/chrome-extension/auth/';
-                console.log(url);
-                return AuthSouce.get(
-                    url,
-                    function (response) {
-                        console.log(response);
-                        self.loginHtml = response;
-                        setTimeout(function() {
-                            $('form')
-                                .removeAttr('action')
-                                .on('submit', function (e) {
-                                e.preventDefault();
-                                var data = {
-                                    email: $('form input[type=text]').val(),
-                                    password: $('form input[type=password]').val()
-                                };
-                                AuthSouce.service(
-                                    AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
-                                    'POST',
-                                    data,
-                                    function (resp) {
-                                        console.log(resp);
-                                        window.token = resp.token;
-                                        self.loadVaultHtml();
-                                    }
-                                )
-                            })
-                        }, 1000)
-                    });
+            provisionCsrfToken: function (callback) {
+                var cb = function(self) {
+                    return function (resp) {
+                        var csrf = $(resp);
+                        self.csrftoken = csrf.val();
+                        AuthSouce.provisionToken(self.csrftoken);
+                        if (typeof callback === 'function' ) callback();
+                    };
+                };
+                AuthSouce.get(
+                    AuthSouce.BASE_URL + '/chrome-extension/csrf-token',
+                    cb(this));
             },
-            registrationLoginHtml: function () {
-                var that = this;
-                var url = AuthSouce.BASE_URL + '/chrome-extension/registration/';
-                return AuthSouce.get(
-                    url,
-                    function (response) {
-                        that.registrationHtml = response;
-                    });
+            activateSession: function () {
+                // assign token to request;
+                var load = function(self) {
+                    return function (resp) {
+                        console.log(resp);
+                        self.loadPasswords();
+                        self.showVault = true;
+                        self.showLogin = false;
+                    }
+                };
+                var callback = function (self) {
+                    return function() {
+                        AuthSouce.service(
+                            AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
+                            'PUT', {}, load(self), self.token)
+                    }
+                };
+                // this.provisionCallback =
+                this.provisionCsrfToken(callback(this));
             },
-            loadVaultHtml: function () {
-                var that = this;
-                var url = AuthSouce.BASE_URL + '/chrome-extension/vault/';
-                return AuthSouce.get(
-                    url,
-                    function (response) {
-                        that.vaultHtml = response;
-                    });
+            submitLogin: function() {
+                var cb = function(self) {
+                    return function (resp) {
+                        console.log(resp);
+                        chrome.storage.local.set({ "public_token": resp.token },
+                            function(){
+                        });
+                        self.showVault = true;
+                        self.provisionCsrfToken();
+                    };
+                };
+                AuthSouce.service(
+                    AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
+                    'POST',
+                    {
+                        email: this.login.email,
+                        password: this.login.password,
+                        csrftoken: this.csrftoken
+                    },
+                    cb(this));
             },
+
+            // loadLoginHtml: function () {
+            //     var self = this;
+            //     var url = AuthSouce.BASE_URL + '/chrome-extension/auth/';
+            //     console.log(url);
+            //     return AuthSouce.get(
+            //         url,
+            //         function (response) {
+            //             console.log(response);
+            //             self.loginHtml = response;
+            //             setTimeout(function() {
+            //                 $('form')
+            //                     .removeAttr('action')
+            //                     .on('submit', function (e) {
+            //                     e.preventDefault();
+            //                     var data = {
+            //                         email: $('form input[type=text]').val(),
+            //                         password: $('form input[type=password]').val()
+            //                     };
+            //                     AuthSouce.service(
+            //                         AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
+            //                         'POST',
+            //                         data,
+            //                         function (resp) {
+            //                             console.log(resp);
+            //                             chrome.storage.local.set({ "public_token": resp.token },
+            //                                 function(){
+            //                             });
+            //                             self.loadVaultHtml();
+            //                             self.showVault = true;
+            //                         }
+            //                     )
+            //                 })
+            //             }, 1000)
+            //         });
+            // },
+            // registrationLoginHtml: function () {
+            //     var that = this;
+            //     var url = AuthSouce.BASE_URL + '/chrome-extension/registration/';
+            //     return AuthSouce.get(
+            //         url,
+            //         function (response) {
+            //             that.registrationHtml = response;
+            //         });
+            // },
+            // loadVaultHtml: function () {
+            //     var that = this;
+            //     var url = AuthSouce.BASE_URL + '/chrome-extension/vault/';
+            //     return AuthSouce.get(
+            //         url,
+            //         function (response) {
+            //             that.vaultHtml = response;
+            //         });
+            // },
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
             },
@@ -414,7 +510,8 @@
                     AuthSouce.BASE_URL + '/api/v0/password/list/',
                     "POST",
                     {},
-                    this.loadPasswordCallback
+                    this.loadPasswordCallback,
+                    this.token
                 )
             },
             loadPasswordCallback: function (passwords) {
@@ -438,4 +535,5 @@
             }
         }
     });
+    window.vmVault = vmVault;
 })();

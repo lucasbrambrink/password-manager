@@ -1,5 +1,6 @@
 # from snippets.models import Snippet
 from .serializers import PasswordSerializer
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import mixins
 from rest_framework import generics
@@ -14,14 +15,32 @@ from .serializers import (
     PasswordValueSerializer,
     PasswordCreateSerializer)
 from rest_framework.authtoken.models import Token
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils.decorators import method_decorator
+
 from django.contrib.auth import login, authenticate
 from vault.views.authentication import Authenticate
 from vault.views.authentication import AuthCache
 
-class AuthenticationView(generics.GenericAPIView):
+import logging
+
+log = logging.getLogger(__name__)
+
+class AuthenticationView(generics.UpdateAPIView,
+                         generics.GenericAPIView):
     throttle_classes = ()
     permission_classes = ()
     serializer_class = AuthenticationSerializer
+
+    @method_decorator(ensure_csrf_cookie)
+    def get(self, request, *args, **kwargs):
+        return Response({}, status=status.HTTP_200_OK)
+
+    def put(self, request, *args, **kwargs):
+        Authenticate.initalize_nonce(request, request.user)
+        import ipdb
+        ipdb.set_trace()
+        return Response({}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         serializer = AuthenticationSerializer(data=request.data)
@@ -43,6 +62,7 @@ class AuthenticationView(generics.GenericAPIView):
 class PasswordListView(mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        generics.GenericAPIView):
+    authentication_classes = (TokenAuthentication,)
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordSerializer
 

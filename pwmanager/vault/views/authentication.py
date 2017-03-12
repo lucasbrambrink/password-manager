@@ -39,9 +39,10 @@ class Authenticate(object):
         try:
             authenticated, nonce, key = AuthCache.digest_nonce(nonce)
             if not authenticated:
+                log.warning('Unable to digest nonce')
                 return False, None, None, None
         except (InvalidToken, InvalidSignature) as ex:
-            log.warning('Unable to digest nonce')
+            log.warning('Unable to process nonce keys')
             return False, None, None, None
 
         try:
@@ -71,6 +72,11 @@ class Authenticate(object):
         return nonce
 
     @classmethod
+    def initalize_nonce(cls, request, user):
+        nonce = cls.initialize_vault_access_token(user)
+        cls.store_nonce(request, nonce)
+
+    @classmethod
     def login_user(cls, request, user, password):
         """
         add nonce to session store
@@ -81,8 +87,7 @@ class Authenticate(object):
             EncryptionStore.TRANSIENT_E_KEY,
             encryption_key)
 
-        nonce = cls.initialize_vault_access_token(user)
-        cls.store_nonce(request, nonce)
+        cls.initalize_nonce(request, user)
 
     @classmethod
     def store_nonce(cls, request, nonce):
@@ -154,7 +159,7 @@ class AuthenticationView(TemplateView):
 
 
 class ChromeExtensionLoginView(TemplateView):
-    template_name = u'vault/components/login.html'
+    template_name = u'vault/components/csrf_token.html'
 
     def get(self, request, *args, **kwargs):
         """
@@ -163,7 +168,4 @@ class ChromeExtensionLoginView(TemplateView):
         """
         # authenticate user
         # perhaps return json response?
-        return render(request, self.template_name, {
-            'error': '',
-            'form': LoginForm()
-        })
+        return render(request, self.template_name, {})
