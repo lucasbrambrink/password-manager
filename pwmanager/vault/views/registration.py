@@ -59,3 +59,19 @@ class ChromeExtensionRegistrationView(TemplateView):
             'error': '',
             'form': RegistrationForm()
         })
+
+class ChromeExtensionVaultView(TemplateView):
+    template_name = u'vault/components/registration.html'
+
+    def get(self, request, *args, **kwargs):
+        """
+        only allow 3 attempts
+        perhaps perform some kind of MFA
+        """
+        # authenticate user
+        # perhaps return json response?
+        return render(request, self.template_name, {
+            'error': '',
+            'include_vue': True,
+            'form': RegistrationForm()
+        })

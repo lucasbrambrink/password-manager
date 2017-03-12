@@ -7,18 +7,37 @@ from rest_framework import status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.response import Response
 from rest_framework.exceptions import NotAuthenticated
-from .serializers import VaultUserSerializer, PasswordSerializer, PasswordValueSerializer, PasswordCreateSerializer
-from django.contrib.auth import login, logout
+from .serializers import (
+    AuthenticationSerializer,
+    VaultUserSerializer,
+    PasswordSerializer,
+    PasswordValueSerializer,
+    PasswordCreateSerializer)
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, authenticate
 from vault.views.authentication import Authenticate
 from vault.views.authentication import AuthCache
 
 class AuthenticationView(generics.GenericAPIView):
-    authentication_classes = (SessionAuthentication,)
-
+    throttle_classes = ()
+    permission_classes = ()
+    serializer_class = AuthenticationSerializer
 
     def post(self, request, *args, **kwargs):
-        login(request, request.user)
-        return Response(VaultUserSerializer(request.user).data)
+        serializer = AuthenticationSerializer(data=request.data)
+        user = None
+
+        if serializer.is_valid():
+            user = authenticate(email=serializer.validated_data["email"],
+                                password=serializer.validated_data["password"])
+
+        if not user:
+            return Response(NotAuthenticated.default_detail.capitalize(),
+                            status=NotAuthenticated.status_code)
+
+        token, created = Token.objects.get_or_create(user=user)
+        Authenticate.login_user(request, user, serializer.validated_data["password"])
+        return Response({'token': token.key})
 
 
 class PasswordListView(mixins.ListModelMixin,

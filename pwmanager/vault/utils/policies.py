@@ -26,6 +26,7 @@ class PolicyApi(object):
     CREATE = u'create'
     UPDATE = u'update'
     DELETE = u'delete'
+    SUDO = u'sudo'
     PATH = u'path'
 
     # custom policies
@@ -39,7 +40,8 @@ class PolicyApi(object):
 
     @classmethod
     def user_creator(cls):
-        policy_config = PolicyConfig(u'secret/*', cls.WRITE, None)
+        policy_config = PolicyConfig(u'secret/*', None,
+                                     [cls.SUDO, cls.UPDATE, cls.CREATE])
         return Policy(
             u"user-creator",
             [policy_config]
@@ -64,6 +66,12 @@ class PolicyApi(object):
                 for p in policy.rules
             ])
         })
+
+    @classmethod
+    def delete_policy(cls, root_token, policy_name):
+        api = VaultConnection(root_token)
+        url = api.get_url(u'{}/{}'.format(cls.POLICY_URL, policy_name))
+        return api.vdelete(url)
 
     @classmethod
     def initialize_required_policies(cls, root_token):

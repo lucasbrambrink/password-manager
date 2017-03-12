@@ -102,6 +102,11 @@ class VaultConnection(object):
                                 headers=self.get_headers(True))
         return self.handle_response(response)
 
+    def vdelete(self, url):
+        response = requests.delete(url=url,
+                                   headers=self.get_headers(True))
+        return self.handle_response(response)
+
     @classmethod
     def handle_response(cls, response, throw_exception=False):
         result = {}

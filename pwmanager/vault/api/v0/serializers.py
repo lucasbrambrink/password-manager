@@ -2,6 +2,11 @@ from rest_framework import serializers
 from vault.models import VaultUser, Password, PasswordEntity, VaultException
 
 
+class AuthenticationSerializer(serializers.Serializer):
+    email = serializers.CharField(max_length=255)
+    password = serializers.CharField(max_length=255)
+
+
 class VaultUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = VaultUser

@@ -24,5 +24,4 @@ class VaultView(TemplateView):
         vu = VaultUser.objects.get(guid=guid)
         return render(request, self.template_name, {
             u'user_name': vu.username,
-            u'guid': vu.guid,
         })

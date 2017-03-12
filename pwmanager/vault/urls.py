@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from .views.authentication import AuthenticationView, ChromeExtensionLoginView
-from .views.registration import RegistrationView, ChromeExtensionRegistrationView
+from .views.registration import RegistrationView, ChromeExtensionRegistrationView, ChromeExtensionVaultView
 from .views.vault import VaultView
 
 
@@ -10,4 +10,5 @@ urlpatterns = [
     url(r'^$', AuthenticationView.as_view(), name=u'auth'),
     url(r'^chrome-extension/auth', ChromeExtensionLoginView.as_view(), name=u'ce-auth'),
     url(r'^chrome-extension/registration', ChromeExtensionRegistrationView.as_view(), name=u'ce-registration'),
+    url(r'^chrome-extension/vault', ChromeExtensionVaultView.as_view(), name=u'ce-vault'),
 ]
