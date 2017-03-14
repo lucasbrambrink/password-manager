@@ -210,7 +210,8 @@ class VaultUser(AbstractBaseUser):
         password = self.make_password(raw_password)
         encryption_key = SymmetricEncryption.build_encryption_key(password)
         self.guid_e = SymmetricEncryption.encrypt(encryption_key, self.guid)
-        self.save(update_fields=['guid_e'])
+        if self.pk is not None:
+            self.save(update_fields=['guid_e'])
 
 
 class ApplicationToken(models.Model):
