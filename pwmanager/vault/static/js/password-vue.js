@@ -6,52 +6,21 @@ var passwordItem = Vue.component('password-item', {
         "is-hovering",
         "password-entities",
         "new-password",
-        "show-create-new",
-        "show-delete",
+        "show-index",
         "is-focused",
-        "show-history",
         "domain-name-new"],
     computed: {
         passwordObj: function () {
             return vmVault.objPasswords[this.lookupKey];
         },
-        showPasswordHistory: {
+        viewIndex: {
             get: function () {
-                return this.passwordObj.showPasswordHistory;
+                return this.passwordObj.showIndex;
             },
             set: function (value) {
-                if (this.changePassword || this.showDeleteSection) {
-                    this.changePassword = false;
-                    this.showDeleteSection = 0;
-                }
-                this.isFocused = true;
-                this.passwordObj.showPasswordHistory = value;
-            }
-        },
-        changePassword: {
-            get: function () {
-                return this.passwordObj.showCreateNew;
-            },
-            set: function (value) {
-                if (this.showPasswordHistory || this.showDeleteSection) {
-                    this.showPasswordHistory = false;
-                    this.showDeleteSection = 0;
-                }
-                this.isFocused = true;
-                this.passwordObj.showCreateNew = value;
-            }
-        },
-        showDeleteSection: {
-            get: function () {
-                return this.passwordObj.showDelete;
-            },
-            set: function (value) {
-                if (this.showPasswordHistory || this.changePassword) {
-                    this.showPasswordHistory = false;
-                    this.changePassword = false;
-                }
-                this.isFocused = true;
-                this.passwordObj.showDelete = value;
+                this.passwordObj.showIndex = value;
+                if (value === 0)
+                    this.isFocused = true;
             }
         },
         isFocused: {
@@ -66,16 +35,12 @@ var passwordItem = Vue.component('password-item', {
     },
     methods: {
         requestCurrentPassword: function () {
+            if (this.isFocused) {
+                this.isFocused = false;
+            }
             return this.requestData({
                 query: this.passwordEntities[0].guid
             })
-        },
-        toggleDelete: function () {
-            if (this.showDelete > 0) {
-                this.showDelete = 0;
-            } else {
-                this.showDelete = 1;
-            }
         },
         deletePassword: function () {
             return AuthSouce.service(
@@ -91,6 +56,9 @@ var passwordItem = Vue.component('password-item', {
         },
         setFocus: function(event) {
             var initialValue = !this.isFocused;
+            if ($(event.target).is('span, button')) {
+                initialValue = true;
+            }
             vmVault.passwords.map(function(p) {
                 p.isFocused = false;
             });

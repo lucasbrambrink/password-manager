@@ -122,9 +122,7 @@
                 vmVault.passwords = passwords.map(function (password) {
                     password.isHovering = false;
                     password.newPassword = "";
-                    password.showCreateNew = false;
-                    password.showPasswordHistory = true;
-                    password.showDelete = 0;
+                    password.showIndex = 2;
                     password.isFocused = false;
                     password.domainNameNew = password.domainName;
                     obj[password.key] = password;

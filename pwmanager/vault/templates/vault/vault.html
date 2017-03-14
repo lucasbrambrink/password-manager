@@ -8,7 +8,7 @@
 {% block body %}
 
 <main class="vault" id="vault" v-cloak>
-  <header>
+  <header class="vault-header">
     <h1>{{ user_name }}</h1>
 
     <button v-on:click="toggleShow"
@@ -79,19 +79,19 @@
     <header class="search-header" v-show="showIndex === 1">
       <input type="text" v-model="searchTerm" placeholder="Search">
     </header>
-    <password-item v-for="password in passwordsVisible"
-                   :key="password.key"
-                   :lookup-key="password.key"
-                   :domain-name="password.domainName"
-                   :domain-name-new="password.domainName"
-                   :is-hovering="password.isHovering"
-                   :new-password="password.newPassword"
-                   :show-create-new="password.showCreateNew"
-                   :show-history="password.showPasswordHistory"
-                   :show-delete="password.showDelete"
-                   :is-focused="password.isFocused"
-                   :password-entities="password.passwordentitySet">
-    </password-item>
+    <section class="password-container">
+      <password-item v-for="password in passwordsVisible"
+                     :key="password.key"
+                     :lookup-key="password.key"
+                     :domain-name="password.domainName"
+                     :domain-name-new="password.domainName"
+                     :is-hovering="password.isHovering"
+                     :new-password="password.newPassword"
+                     :show-index="password.showIndex"
+                     :is-focused="password.isFocused"
+                     :password-entities="password.passwordentitySet">
+      </password-item>
+    </section>
     <div v-show="isEmpty && hideCreatePassword">
       <p>Looks like you don't have any passwords yet!</p>
     </div>
@@ -104,25 +104,25 @@
 
 <template id="passwordItem">
   <article v-bind:class="{focused: isFocused}">
-    <header v-on:click.capture="setFocus">
+    <header v-on:click="setFocus">
       <div v-text="domainName"></div>
       <div class="action-container">
         <button v-on:click="requestCurrentPassword"
                 title="Show most recent password"
-                class="icon-btn">
+                class="icon-btn show-recent">
           <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
         </button>
-        <button v-on:click="changePassword = !changePassword"
+        <button v-on:click="viewIndex = 1"
                 title="Replace password"
                 class="icon-btn"
-                v-bind:class="{pinned: changePassword}">
+                v-bind:class="{pinned: viewIndex === 1}">
           <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
         </button>
-        <button v-on:click="showPasswordHistory = !showPasswordHistory"
+        <button v-on:click="viewIndex = 2"
                 title="Show password history"
-                class="icon-btn password-history" v-bind:class="{pinned: showPasswordHistory}">
+                class="icon-btn password-history" v-bind:class="{pinned: viewIndex === 1}">
         </button>
-        <button v-on:click="toggleDelete"
+        <button v-on:click="viewIndex = 3"
                 title="Delete password"
                 class="icon-btn">
           <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
@@ -130,7 +130,7 @@
       </div>
     </header>
 
-    <section class="show-on-focus create-password update-password" v-show="showCreateNew">
+    <section class="show-on-focus create-password update-password" v-show="viewIndex === 1">
       <form v-on:submit.prevent="updatePassword"
             v-bind:id="lookupKey" >
         <div>
@@ -151,7 +151,7 @@
         </div>
       </form>
     </section>
-    <section class="show-on-focus" v-show="showHistory">
+    <section class="show-on-focus" v-show="viewIndex === 2">
       <ul>
         <password-history-item
                 class=text-right"
@@ -162,16 +162,16 @@
         </password-history-item>
       </ul>
     </section>
-    <section class="show-on-focus delete-password" v-show="showDelete > 0">
-      <div v-show="showDelete === 1">
+    <section class="show-on-focus delete-password" v-show="viewIndex > 2">
+      <div v-show="viewIndex === 3">
         <p>Are you sure you want to remove?</p>
-        <button v-on:click="showDelete = 2"
+        <button v-on:click="viewIndex = 4"
                 title="Delete password"
                 class="icon-btn remove-icon">
           Yes
         </button>
       </div>
-      <div v-show="showDelete === 2">
+      <div v-show="viewIndex === 4">
         <p>Are you absolute sure?</p>
         <button v-on:click="deletePassword"
                 title="Delete password"

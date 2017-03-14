@@ -128,6 +128,7 @@ class PasswordView(mixins.CreateModelMixin,
 
 
 class PasswordGetView(generics.GenericAPIView):
+    authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordSerializer
 
