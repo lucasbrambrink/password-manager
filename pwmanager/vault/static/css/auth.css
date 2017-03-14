@@ -48,32 +48,6 @@ body.vault {
   -o-background-size: cover;
   background-size: cover;
 }
-input {
-  margin: 5px 0;
-  width: 100%;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  font-size: 18px;
-  padding: 10px 45px;
-  color: #FCFCFC;
-}
-input:focus {
-  outline: none;
-}
-input::-webkit-input-placeholder {
-  color: #FCFCFC;
-}
-input:-moz-placeholder {
-  /* Firefox 18- */
-  color: #FCFCFC;
-}
-input::-moz-placeholder {
-  /* Firefox 19+ */
-  color: #FCFCFC;
-}
-input:-ms-input-placeholder {
-  color: #FCFCFC;
-}
 .login a,
 .registration a,
 .login a:hover,
@@ -123,6 +97,38 @@ input:-ms-input-placeholder {
   display: block;
   color: #ff9494;
   text-align: left;
+}
+.login form input,
+.registration form input {
+  margin: 5px 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 18px;
+  padding: 10px 45px;
+  color: #FCFCFC;
+}
+.login form input:focus,
+.registration form input:focus {
+  outline: none;
+}
+.login form input::-webkit-input-placeholder,
+.registration form input::-webkit-input-placeholder {
+  color: #FCFCFC;
+}
+.login form input:-moz-placeholder,
+.registration form input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #FCFCFC;
+}
+.login form input::-moz-placeholder,
+.registration form input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #FCFCFC;
+}
+.login form input:-ms-input-placeholder,
+.registration form input:-ms-input-placeholder {
+  color: #FCFCFC;
 }
 .login form input[name=email],
 .registration form input[name=email] {
@@ -183,6 +189,32 @@ input:-ms-input-placeholder {
   position: absolute;
   right: 10px;
   top: 10px;
+}
+.vault input {
+  margin: 5px 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 18px;
+  padding: 10px 45px;
+  color: #FCFCFC;
+}
+.vault input:focus {
+  outline: none;
+}
+.vault input::-webkit-input-placeholder {
+  color: #FCFCFC;
+}
+.vault input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #FCFCFC;
+}
+.vault input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #FCFCFC;
+}
+.vault input:-ms-input-placeholder {
+  color: #FCFCFC;
 }
 .vault .icon-btn {
   border: 0 solid;
