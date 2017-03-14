@@ -3,9 +3,9 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
-
+from django.contrib.auth.hashers import make_password, PBKDF2PasswordHasher, BasePasswordHasher
 from .utils.crypt import SymmetricEncryption
-from .utils.crypt import GuidSource
+from .utils.crypt import GuidSource, InvalidToken, InvalidSignature
 from .utils.app_role import AppRoleApi
 from .utils.policies import PolicyApi, CreateUserPolicyApi
 from .utils.otek import RollingEncryptionKeys
@@ -15,6 +15,10 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rest_framework.authtoken.models import Token
+import logging
+import base64
+log = logging.getLogger(__name__)
+
 
 class LoginAttempt(models.Model):
     EMPTY = u'Both inputs are required'
@@ -72,9 +76,9 @@ class Password(models.Model):
         maintains history via LIFO queue of password entities
     """
     objects = PasswordManager()
-
     vault = models.ForeignKey(to=u"Vault")
     domain_name = models.CharField(max_length=255)
+    external_unique_identifier = models.CharField(max_length=255, default=u'')
     key = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
@@ -128,7 +132,7 @@ class VaultUserManager(BaseUserManager):
         vault.save()
 
         user.vault = vault
-
+        user.password = 'Nothing here...'
         # create policy for user
         c = CreateUserPolicyApi(user)
         c.create_policy_for_user()
@@ -139,10 +143,6 @@ class VaultUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def set_password(self, user, password):
-        encryption_key, salt = SymmetricEncryption.generate_key_from_password(password)
-        user.set_password(password)
-        user.salt = salt
 
 
 class VaultUser(AbstractBaseUser):
@@ -159,6 +159,7 @@ class VaultUser(AbstractBaseUser):
                                  on_delete=models.CASCADE)
     salt = models.CharField(max_length=255, default=u'')
     guid = models.CharField(max_length=255, default=u'')
+    guid_e = models.BinaryField(null=True, blank=True)
     google_authenticator_credentials = models.CharField(max_length=255, default=u'')
     nonce_e = models.CharField(max_length=255, default=u'')
     is_active = models.BooleanField(default=True)
@@ -169,6 +170,28 @@ class VaultUser(AbstractBaseUser):
     @staticmethod
     def get_role_name(guid):
         return u'user{}'.format(guid)
+
+    def check_password(self, raw_password):
+        password = self.make_password(raw_password)
+        encryption_key = SymmetricEncryption.build_encryption_key(password)
+        try:
+            # if type(self.guid_e) is str:
+            self.guid_e = bytes(self.guid_e)#     self.guid_e = self.guid_e.encode('utf-8')
+            guid = SymmetricEncryption.decrypt(
+                encryption_key,
+                self.guid_e)
+            return guid.decode() == self.guid
+        except InvalidSignature:
+            log.warning("Invalid signature")
+            return False
+        except InvalidToken:
+            log.warning("Invalid token")
+            return False
+
+    def make_password(self, raw_password):
+        hasher = PBKDF2PasswordHasher()
+        hashed_password = hasher.encode(raw_password, self.salt)
+        return hashed_password.split('$').pop()
 
     @property
     def role_name(self):
@@ -182,11 +205,12 @@ class VaultUser(AbstractBaseUser):
         return app_role.get_user_access_token(self.role_name)
 
     def set_password(self, raw_password):
-        super(VaultUser, self).set_password(raw_password)
-        # archive encryption key
-        encryption_key, salt = SymmetricEncryption.generate_key_from_password(raw_password)
-        self.salt = salt
-        return salt
+        """" encrypt guid w gen. encryption key """
+        self.salt = SymmetricEncryption.generate_salt()
+        password = self.make_password(raw_password)
+        encryption_key = SymmetricEncryption.build_encryption_key(password)
+        self.guid_e = SymmetricEncryption.encrypt(encryption_key, self.guid)
+        self.save(update_fields=['guid_e'])
 
 
 class ApplicationToken(models.Model):

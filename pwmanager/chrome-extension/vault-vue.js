@@ -292,6 +292,7 @@
             showLogin: true,
             showRegistration: false,
             viewNavIndex: 1,
+            searchTerm: '',
             token: '',
             csrf: '',
             TITLES: {
@@ -311,6 +312,10 @@
                 digits: true,
                 symbols: true,
             },
+            currentWebsite: {
+                title: '',
+                url: ''
+            }
         },
         computed: {
             // token: function () {
@@ -330,6 +335,15 @@
             },
             toggleTitle: function () {
                 return this.showCreatePassword ? this.TITLES.HIDE : this.TITLES.NEW;
+            },
+            passwordsVisible: function () {
+                if (this.searchTerm.length === 0) {
+                    return this.passwords
+                }
+                var self = this;
+                return this.passwords.filter(function(p) {
+                    return p.domainName.indexOf(self.searchTerm) > -1;
+                });
             }
         },
         created: function () {
@@ -344,7 +358,20 @@
             };
             chrome.storage.local.get(["public_token"], cb(this));
             this.provisionCsrfToken();
+            chrome.tabs.onUpdated.addListener(function() {
+                console.log(window);
+                console.log(window.location);
+            });
 
+            //     code: '('  + ')();' //argument here is a string but function.toString() returns function's code
+            // }, function(results) {
+            // //Here we have just the innerHTML and not DOM structure
+            // //     console.log('Popup script:')
+            // //     console.log(results[0]);
+            //     console.log(window);
+            // });
+            // this.currentWebsite.url = window.location.href;
+            // this.currentWebsite.title = window.location.
             // this.loadLoginHtml();
             // this.loadVaultHtml()
 

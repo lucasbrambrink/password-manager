@@ -10,11 +10,48 @@
 }
 
 body {
-  background: @black;
-  color: @white;
-  width: 300px;
-  height: 500px;
+    color: @white;
+    margin: 0;
+    width: 300px;
+    height: 500px;
+    background: url(snoqualmie_pass-min.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
 }
+
+nav {
+  ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  li {
+    width: 98.5px;
+    padding: 10px 0;
+    font-size: 16px;
+    text-align: center;
+    float: left;
+    cursor: pointer;
+    display: inline-block;
+    border: 1px solid @white;
+    border-right: none;
+    background: rgba(0, 0, 0, 0.2);
+    &:hover, &:focus {
+      background: rgba(0, 0, 0, 0.3);
+      transition: background 130ms ease-in;
+    }
+    &:last-child {
+      border-right: 1px solid @white;
+    }
+    &.active {
+      border-bottom: none;
+    }
+  }
+
+}
+
 
 .login, .registration {
   a, a:hover {
@@ -48,7 +85,6 @@ body {
     width: 100%;
     max-width: 375px;
     margin: 0 auto;
-    color: @white;
     label {
       display: none;
       &.error {
@@ -59,12 +95,11 @@ body {
     }
     input {
       margin: 5px 0;
+      width: 100%;
       background: transparent;
       border: 1px solid @weak-white;
       font-size: 18px;
-      padding: 10px 0 10px 45px;
-      width: 253px;
-      color: @white;
+      padding: 10px 45px;
       &:focus {
         outline: none;
       }
@@ -84,25 +119,23 @@ body {
          color: @white;
       }
       &[name=email] {
-        background: url(icons/mail.svg) no-repeat;
+        background: url(../icons/mail.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
       }
       &[name=password] {
-        background: url(icons/padlock.svg) no-repeat;
+        background: url(../icons/padlock.svg) no-repeat;
         background-size: 25px;
-        background-position: 10px 7px;
+        background-position: 10px 9px;
       }
       &[name=username] {
-        background: url(icons/user.svg) no-repeat;
+        background: url(../icons/user.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
       }
     }
     input[type=submit] {
       margin: 10px 0 0;
-      width: 299px;
-      padding: 10px 0;
       background: rgba(0, 0, 0, 0.2);
       &:hover, &:focus {
         background: rgba(0, 0, 0, 0.3);
@@ -113,6 +146,47 @@ body {
   }
 }
 
+input {
+  margin: 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid @weak-white;
+  font-size: 16px;
+  padding: 12px 5px;
+  color: @white;
+  &:focus {
+    outline: none;
+  }
+  &.invalid {
+    border: 1px solid @error;
+  }
+  &::-webkit-input-placeholder {
+    color: @white;
+  }
+
+  &:-moz-placeholder { /* Firefox 18- */
+    color: @white;
+  }
+
+  &::-moz-placeholder { /* Firefox 19+ */
+    color: @white;
+  }
+
+  &:-ms-input-placeholder {
+    color: @white;
+  }
+}
+main {
+  background: rgba(0, 0, 0, 0.20);
+  height: 100%;
+  header.section-header {
+    height: 50px;
+    width: 100%;
+  }
+  section {
+    float: left;
+  }
+}
 .vault {
   .container {
     display: -webkit-flex;
@@ -132,17 +206,10 @@ body {
     height: 80%;
     padding: 5%;
   }
-  header {
-    position: relative;
-    .push-right {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-    }
-  }
   .icon-btn {
     border: 0 solid;
     background: rgba(0, 0, 0, 0);
+    float: left;
     &:focus,
     &:hover {
       transition: color 130ms ease-in;
@@ -150,23 +217,45 @@ body {
       outline: none;
     }
   }
+  .password-history {
+    background: url(../icons/history.svg) no-repeat;
+    background-size: 20px;
+    background-position: 6px 3px;
+    width: 30px;
+    height: 30px;
+  }
 
   section.passwords {
     font-size: 18px;
-    overflow: scroll;
-    height: 418px;
-    margin: 35px -15px;
-    padding: 0 15px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 460px;
+    width: 100%;
+    padding: 0;
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: darkgrey;
+      outline: 1px solid slategrey;
+    }
     &.open {
       height: 360px;
+    }
+    .show-on-focus {
+      display: none;
     }
     article {
       width: 100%;
       position: relative;
       padding: 10px 0;
-      margin: 0 -15px;
+      //margin: 0 -15px;
       div {
         padding: 0 15px;
+        cursor: pointer;
       }
       &:hover {
         background: rgba(0, 0, 0, 0.2);
@@ -175,29 +264,59 @@ body {
           visibility: visible;
         }
       }
+      &.focused {
+        background: rgba(0, 0, 0, 0.26);
+        transition: background 130ms ease-in;
+        .action-container {
+          visibility: visible;
+        }
+        .pinned {
+          visibility: visible !important;
+        }
+        .show-on-focus {
+          display: block;
+        }
+      }
+      ul {
+        list-style: none;
+        margin: 10px 0 0;
+        padding: 0 10px;
+      }
+      li {
+        text-align: right;
+        cursor: pointer;
+        padding: 5px 10px;
+        margin: 0 -10px;
+        border-radius: 3px;
+        &:hover {
+          background: rgba(0, 0, 0, 0.2);
+          transition: background 130ms ease-in;
+        }
+      }
     }
     .action-container {
       position: absolute;
       right: 10px;
-      top: 10px;
+      top: 0px;
       visibility: hidden;
     }
   }
 
   section.create-password {
+    header {
+      padding: 0 10px;
+    }
     height: 0;
     &.open {
       height: 100px;
     }
     form {
-      position: relative;
       div {
+        position: relative;
         display: inline-block;
-        width: 69%;
-        height: 83px;
+        width: 100%;
         float: left;
         &:first-child {
-          width: 29%;
           margin-right: 5px;
         }
       }
@@ -209,45 +328,23 @@ body {
         }
       }
       li {
-        width: 30%;
+        width: 32%;
         display: inline-block;
         &:first-child {
           width: 100%;
+          display: block;
+          position: relative;
           margin-bottom: 10px;
+          span {
+            position: absolute;
+            right: 15px;
+            top: -10px;
+          }
         }
       }
     }
     label.error {
       color: @error;
-    }
-    input {
-      margin: 0;
-      width: 100%;
-      background: transparent;
-      border: 1px solid @weak-white;
-      font-size: 16px;
-      padding: 12px 5px;
-      &:focus {
-        outline: none;
-      }
-      &.invalid {
-        border: 1px solid @error;
-      }
-      &::-webkit-input-placeholder {
-        color: @white;
-      }
-
-      &:-moz-placeholder { /* Firefox 18- */
-         color: @white;
-      }
-
-      &::-moz-placeholder {  /* Firefox 19+ */
-         color: @white;
-      }
-
-      &:-ms-input-placeholder {
-         color: @white;
-      }
     }
 
     .generate-btn {
@@ -257,26 +354,68 @@ body {
       background-size: 25px;
       background-position: 10px 9px;
       position: absolute;
-      top: 3px;
-      right: 37px;
+      top: 1px;
+      right: -1px;
     }
     .upload-icon {
       height: 47px;
       width: 47px;
-      position: absolute;
+      //position: absolute;
       background: url(../icons/padlock.svg) no-repeat;
       background-size: 25px;
       background-position: center;
       top: 1px;
       right: 5px;
     }
-    input[type=submit] {
-      margin: 10px 0 0;
-      background: rgba(0, 0, 0, 0.2);
+    button[type=submit] {
+      color: @white;
+      width: 80%;
+      font-size: 15px;
+      margin: 0 auto;
+      display: block;
+      background: rgba(0, 0, 0, 0.5);
       &:hover, &:focus {
-        background: rgba(0, 0, 0, 0.3);
+        background: rgba(0, 0, 0, 0.6);
         transition: background 130ms ease-in;
         color: @white;
+      }
+    }
+  }
+  section.update-password {
+    height: 48px;
+    position: relative;
+    input {
+      position: relative;
+      margin: 10px 0 0;
+      padding: 12px 10px;
+    }
+    div {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    .icon-btn {
+      top: 10px;
+      right: 16px;
+    }
+    label.error {
+      display: none;
+    }
+  }
+  section.delete-password {
+    position: relative;
+    p {
+      margin: 10px 0 10px;
+    }
+    .remove-icon {
+      top: -2px;
+      right: 13px;
+      height: 33px;
+      width: 55px;
+      border-radius: 3px;
+      position: absolute;
+      &:hover {
+        background: rgba(0, 0, 0, 0.2);
+        transition: background 130ms ease-in;
       }
     }
   }
@@ -284,7 +423,7 @@ body {
 
 input[type=range] {
   -webkit-appearance: none;
-  width: 100%;
+  width: 90% !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;

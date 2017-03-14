@@ -2,10 +2,43 @@
   display: none;
 }
 body {
-  background: #191919;
   color: #FCFCFC;
+  margin: 0;
   width: 300px;
   height: 500px;
+  background: url(snoqualmie_pass-min.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+nav ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+nav li {
+  width: 98.5px;
+  padding: 10px 0;
+  font-size: 16px;
+  text-align: center;
+  float: left;
+  cursor: pointer;
+  display: inline-block;
+  border: 1px solid #FCFCFC;
+  border-right: none;
+  background: rgba(0, 0, 0, 0.2);
+}
+nav li:hover,
+nav li:focus {
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 130ms ease-in;
+}
+nav li:last-child {
+  border-right: 1px solid #FCFCFC;
+}
+nav li.active {
+  border-bottom: none;
 }
 .login a,
 .registration a,
@@ -46,7 +79,6 @@ body {
   width: 100%;
   max-width: 375px;
   margin: 0 auto;
-  color: #FCFCFC;
 }
 .login form label,
 .registration form label {
@@ -61,12 +93,11 @@ body {
 .login form input,
 .registration form input {
   margin: 5px 0;
+  width: 100%;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
   font-size: 18px;
-  padding: 10px 0 10px 45px;
-  width: 253px;
-  color: #FCFCFC;
+  padding: 10px 45px;
 }
 .login form input:focus,
 .registration form input:focus {
@@ -92,27 +123,25 @@ body {
 }
 .login form input[name=email],
 .registration form input[name=email] {
-  background: url(icons/mail.svg) no-repeat;
+  background: url(../icons/mail.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
 }
 .login form input[name=password],
 .registration form input[name=password] {
-  background: url(icons/padlock.svg) no-repeat;
+  background: url(../icons/padlock.svg) no-repeat;
   background-size: 25px;
-  background-position: 10px 7px;
+  background-position: 10px 9px;
 }
 .login form input[name=username],
 .registration form input[name=username] {
-  background: url(icons/user.svg) no-repeat;
+  background: url(../icons/user.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
 }
 .login form input[type=submit],
 .registration form input[type=submit] {
   margin: 10px 0 0;
-  width: 299px;
-  padding: 10px 0;
   background: rgba(0, 0, 0, 0.2);
 }
 .login form input[type=submit]:hover,
@@ -122,6 +151,46 @@ body {
   background: rgba(0, 0, 0, 0.3);
   transition: background 130ms ease-in;
   color: #FCFCFC;
+}
+input {
+  margin: 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 16px;
+  padding: 12px 5px;
+  color: #FCFCFC;
+}
+input:focus {
+  outline: none;
+}
+input.invalid {
+  border: 1px solid #ff9494;
+}
+input::-webkit-input-placeholder {
+  color: #FCFCFC;
+}
+input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #FCFCFC;
+}
+input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #FCFCFC;
+}
+input:-ms-input-placeholder {
+  color: #FCFCFC;
+}
+main {
+  background: rgba(0, 0, 0, 0.2);
+  height: 100%;
+}
+main header.section-header {
+  height: 50px;
+  width: 100%;
+}
+main section {
+  float: left;
 }
 .vault .container {
   display: -webkit-flex;
@@ -141,17 +210,10 @@ body {
   height: 80%;
   padding: 5%;
 }
-.vault header {
-  position: relative;
-}
-.vault header .push-right {
-  position: absolute;
-  right: 10px;
-  top: 10px;
-}
 .vault .icon-btn {
   border: 0 solid;
   background: rgba(0, 0, 0, 0);
+  float: left;
 }
 .vault .icon-btn:focus,
 .vault .icon-btn:hover {
@@ -159,24 +221,45 @@ body {
   color: rgba(255, 255, 255, 0.7);
   outline: none;
 }
+.vault .password-history {
+  background: url(../icons/history.svg) no-repeat;
+  background-size: 20px;
+  background-position: 6px 3px;
+  width: 30px;
+  height: 30px;
+}
 .vault section.passwords {
   font-size: 18px;
-  overflow: scroll;
-  height: 418px;
-  margin: 35px -15px;
-  padding: 0 15px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 460px;
+  width: 100%;
+  padding: 0;
+}
+.vault section.passwords::-webkit-scrollbar {
+  width: 5px;
+}
+.vault section.passwords::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+.vault section.passwords::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
 .vault section.passwords.open {
   height: 360px;
+}
+.vault section.passwords .show-on-focus {
+  display: none;
 }
 .vault section.passwords article {
   width: 100%;
   position: relative;
   padding: 10px 0;
-  margin: 0 -15px;
 }
 .vault section.passwords article div {
   padding: 0 15px;
+  cursor: pointer;
 }
 .vault section.passwords article:hover {
   background: rgba(0, 0, 0, 0.2);
@@ -185,29 +268,57 @@ body {
 .vault section.passwords article:hover .action-container {
   visibility: visible;
 }
+.vault section.passwords article.focused {
+  background: rgba(0, 0, 0, 0.26);
+  transition: background 130ms ease-in;
+}
+.vault section.passwords article.focused .action-container {
+  visibility: visible;
+}
+.vault section.passwords article.focused .pinned {
+  visibility: visible !important;
+}
+.vault section.passwords article.focused .show-on-focus {
+  display: block;
+}
+.vault section.passwords article ul {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0 10px;
+}
+.vault section.passwords article li {
+  text-align: right;
+  cursor: pointer;
+  padding: 5px 10px;
+  margin: 0 -10px;
+  border-radius: 3px;
+}
+.vault section.passwords article li:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 130ms ease-in;
+}
 .vault section.passwords .action-container {
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 0px;
   visibility: hidden;
 }
 .vault section.create-password {
   height: 0;
 }
+.vault section.create-password header {
+  padding: 0 10px;
+}
 .vault section.create-password.open {
   height: 100px;
 }
-.vault section.create-password form {
-  position: relative;
-}
 .vault section.create-password form div {
+  position: relative;
   display: inline-block;
-  width: 69%;
-  height: 83px;
+  width: 100%;
   float: left;
 }
 .vault section.create-password form div:first-child {
-  width: 29%;
   margin-right: 5px;
 }
 .vault section.create-password form ul {
@@ -218,43 +329,22 @@ body {
   width: 20px;
 }
 .vault section.create-password form li {
-  width: 30%;
+  width: 32%;
   display: inline-block;
 }
 .vault section.create-password form li:first-child {
   width: 100%;
+  display: block;
+  position: relative;
   margin-bottom: 10px;
+}
+.vault section.create-password form li:first-child span {
+  position: absolute;
+  right: 15px;
+  top: -10px;
 }
 .vault section.create-password label.error {
   color: #ff9494;
-}
-.vault section.create-password input {
-  margin: 0;
-  width: 100%;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  font-size: 16px;
-  padding: 12px 5px;
-}
-.vault section.create-password input:focus {
-  outline: none;
-}
-.vault section.create-password input.invalid {
-  border: 1px solid #ff9494;
-}
-.vault section.create-password input::-webkit-input-placeholder {
-  color: #FCFCFC;
-}
-.vault section.create-password input:-moz-placeholder {
-  /* Firefox 18- */
-  color: #FCFCFC;
-}
-.vault section.create-password input::-moz-placeholder {
-  /* Firefox 19+ */
-  color: #FCFCFC;
-}
-.vault section.create-password input:-ms-input-placeholder {
-  color: #FCFCFC;
 }
 .vault section.create-password .generate-btn {
   height: 47px;
@@ -263,32 +353,73 @@ body {
   background-size: 25px;
   background-position: 10px 9px;
   position: absolute;
-  top: 3px;
-  right: 37px;
+  top: 1px;
+  right: -1px;
 }
 .vault section.create-password .upload-icon {
   height: 47px;
   width: 47px;
-  position: absolute;
   background: url(../icons/padlock.svg) no-repeat;
   background-size: 25px;
   background-position: center;
   top: 1px;
   right: 5px;
 }
-.vault section.create-password input[type=submit] {
-  margin: 10px 0 0;
-  background: rgba(0, 0, 0, 0.2);
+.vault section.create-password button[type=submit] {
+  color: #FCFCFC;
+  width: 80%;
+  font-size: 15px;
+  margin: 0 auto;
+  display: block;
+  background: rgba(0, 0, 0, 0.5);
 }
-.vault section.create-password input[type=submit]:hover,
-.vault section.create-password input[type=submit]:focus {
-  background: rgba(0, 0, 0, 0.3);
+.vault section.create-password button[type=submit]:hover,
+.vault section.create-password button[type=submit]:focus {
+  background: rgba(0, 0, 0, 0.6);
   transition: background 130ms ease-in;
   color: #FCFCFC;
 }
+.vault section.update-password {
+  height: 48px;
+  position: relative;
+}
+.vault section.update-password input {
+  position: relative;
+  margin: 10px 0 0;
+  padding: 12px 10px;
+}
+.vault section.update-password div {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.vault section.update-password .icon-btn {
+  top: 10px;
+  right: 16px;
+}
+.vault section.update-password label.error {
+  display: none;
+}
+.vault section.delete-password {
+  position: relative;
+}
+.vault section.delete-password p {
+  margin: 10px 0 10px;
+}
+.vault section.delete-password .remove-icon {
+  top: -2px;
+  right: 13px;
+  height: 33px;
+  width: 55px;
+  border-radius: 3px;
+  position: absolute;
+}
+.vault section.delete-password .remove-icon:hover {
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 130ms ease-in;
+}
 input[type=range] {
   -webkit-appearance: none;
-  width: 100%;
+  width: 90% !important;
   border: none !important;
   padding: 0 !important;
   margin: 0 !important;

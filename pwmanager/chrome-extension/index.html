@@ -8,6 +8,7 @@
 </head>
 
 <body id="vault">
+    <main>
     <section class="login" v-show="showLogin">
         <main>
             <header class="text-center">
@@ -41,32 +42,19 @@
     <section class="vault" v-show="showVault">
         <nav>
           <ul>
-            <li class="passwords">
-              <button v-on:click="viewNavIndex = 1">Passwords</button>
-            </li>
-            <li class="current">
-              <button v-on:click="viewNavIndex = 2">Current</button>
-            </li>
-            <li class="generate">
-              <button v-on:click="viewNavIndex = 3">Generator</button>
-            </li>
+            <li v-on:click="viewNavIndex = 1" class="passwords"
+                v-bind:class="{active: viewNavIndex === 1}">Passwords</li>
+            <li v-on:click="viewNavIndex = 2" class="current"
+                v-bind:class="{active: viewNavIndex === 2}">Current</li>
+            <li v-on:click="viewNavIndex = 3" class="generate"
+                v-bind:class="{active: viewNavIndex === 3}">Generator</li>
           </ul>
         </nav>
-          <header>
-            <h1 v-text="username"></h1>
-
-            <button v-on:click="showCreatePassword = !showCreatePassword"
-                    type="button" class="icon-btn push-right"
-                    v-bind:title="toggleTitle"
-                    aria-label="Right Align">
-              <span class="glyphicon glyphicon"
-                    v-bind:class="{'glyphicon-plus': hideCreatePassword, 'glyphicon-remove': showCreatePassword}"
-                    aria-hidden="true"></span>
-            </button>
-
-          </header>
-
-          <section class="create-password" v-bind:class="{open: showCreatePassword}">
+          <section class="create-password" v-bind:class="{open: showCreatePassword}"
+                   v-show="viewNavIndex === 3">
+              <header class="section-header">
+                  <h1>Create new Password</h1>
+              </header>
             <form v-on:submit.prevent="createPassword"
                   v-show="viewNavIndex === 3"
                   class="generate-password"
@@ -84,6 +72,13 @@
                        data-validate="required"
                        class="gen-password skip-blur"
                        v-model="create.password" />
+                  <button v-on:click.prevent="generatePassword"
+                          title="Generate random password"
+                          class="icon-btn generate-btn">
+                    <span class="reload-thin" aria-hidden="true"></span>
+                  </button>
+              </div>
+              <div>
                 <ul>
                   <li>
                     <input type="range"
@@ -107,20 +102,18 @@
                   </li>
                 </ul>
               </div>
-              <button v-on:click.prevent="generatePassword"
-                      title="Generate random password"
-                      class="icon-btn generate-btn">
-                <span class="reload-thin" aria-hidden="true"></span>
-              </button>
 
               <button type="submit" class="icon-btn upload-icon"
-                title="Store new password">
+                title="Store new password">STORE
               </button>
             </form>
           </section>
 
           <section v-show="viewNavIndex === 1" class="passwords" v-bind:class="{open: showCreatePassword}">
-            <password-item v-for="password in passwords"
+              <header class="section-header">
+                  <input type="text" placeholder="Search" v-model="searchTerm">
+              </header>
+            <password-item v-for="password in passwordsVisible"
                            :key="password.key"
                            :lookup-key="password.key"
                            :domain-name="password.domainName"
@@ -136,12 +129,14 @@
             <div v-show="isEmpty && hideCreatePassword">
               <p>Looks like you don't have any passwords yet!</p>
             </div>
-          </section>
+      </section>
 
-            <section v-show="viewNavIndex === 2">
-                <h1>CurrentWebsite</h1>
-                <div v-text="currentWebsite"></div>
-            </section>
+        <section v-show="viewNavIndex === 2">
+            <header class="section-header">
+                <h1 v-text="currentWebsite.title"></h1>
+            </header>
+            <h1 v-text="currentWebsite.url">CurrentWebsite</h1>
+        </section>
 
 
         <template id="passwordItem">
@@ -238,6 +233,7 @@
     <script src="forms.js"></script>
     <script src="vue.min.js"></script>
     <script src="vault-vue.js"></script>
+    </main>
 </body>
 
 </html>

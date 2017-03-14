@@ -71,6 +71,8 @@ class Authenticate(object):
         nonce = AuthCache.set_nonce(key)
         return nonce
 
+
+
     @classmethod
     def initalize_nonce(cls, request, user):
         nonce = cls.initialize_vault_access_token(user)
@@ -81,7 +83,7 @@ class Authenticate(object):
         """
         add nonce to session store
         """
-        encryption_key = SymmetricEncryption.build_encryption_key(password, user.salt)
+        encryption_key = SymmetricEncryption.build_encryption_key(password)
         # put this key in the cache for the user session
         request.session[cls.SESSION_KEY] = SymmetricEncryption.encrypt(
             EncryptionStore.TRANSIENT_E_KEY,

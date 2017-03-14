@@ -4,6 +4,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 import hashlib
 import os
 import uuid
+from django.contrib.auth.hashers import make_password, PBKDF2PasswordHasher, BasePasswordHasher
+
 
 class SymmetricEncryption(object):
 
@@ -18,23 +20,25 @@ class SymmetricEncryption(object):
         return base64.urlsafe_b64encode(value)
 
     @staticmethod
-    def generate_salt(password):
-        p = base64.urlsafe_b64encode(password.encode('utf-8')).decode()
-        return os.urandom(32 - len(p))
+    def generate_salt():
+        return BasePasswordHasher().salt()
+        # p = base64.urlsafe_b64encode(password.encode('utf-8')).decode()
+        # return os.urandom(length)
+
+    # @classmethod
+    # def generate_key_from_password(cls, password_hash):
+    #     # archive encryption key
+    #     salt = cls.generate_salt()
+    #     decoded_salt = base64.urlsafe_b64encode(salt).decode('utf-8')
+    #     return cls.build_encryption_key(password, decoded_salt), decoded_salt
 
     @classmethod
-    def generate_key_from_password(cls, password):
-        # archive encryption key
-        salt = cls.generate_salt(password)
-        decoded_salt = base64.urlsafe_b64encode(salt).decode('utf-8')
-        return cls.build_encryption_key(password, decoded_salt), decoded_salt
+    def build_encryption_key(cls, password_hash):
+        # if type(password_hash) is str:
+        #     salt = password_hash.encode('utf-8')
+        # salted_string = base64.urlsafe_b64encode(password.encode('utf-8')) + salt
 
-    @classmethod
-    def build_encryption_key(cls, password, salt):
-        if type(salt) is str:
-            salt = salt.encode('utf-8')
-        salted_string = base64.urlsafe_b64encode(password.encode('utf-8')) + salt
-        reduced = salted_string.decode()[:32].encode('utf-8')
+        reduced = password_hash[:32].encode('utf-8')
         return base64.urlsafe_b64encode(reduced)
 
     @staticmethod
