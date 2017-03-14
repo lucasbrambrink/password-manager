@@ -3,256 +3,6 @@
  */
 (function() {
 
-    var AuthSouce = (function ($) {
-        var csrfToken = function () {
-            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-                var token = $('input[name=csrfmiddlewaretoken]').val();
-                jqXHR.setRequestHeader('X-CSRFToken', token);
-            });
-        };
-
-        var callService = function (url, method, data, callback) {
-            callback = callback || function () { };
-            $.ajax({
-                url: url,
-                processData: false,
-                data: JSON.stringify(data),
-                contentType: 'application/json',
-                type: method,
-                dataType: "json",
-            }).done(function (response) {
-                callback(response)
-            }).fail(function (errResponse) {
-                callback(errResponse)
-            });
-        };
-
-        var getService = function (url, callback) {
-            callback = callback || function () {
-                };
-            $.ajax({
-                url: url,
-            }).done(function (response) {
-                callback(response)
-            }).fail(function (errResponse) {
-                callback(errResponse)
-            });
-        };
-
-        return {
-            csrf: csrfToken,
-            service: callService,
-            get: getService
-        };
-
-    })(jQuery);
-
-    var GeneratePassword = (function () {
-
-
-        var rchoose = function (array) {
-            return array[Math.floor(Math.random() * array.length)];
-        };
-
-        var generatePassword = function (length, withLetters, withDigits, withSymbols) {
-            var lowercase = 'abcdefghijklmnopqrstuvwxyz';
-            var upppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            var numbers = '1234567890';
-            var symbols = '!@#$%^&*+=?';
-            var choices = [];
-            if (withLetters) {
-                choices.push(lowercase);
-                choices.push(upppercase);
-            }
-            if (withDigits) {
-                choices.push(numbers);
-            }
-            if (withSymbols) {
-                choices.push(symbols);
-            }
-
-            var password = [],
-                category;
-            for (var x = 0; x < length; x++) {
-                category = rchoose(choices);
-                password.push(rchoose(category));
-            }
-
-            return password.join('');
-        };
-
-        return {
-            generate: generatePassword
-        };
-    })();
-
-    var requestPasswordMixin = {
-        methods: {
-            requestPassword: function () {
-                return this.requestData({
-                    query: this.lookupKey,
-                    guid: vmVault.guid
-                })
-            },
-            requestData: function (data) {
-                var url = '/api/v0/password/';
-                return AuthSouce.service(
-                    url,
-                    "POST",
-                    data,
-                    this.requestDataCallback);
-            },
-            requestDataCallback: function (response) {
-                console.log(response);
-                if (response.value) {
-                    vmVault.showPassword(response.value)
-                } else {
-                    vmVault.error = true;
-                }
-            }
-        }
-    };
-
-
-    var passwordItem = Vue.component('password-item', {
-        template: '#passwordItem',
-        mixins: [requestPasswordMixin],
-        props: ["lookup-key",
-            "domain-name",
-            "is-hovering",
-            "password-entities",
-            "new-password",
-            "show-create-new",
-            "show-delete",
-            "is-focused",
-            "show-history",
-            "domain-name-new"],
-        computed: {
-            passwordObj: function () {
-                return vmVault.objPasswords[this.lookupKey];
-            },
-            showPasswordHistory: {
-                get: function () {
-                    return this.passwordObj.showPasswordHistory;
-                },
-                set: function (value) {
-                    if (this.changePassword || this.showDeleteSection) {
-                        this.changePassword = false;
-                        this.showDeleteSection = 0;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showPasswordHistory = value;
-                }
-            },
-            changePassword: {
-                get: function () {
-                    return this.passwordObj.showCreateNew;
-                },
-                set: function (value) {
-                    if (this.showPasswordHistory || this.showDeleteSection) {
-                        this.showPasswordHistory = false;
-                        this.showDeleteSection = 0;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showCreateNew = value;
-                }
-            },
-            showDeleteSection: {
-                get: function () {
-                    return this.passwordObj.showDelete;
-                },
-                set: function (value) {
-                    if (this.showPasswordHistory || this.changePassword) {
-                        this.showPasswordHistory = false;
-                        this.changePassword = false;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showDelete = value;
-                }
-            },
-            isFocused: {
-                get: function () {
-                    return this.passwordObj.isFocused;
-                },
-                set: function (value) {
-                    this.passwordObj.isFocused = value;
-                }
-            },
-
-        },
-        methods: {
-            requestCurrentPassword: function () {
-                return this.requestData({
-                    query: this.passwordEntities[0].guid
-                })
-            },
-            toggleDelete: function () {
-                if (this.showDelete > 0) {
-                    this.showDelete = 0;
-                } else {
-                    this.showDelete = 1;
-                }
-            },
-            deletePassword: function () {
-                return AuthSouce.service(
-                    "/api/v0/password/create/",
-                    "DELETE",
-                    {
-                        passwordGuid: this.lookupKey
-                    },
-                    function () {
-                        vmVault.loadPasswords();
-                    }
-                )
-            },
-            setFocus: function(event) {
-                var initialValue = !this.isFocused;
-                vmVault.passwords.map(function(p) {
-                    p.isFocused = false;
-                });
-                this.isFocused = initialValue;
-            },
-            updatePassword: function () {
-                var selector = '#' + this.lookupKey;
-                var isValid = EzForms.formIsValid(selector, false);
-                if (!isValid) {
-                    return;
-                }
-                var $password = $(selector).find('input');
-                var newPassword = $password.val();
-                $password.val(newPassword
-                    .split('')
-                    .map(function() {return '*'})
-                    .join(''));
-
-                var url = '/api/v0/password/create/';
-                return AuthSouce.service(
-                    url,
-                    "POST",
-                    {
-                        password: newPassword,
-                        passwordGuid: this.lookupKey,
-                        domainName: this.domainNameNew
-                    },
-                    this.createPasswordCallback
-                )
-            },
-            createPasswordCallback: function (resp) {
-                vmVault.createPasswordCallback(resp);
-                this.showPasswordHistory = true;
-                this.isFocused = true;
-            }
-        }
-    });
-
-    var passwordHistoryItem = Vue.component('password-history-item', {
-        template: '#passwordHistoryItem',
-        props: ["lookup-key",
-                "created-time",],
-        mixins: [requestPasswordMixin]
-    });
-
-
     var vmVault = new Vue({
         el: '#vault',
         components: {passwordItem: passwordItem},
@@ -261,11 +11,12 @@
             error: false,
             objPasswords: {},
             passwords: [],
-            showCreatePassword: false,
             TITLES: {
                 NEW: "Create new password",
                 HIDE: "Hide form"
             },
+            searchTerm: '',
+            showIndex: 1,
             create: {
                 domainName: '',
                 password: '',
@@ -277,6 +28,15 @@
             },
         },
         computed: {
+            passwordsVisible: function () {
+                if (this.searchTerm.length === 0) {
+                    return this.passwords
+                }
+                var self = this;
+                return this.passwords.filter(function(p) {
+                    return p.domainName.indexOf(self.searchTerm) > -1;
+                });
+            },
             hideCreatePassword: function () {
                 if (!this.showCreatePassword) {
                     $('form').setFormNeutral();
@@ -300,6 +60,9 @@
         methods: {
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
+            },
+            toggleShow: function() {
+                this.showIndex = this.showIndex === 1 ? 2 : 1;
             },
             createPassword: function (event) {
                 var selector = 'form.generate-password';
@@ -360,15 +123,21 @@
                     password.isHovering = false;
                     password.newPassword = "";
                     password.showCreateNew = false;
-                    password.showPasswordHistory = false;
+                    password.showPasswordHistory = true;
                     password.showDelete = 0;
                     password.isFocused = false;
                     password.domainNameNew = password.domainName;
                     obj[password.key] = password;
                     return password;
+                }).sort(function(a, b) {
+                    if (a.domainName < b.domainName) return -1;
+                    if (a.domainName > b.domainName) return 1;
+                    return 0;
                 });
                 vmVault.objPasswords = obj;
             }
         }
     });
+
+    window.vmVault = vmVault;
 })();

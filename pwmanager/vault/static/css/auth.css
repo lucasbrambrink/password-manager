@@ -48,6 +48,32 @@ body.vault {
   -o-background-size: cover;
   background-size: cover;
 }
+input {
+  margin: 5px 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  font-size: 18px;
+  padding: 10px 45px;
+  color: #FCFCFC;
+}
+input:focus {
+  outline: none;
+}
+input::-webkit-input-placeholder {
+  color: #FCFCFC;
+}
+input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #FCFCFC;
+}
+input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #FCFCFC;
+}
+input:-ms-input-placeholder {
+  color: #FCFCFC;
+}
 .login a,
 .registration a,
 .login a:hover,
@@ -97,37 +123,6 @@ body.vault {
   display: block;
   color: #ff9494;
   text-align: left;
-}
-.login form input,
-.registration form input {
-  margin: 5px 0;
-  width: 100%;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  font-size: 18px;
-  padding: 10px 45px;
-}
-.login form input:focus,
-.registration form input:focus {
-  outline: none;
-}
-.login form input::-webkit-input-placeholder,
-.registration form input::-webkit-input-placeholder {
-  color: #FCFCFC;
-}
-.login form input:-moz-placeholder,
-.registration form input:-moz-placeholder {
-  /* Firefox 18- */
-  color: #FCFCFC;
-}
-.login form input::-moz-placeholder,
-.registration form input::-moz-placeholder {
-  /* Firefox 19+ */
-  color: #FCFCFC;
-}
-.login form input:-ms-input-placeholder,
-.registration form input:-ms-input-placeholder {
-  color: #FCFCFC;
 }
 .login form input[name=email],
 .registration form input[name=email] {
@@ -209,8 +204,18 @@ body.vault {
   overflow-y: auto;
   overflow-x: hidden;
   height: 418px;
-  margin: 35px -15px;
+  margin: 15px -15px;
   padding: 0 15px;
+}
+.vault section.passwords .search-header:hover {
+  transition: background 130ms ease-in;
+  background: rgba(0, 0, 0, 0.05);
+}
+.vault section.passwords input {
+  margin: 0;
+  padding: 10px 15px;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
 .vault section.passwords::-webkit-scrollbar {
   width: 5px;
@@ -247,6 +252,7 @@ body.vault {
 .vault section.passwords article.focused {
   background: rgba(0, 0, 0, 0.26);
   transition: background 130ms ease-in;
+  min-height: 90px;
 }
 .vault section.passwords article.focused .action-container {
   visibility: visible;
@@ -386,12 +392,17 @@ body.vault {
 }
 .vault section.update-password input {
   position: relative;
-  margin: 10px 0 0;
+  margin: 0px 0 0;
   padding: 12px 10px;
 }
-.vault section.update-password div {
-  margin: 0 !important;
-  padding: 0 !important;
+.vault section.update-password form > div {
+  margin: 10px 0 0 0;
+  padding: 0;
+  width: 70%;
+}
+.vault section.update-password form > div:first-child {
+  width: 30%;
+  margin: 10px 0 0 0;
 }
 .vault section.update-password .icon-btn {
   top: 10px;

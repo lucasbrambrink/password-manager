@@ -11,20 +11,20 @@
   <header>
     <h1>{{ user_name }}</h1>
 
-    <button v-on:click="showCreatePassword = !showCreatePassword"
+    <button v-on:click="toggleShow"
             type="button" class="icon-btn push-right"
             v-bind:title="toggleTitle"
             aria-label="Right Align">
       <span class="glyphicon glyphicon"
-            v-bind:class="{'glyphicon-plus': hideCreatePassword, 'glyphicon-remove': showCreatePassword}"
+            v-bind:class="{'glyphicon-plus': showIndex === 1, 'glyphicon-remove': showIndex === 2}"
             aria-hidden="true"></span>
     </button>
 
   </header>
 
-  <section class="create-password" v-bind:class="{open: showCreatePassword}">
+  <section class="create-password" v-bind:class="{open: showIndex === 2}">
     <form v-on:submit.prevent="createPassword"
-          v-show="showCreatePassword"
+          v-show="showIndex === 2"
           class="generate-password"
           data-never-disabled="true">
       <div>
@@ -75,8 +75,11 @@
     </form>
   </section>
 
-  <section class="passwords" v-bind:class="{open: showCreatePassword}">
-    <password-item v-for="password in passwords"
+  <section class="passwords" v-bind:class="{open: showIndex === 1}">
+    <header class="search-header" v-show="showIndex === 1">
+      <input type="text" v-model="searchTerm" placeholder="Search">
+    </header>
+    <password-item v-for="password in passwordsVisible"
                    :key="password.key"
                    :lookup-key="password.key"
                    :domain-name="password.domainName"
@@ -142,10 +145,10 @@
                  placeholder="Enter new password here"
                  data-validate="required"
                  type="password" />
+          <button type="submit" class="icon-btn upload-icon"
+            title="Store new password">
+          </button>
         </div>
-        <button type="submit" class="icon-btn upload-icon"
-          title="Store new password">
-        </button>
       </form>
     </section>
     <section class="show-on-focus" v-show="showHistory">
@@ -192,6 +195,10 @@
 
 
 {% block scripts %}
+    <script src="{% static 'vault/js/data-access.js' %}"></script>
+    <script src="{% static 'vault/js/utils.js' %}"></script>
+    <script src="{% static 'vault/js/vue-mixins.js' %}"></script>
+    <script src="{% static 'vault/js/password-vue.js' %}"></script>
     <script src="{% static 'vault/js/vault.js' %}"></script>
 {% endblock scripts %}
 

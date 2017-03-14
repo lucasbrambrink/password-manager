@@ -83,7 +83,7 @@ class Authenticate(object):
         """
         add nonce to session store
         """
-        encryption_key = SymmetricEncryption.build_encryption_key(password)
+        encryption_key = user.make_password(password)
         # put this key in the cache for the user session
         request.session[cls.SESSION_KEY] = SymmetricEncryption.encrypt(
             EncryptionStore.TRANSIENT_E_KEY,

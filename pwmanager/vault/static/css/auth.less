@@ -61,7 +61,33 @@ body {
     background-size: cover;
   }
 }
+input {
+  margin: 5px 0;
+  width: 100%;
+  background: transparent;
+  border: 1px solid @weak-white;
+  font-size: 18px;
+  padding: 10px 45px;
+  color: @white;
+  &:focus {
+    outline: none;
+  }
+  &::-webkit-input-placeholder {
+    color: @white;
+  }
 
+  &:-moz-placeholder { /* Firefox 18- */
+     color: @white;
+  }
+
+  &::-moz-placeholder {  /* Firefox 19+ */
+     color: @white;
+  }
+
+  &:-ms-input-placeholder {
+     color: @white;
+  }
+}
 
 .login, .registration {
   a, a:hover {
@@ -104,30 +130,6 @@ body {
       }
     }
     input {
-      margin: 5px 0;
-      width: 100%;
-      background: transparent;
-      border: 1px solid @weak-white;
-      font-size: 18px;
-      padding: 10px 45px;
-      &:focus {
-        outline: none;
-      }
-      &::-webkit-input-placeholder {
-        color: @white;
-      }
-
-      &:-moz-placeholder { /* Firefox 18- */
-         color: @white;
-      }
-
-      &::-moz-placeholder {  /* Firefox 19+ */
-         color: @white;
-      }
-
-      &:-ms-input-placeholder {
-         color: @white;
-      }
       &[name=email] {
         background: url(../icons/mail.svg) no-repeat;
         background-size: 25px;
@@ -207,8 +209,21 @@ body {
     overflow-y: auto;
     overflow-x: hidden;
     height: 418px;
-    margin: 35px -15px;
+    margin: 15px -15px;
     padding: 0 15px;
+    .search-header {
+      &:hover {
+        transition: background 130ms ease-in;
+        background: rgba(0, 0, 0, 0.05);
+      }
+    }
+    input {
+      margin: 0;
+      padding: 10px 15px;
+      border: none;
+      border-bottom: 1px solid @weak-white;
+
+    }
     &::-webkit-scrollbar {
       width: 5px;
     }
@@ -244,6 +259,7 @@ body {
       &.focused {
         background: rgba(0, 0, 0, 0.26);
         transition: background 130ms ease-in;
+        min-height: 90px;
         .action-container {
           visibility: visible;
         }
@@ -386,12 +402,17 @@ body {
     position: relative;
     input {
       position: relative;
-      margin: 10px 0 0;
+      margin: 0px 0 0;
       padding: 12px 10px;
     }
-    div {
-      margin: 0 !important;
-      padding: 0 !important;
+    form > div {
+      margin: 10px 0 0 0;
+      padding: 0;
+      width: 70%;
+      &:first-child {
+        width: 30%;
+        margin: 10px 0 0 0;
+      }
     }
     .icon-btn {
       top: 10px;

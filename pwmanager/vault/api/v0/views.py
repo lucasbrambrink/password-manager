@@ -38,8 +38,6 @@ class AuthenticationView(generics.UpdateAPIView,
 
     def put(self, request, *args, **kwargs):
         Authenticate.initalize_nonce(request, request.user)
-        import ipdb
-        ipdb.set_trace()
         return Response({}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
@@ -62,7 +60,7 @@ class AuthenticationView(generics.UpdateAPIView,
 class PasswordListView(mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (TokenAuthentication,SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordSerializer
 
