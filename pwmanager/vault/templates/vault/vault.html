@@ -91,10 +91,10 @@
                      :is-focused="password.isFocused"
                      :password-entities="password.passwordentitySet">
       </password-item>
+      <div v-show="isEmpty && hideCreatePassword">
+        <p>Looks like you don't have any passwords yet!</p>
+      </div>
     </section>
-    <div v-show="isEmpty && hideCreatePassword">
-      <p>Looks like you don't have any passwords yet!</p>
-    </div>
   </section>
 
 
