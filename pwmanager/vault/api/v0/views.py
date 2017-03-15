@@ -26,8 +26,10 @@ import logging
 
 log = logging.getLogger(__name__)
 
+
 class AuthenticationView(generics.UpdateAPIView,
                          generics.GenericAPIView):
+    authentication_classes = (TokenAuthentication)
     throttle_classes = ()
     permission_classes = ()
     serializer_class = AuthenticationSerializer
