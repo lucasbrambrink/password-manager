@@ -17,9 +17,10 @@ write intro / marketing page
 
 * fix user archive key generation
     * use pbkdf2 (~100000 iterations)
+DONE
 
 * add a bunch of extra fields to Password object
     * username
     * notes, tags, etc
-
+DONE
 

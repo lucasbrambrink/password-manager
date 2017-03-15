@@ -39,10 +39,13 @@ class PasswordEntity(models.Model):
     is_active = models.BooleanField(default=True)
 
 
-class PasswordManager(models.Manager):
+class PasswordTag(models.Model):
+    password = models.ForeignKey(to='Password')
+    value = models.CharField(max_length=255, blank=True, default=u'')
+    created = models.DateTimeField(auto_now_add=True, null=True)
 
-    def history(self):
-        return
+
+class PasswordManager(models.Manager):
 
     def create_password(self, user, token, domain_name, password, user_key, password_guid=None):
         api = user.access_api(token, user_key)
@@ -79,9 +82,9 @@ class Password(models.Model):
     vault = models.ForeignKey(to=u"Vault")
     domain_name = models.CharField(max_length=255)
     external_unique_identifier = models.CharField(max_length=255, default=u'')
-    key = models.CharField(max_length=255)
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
+    key = models.CharField(max_length=255)
     is_active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
 
@@ -102,13 +105,6 @@ class Vault(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True)
     modified = models.DateTimeField(auto_now_add=True, null=True)
     is_active = models.BooleanField(default=True)
-
-    @staticmethod
-    def init_vault(root):
-        # enable AppRole
-        PolicyApi.initialize_required_policies(root)
-        app = AppRoleApi()
-        app.enable_approle()
 
 
 class VaultUserManager(BaseUserManager):
@@ -133,9 +129,10 @@ class VaultUserManager(BaseUserManager):
 
         user.vault = vault
         user.password = 'Nothing here...'
+
         # create policy for user
-        c = CreateUserPolicyApi(user)
-        c.create_policy_for_user()
+        policy_api = CreateUserPolicyApi(user)
+        policy_api.create_policy_for_user()
 
         app_role = AppRoleApi()
         app_role.create_app_role_for_user(user.role_name)
@@ -144,8 +141,40 @@ class VaultUserManager(BaseUserManager):
         return user
 
 
+class Address(models.Model):
+    name = models.CharField(max_length=255, blank=True, default=u'')
+    address1 = models.CharField(max_length=255, blank=True, default=u'')
+    address2 = models.CharField(max_length=255, blank=True, default=u'')
+    city = models.CharField(max_length=255, blank=True, default=u'')
+    state = models.CharField(max_length=255, blank=True, default=u'')
+    zip_code = models.EmailField(max_length=255, blank=True, default=u'')
+    user = models.ForeignKey(to='VaultUser')
 
-class VaultUser(AbstractBaseUser):
+
+class Position(models.Model):
+    name = models.CharField(max_length=255, blank=True, default=u'')
+    company_name = models.CharField(max_length=255, blank=True, default=u'')
+    user = models.ForeignKey(to='VaultUser')
+
+
+class ExternalUserInfo(models.Model):
+    username = models.CharField(max_length=255, blank=False, default=u'')
+    email = models.EmailField(blank=False, unique=True, default=u'')
+    phone_number = models.CharField(max_length=255, blank=True, default=u'')
+
+    class Meta:
+        abstract = True
+
+
+class SecureNote(models.Model):
+    key = models.CharField(max_length=255)
+    is_active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    vault = models.ForeignKey(to='Vault')
+
+
+class VaultUser(ExternalUserInfo,
+                AbstractBaseUser):
     """
     django user entity that maps 1-to-1 to Vault mount
     """

@@ -95,7 +95,7 @@ nav {
     }
     input {
       margin: 5px 0;
-      width: 100%;
+      width: 98%;
       background: transparent;
       border: 1px solid @weak-white;
       font-size: 18px;
@@ -122,16 +122,19 @@ nav {
         background: url(../icons/mail.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
+        width: 65%;
       }
       &[name=password] {
         background: url(../icons/padlock.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
+        width: 65%;
       }
       &[name=username] {
         background: url(../icons/user.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
+        width: 65%;
       }
     }
     input[type=submit] {
@@ -299,6 +302,9 @@ main {
       right: 10px;
       top: 0px;
       visibility: hidden;
+    }
+    p.empty {
+      padding: 0 5px;
     }
   }
 
@@ -510,4 +516,17 @@ input[type=range]:focus::-ms-fill-lower {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
+}
+
+.current-website {
+  padding: 5px;
+  width: 290px;
+  .section-header {
+    h1 {
+      font-size: 20px;
+    }
+  }
+  .full-url {
+    word-wrap: break-word;
+  }
 }

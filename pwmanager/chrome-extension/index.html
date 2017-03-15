@@ -5,9 +5,10 @@
 
     <title>Simple Vault</title>
     <link rel="stylesheet" type="text/css" href="vault-styles.css" />
+
 </head>
 
-<body id="vault">
+<body id="vault" v-cloak>
     <main>
     <section class="login" v-show="showLogin">
         <main>
@@ -127,15 +128,19 @@
                            :password-entities="password.passwordentitySet">
             </password-item>
             <div v-show="isEmpty && hideCreatePassword">
-              <p>Looks like you don't have any passwords yet!</p>
+              <p class="empty">Looks like you don't have any passwords yet!</p>
             </div>
       </section>
 
-        <section v-show="viewNavIndex === 2">
+        <section v-show="viewNavIndex === 2" class="current-website">
             <header class="section-header">
-                <h1 v-text="currentWebsite.title"></h1>
+                <h1 v-text="currentWebsite.domainName"></h1>
             </header>
-            <h1 v-text="currentWebsite.url">CurrentWebsite</h1>
+            <h1 class="full-url" v-text="currentWebsite.url"></h1>
+            <p>Title: <span v-text="currentWebsite.title"></span></p>
+            <p>Has password: <span v-show="currentWebsite.hasPassword">Yes</span>
+                            <span v-show="!currentWebsite.hasPassword">No</span>
+            </p>
         </section>
 
 

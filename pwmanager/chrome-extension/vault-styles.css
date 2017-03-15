@@ -93,7 +93,7 @@ nav li.active {
 .login form input,
 .registration form input {
   margin: 5px 0;
-  width: 100%;
+  width: 98%;
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.4);
   font-size: 18px;
@@ -126,18 +126,21 @@ nav li.active {
   background: url(../icons/mail.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
+  width: 65%;
 }
 .login form input[name=password],
 .registration form input[name=password] {
   background: url(../icons/padlock.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
+  width: 65%;
 }
 .login form input[name=username],
 .registration form input[name=username] {
   background: url(../icons/user.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
+  width: 65%;
 }
 .login form input[type=submit],
 .registration form input[type=submit] {
@@ -302,6 +305,9 @@ main section {
   right: 10px;
   top: 0px;
   visibility: hidden;
+}
+.vault section.passwords p.empty {
+  padding: 0 5px;
 }
 .vault section.create-password {
   height: 0;
@@ -504,4 +510,14 @@ input[type=range]:focus::-ms-fill-lower {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
+}
+.current-website {
+  padding: 5px;
+  width: 290px;
+}
+.current-website .section-header h1 {
+  font-size: 20px;
+}
+.current-website .full-url {
+  word-wrap: break-word;
 }

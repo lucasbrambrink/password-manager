@@ -9,6 +9,10 @@
     "default_icon": "locked.png",
     "default_popup": "index.html"
   },
+  "content_scripts": [
+  {
+      "js": ["content_script.js"]
+  }],
   "permissions": [
     "activeTab",
     "storage",

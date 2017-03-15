@@ -314,7 +314,9 @@
             },
             currentWebsite: {
                 title: '',
-                url: ''
+                url: '',
+                hasPassword: false,
+                domainName: '',
             }
         },
         computed: {
@@ -358,22 +360,8 @@
             };
             chrome.storage.local.get(["public_token"], cb(this));
             this.provisionCsrfToken();
-            chrome.tabs.onUpdated.addListener(function() {
-                console.log(window);
-                console.log(window.location);
-            });
 
-            //     code: '('  + ')();' //argument here is a string but function.toString() returns function's code
-            // }, function(results) {
-            // //Here we have just the innerHTML and not DOM structure
-            // //     console.log('Popup script:')
-            // //     console.log(results[0]);
-            //     console.log(window);
-            // });
-            // this.currentWebsite.url = window.location.href;
-            // this.currentWebsite.title = window.location.
-            // this.loadLoginHtml();
-            // this.loadVaultHtml()
+
 
         },
         mounted: function () {
@@ -435,59 +423,6 @@
                     cb(this));
             },
 
-            // loadLoginHtml: function () {
-            //     var self = this;
-            //     var url = AuthSouce.BASE_URL + '/chrome-extension/auth/';
-            //     console.log(url);
-            //     return AuthSouce.get(
-            //         url,
-            //         function (response) {
-            //             console.log(response);
-            //             self.loginHtml = response;
-            //             setTimeout(function() {
-            //                 $('form')
-            //                     .removeAttr('action')
-            //                     .on('submit', function (e) {
-            //                     e.preventDefault();
-            //                     var data = {
-            //                         email: $('form input[type=text]').val(),
-            //                         password: $('form input[type=password]').val()
-            //                     };
-            //                     AuthSouce.service(
-            //                         AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
-            //                         'POST',
-            //                         data,
-            //                         function (resp) {
-            //                             console.log(resp);
-            //                             chrome.storage.local.set({ "public_token": resp.token },
-            //                                 function(){
-            //                             });
-            //                             self.loadVaultHtml();
-            //                             self.showVault = true;
-            //                         }
-            //                     )
-            //                 })
-            //             }, 1000)
-            //         });
-            // },
-            // registrationLoginHtml: function () {
-            //     var that = this;
-            //     var url = AuthSouce.BASE_URL + '/chrome-extension/registration/';
-            //     return AuthSouce.get(
-            //         url,
-            //         function (response) {
-            //             that.registrationHtml = response;
-            //         });
-            // },
-            // loadVaultHtml: function () {
-            //     var that = this;
-            //     var url = AuthSouce.BASE_URL + '/chrome-extension/vault/';
-            //     return AuthSouce.get(
-            //         url,
-            //         function (response) {
-            //             that.vaultHtml = response;
-            //         });
-            // },
             showPassword: function (password) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
             },
@@ -559,8 +494,29 @@
                     return password;
                 });
                 vmVault.objPasswords = obj;
+            },
+            acceptPageInfo: function(sender) {
+                this.currentWebsite.title = sender.tab.title.split('|')[0];
+                this.currentWebsite.url = sender.tab.url;
+                this.currentWebsite.domainName = this.parseDomainName(sender.tab.url);
+                this.currentWebsite.hasPassword = this.hasPassword(this.currentWebsite.domainName);
+            },
+            parseDomainName: function(url) {
+                var link = $('<a href="' + url + '">')[0];
+                return link.hostname;
+            },
+            hasPassword: function(domainName) {
+                return this.passwords.filter(function(p) {
+                    return p.domainName === domainName;
+                }).length > 0;
             }
         }
     });
     window.vmVault = vmVault;
+    chrome.tabs.executeScript(null, {file: "content_script.js"});
+    chrome.runtime.onMessage.addListener(
+      function(request, sender, sendResponse) {
+          vmVault.acceptPageInfo(sender);
+    });
+
 })();
