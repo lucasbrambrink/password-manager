@@ -4,7 +4,7 @@
 (function() {
 
     var AuthSouce = (function ($) {
-        var BASE_URL = "http://127.0.0.1:8000";
+        var BASE_URL = "https://simple-vault.tk";
         var provisionToken = function (csrf_token) {
             $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
                 jqXHR.setRequestHeader('X-CSRFToken', csrf_token);
@@ -288,9 +288,7 @@
             username: '',
             passwords: [],
             showCreatePassword: false,
-            showVault: false,
-            showLogin: true,
-            showRegistration: false,
+            showMainIndex: 1,
             viewNavIndex: 1,
             searchTerm: '',
             token: '',
@@ -320,9 +318,6 @@
             }
         },
         computed: {
-            // token: function () {
-            //     return window.token;
-            // },
             isAuthenticated: function () {
                 return this.token !== undefined && this.token.length > 0;
             },
@@ -387,8 +382,7 @@
                     return function (resp) {
                         console.log(resp);
                         self.loadPasswords();
-                        self.showVault = true;
-                        self.showLogin = false;
+                        self.showMainIndex = 3;
                     }
                 };
                 var callback = function (self) {
@@ -398,7 +392,6 @@
                             'PUT', {}, load(self), self.token)
                     }
                 };
-                // this.provisionCallback =
                 this.provisionCsrfToken(callback(this));
             },
             submitLogin: function() {
@@ -492,6 +485,10 @@
                     password.domainNameNew = password.domainName;
                     obj[password.key] = password;
                     return password;
+                }).sort(function(a, b) {
+                    if (a.domainName < b.domainName) return -1;
+                    if (a.domainName > b.domainName) return 1;
+                    return 0;
                 });
                 vmVault.objPasswords = obj;
             },

@@ -11,14 +11,15 @@
   },
   "content_scripts": [
   {
+      "matches": ["http://*/*", "https://*/*"],
       "js": ["content_script.js"]
   }],
   "permissions": [
     "activeTab",
     "storage",
-    "https://ajax.googleapis.com/",
     "https://simple-vault.tk/",
-    "http://127.0.0.1:8000/"
-
+    "http://127.0.0.1:8000/",
+    "http://*/",
+    "https://*/"
   ]
 }

@@ -239,6 +239,9 @@ main section {
   width: 100%;
   padding: 0;
 }
+.vault section.passwords input {
+  padding-left: 13px;
+}
 .vault section.passwords::-webkit-scrollbar {
   width: 5px;
 }

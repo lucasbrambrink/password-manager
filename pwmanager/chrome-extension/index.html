@@ -10,11 +10,11 @@
 
 <body id="vault" v-cloak>
     <main>
-    <section class="login" v-show="showLogin">
+    <section class="login" v-show="showMainIndex === 1">
         <main>
             <header class="text-center">
                 <h1>Welcome</h1>
-                <a href="/registration">Don't have an account? Sign up.</a>
+                <a href="." v-on:click.prevent="showMainIndex = 2">Don't have an account? Sign up.</a>
             </header>
 
             <article class="text-center">
@@ -36,11 +36,11 @@
         </main>
     </section>
 
-    <section class="registration" v-show="showRegistration">
-        <div v-html="registrationHtml"></div>
+    <section class="registration" v-show="showMainIndex === 2">
+        <a href="." v-on:click.prevent="showMainIndex = 1">Don't have an account? Sign up.</a>
     </section>
 
-    <section class="vault" v-show="showVault">
+    <section class="vault" v-show="showMainIndex === 3">
         <nav>
           <ul>
             <li v-on:click="viewNavIndex = 1" class="passwords"

@@ -8,9 +8,11 @@ holdReady:function(a){a?r.readyWait++:r.ready(!0)},ready:function(a){(a===!0?--r
 
 // window.postMessage({ type: "FROM_CONTENT", text: "Hello from the webpage!" }, "*");
 
-setTimeout(function() {
-    var title = $('title').text();
-    chrome.runtime.sendMessage({title: title}, function(response) {
-      console.log(response.farewell);
-    });
-}, 100);
+(function () {
+    setTimeout(function() {
+        var title = $('title').text();
+        chrome.runtime.sendMessage({title: title}, function(response) {
+          console.log(response.farewell);
+        });
+    }, 100);
+})();
