@@ -63,6 +63,15 @@ class AuthenticationView(generics.UpdateAPIView,
         return Response({'token': token.key})
 
 
+class ProvisionNonceView(generics.GenericAPIView):
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated)
+
+    def put(self, request, *args, **kwargs):
+        Authenticate.initalize_nonce(request, request.user)
+        return Response({}, status=status.HTTP_200_OK)
+
+
 class PasswordListView(mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        generics.GenericAPIView):

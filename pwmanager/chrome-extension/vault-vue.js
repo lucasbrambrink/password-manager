@@ -388,7 +388,7 @@
                 var callback = function (self) {
                     return function() {
                         AuthSouce.service(
-                            AuthSouce.BASE_URL + '/api/v0/auth/get-token/',
+                            AuthSouce.BASE_URL + '/api/v0/auth/get-nonce/',
                             'PUT', {}, load(self), self.token)
                     }
                 };
@@ -397,12 +397,11 @@
             submitLogin: function() {
                 var cb = function(self) {
                     return function (resp) {
-                        console.log(resp);
                         chrome.storage.local.set({ "public_token": resp.token },
                             function(){
                         });
-                        self.showVault = true;
-                        self.provisionCsrfToken();
+                        showMainIndex = 3;
+                        self.activateSession();
                     };
                 };
                 AuthSouce.service(
