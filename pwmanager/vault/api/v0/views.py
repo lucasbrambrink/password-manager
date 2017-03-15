@@ -29,7 +29,7 @@ log = logging.getLogger(__name__)
 
 class AuthenticationView(generics.UpdateAPIView,
                          generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication)
+    authentication_classes = (TokenAuthentication,)
     throttle_classes = ()
     permission_classes = (AllowAny,)
     serializer_class = AuthenticationSerializer
