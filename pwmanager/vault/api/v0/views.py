@@ -1,7 +1,7 @@
 # from snippets.models import Snippet
 from .serializers import PasswordSerializer
 from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny, is_authenticated
 from rest_framework import mixins
 from rest_framework import generics
 from rest_framework import status
@@ -29,9 +29,9 @@ log = logging.getLogger(__name__)
 
 class AuthenticationView(generics.UpdateAPIView,
                          generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication,)
+    authentication_classes = (TokenAuthentication)
     throttle_classes = ()
-    permission_classes = ()
+    permission_classes = (AllowAny,)
     serializer_class = AuthenticationSerializer
 
     @method_decorator(ensure_csrf_cookie)
@@ -39,6 +39,10 @@ class AuthenticationView(generics.UpdateAPIView,
         return Response({}, status=status.HTTP_200_OK)
 
     def put(self, request, *args, **kwargs):
+        if not request.user or not is_authenticated(request.user):
+            return Response(NotAuthenticated.default_detail.capitalize(),
+                            status=NotAuthenticated.status_code)
+
         Authenticate.initalize_nonce(request, request.user)
         return Response({}, status=status.HTTP_200_OK)
 
