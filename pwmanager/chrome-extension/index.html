@@ -171,10 +171,10 @@
             <header class="section-header">
                 <h1 v-text="currentWebsite.domainName"></h1>
             </header>
-            <h1 class="full-url" v-text="currentWebsite.url"></h1>
             <p>Title: <span v-text="currentWebsite.title"></span></p>
             <p>Has password: <span v-show="currentWebsite.hasPassword">Yes</span>
                             <span v-show="!currentWebsite.hasPassword">No</span>
+            <p class="full-url" v-text="currentWebsite.url"></p>
             </p>
         </section>
 
