@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from vault.models import VaultUser, Password, PasswordEntity, VaultException
+from vault.models import VaultUser, Password, PasswordEntity, VaultException, Address
 
 
 class AuthenticationSerializer(serializers.Serializer):
@@ -41,7 +41,40 @@ class PasswordSerializer(serializers.ModelSerializer):
         fields = ('id',
                   'domain_name',
                   'key',
+                  'external_unique_identifier',
                   'passwordentity_set')
+
+
+class AddressSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Address
+        fields = Address._meta.get_all_field_names()
+
+
+
+class ProfileSerializer(serializers.Serializer):
+    user_name = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+    email = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+    phone_number = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+    address = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+    password_guid = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+    password_guid = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+
+
+
 
 
 

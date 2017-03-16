@@ -125,6 +125,7 @@
                     password.showIndex = 2;
                     password.isFocused = false;
                     password.domainNameNew = password.domainName;
+                    password.userNamenew = password.externalUniqueIdentifier;
                     obj[password.key] = password;
                     return password;
                 }).sort(function(a, b) {

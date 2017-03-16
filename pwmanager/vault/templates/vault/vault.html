@@ -9,7 +9,10 @@
 
 <main class="vault" id="vault" v-cloak>
   <header class="vault-header">
-    <h1>{{ user_name }}</h1>
+    <h1>
+      <span class="profile-settings"
+            v-on:click="showProfile = !showProfile">{{ user_name }}</span>
+    </h1>
 
     <button v-on:click="toggleShow"
             type="button" class="icon-btn push-right"
@@ -19,7 +22,11 @@
             v-bind:class="{'glyphicon-plus': showIndex === 1, 'glyphicon-remove': showIndex === 2}"
             aria-hidden="true"></span>
     </button>
-
+    <article class="profile-settings" v-show="showProfile">
+      <div>
+        <input type="text" v-model=""/>
+      </div>
+    </article>
   </header>
 
   <section class="create-password" v-bind:class="{open: showIndex === 2}">
@@ -34,6 +41,13 @@
                class="domain-name skip-blur"
                placeholder="Domain Name" v-cloak/>
       </div>
+      <div>
+          <input type="text"
+                 v-model="create.userName"
+                 data-validate="required"
+                 class="user-name skip-blur"
+                 placeholder="Username Or Email" v-cloak/>
+        </div>
       <div>
         <input type="text"
                placeholder="Password"
@@ -139,6 +153,13 @@
                  data-validate="required"
                  class="domain-name skip-blur"
                  placeholder="Domain Name" v-cloak/>
+        </div>
+        <div>
+          <input type="text"
+                 v-model="userNameNew"
+                 data-validate="required"
+                 class="user-name skip-blur"
+                 placeholder="Username Or Email" v-cloak/>
         </div>
         <div>
           <input class="gen-password"
