@@ -69,17 +69,18 @@ nav {
   main {
     color: @white;
     font-family: 'Open Sans', Arial, sans-serif;
-    background: @opaque-bg;
     width: 100%;
     max-width: 675px;
-    height: 60%;
-    padding: 5%;
+    height: 100%;
+    padding: 15px;
   }
   header {
     height: 30%;
+    margin-top: 20px;
   }
   article {
     height: 70%;
+    margin-top: 20px;
   }
   form {
     width: 100%;
@@ -122,23 +123,21 @@ nav {
         background: url(../icons/mail.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
-        width: 65%;
       }
       &[name=password] {
         background: url(../icons/padlock.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
-        width: 65%;
       }
       &[name=username] {
         background: url(../icons/user.svg) no-repeat;
         background-size: 25px;
         background-position: 10px 9px;
-        width: 65%;
       }
     }
     input[type=submit] {
       margin: 10px 0 0;
+      border-radius: 0;
       background: rgba(0, 0, 0, 0.2);
       &:hover, &:focus {
         background: rgba(0, 0, 0, 0.3);
@@ -179,9 +178,11 @@ input {
     color: @white;
   }
 }
+#vault-container {
+  background: rgba(0, 0, 0, 0.30);
+  height: 500px;
+}
 main {
-  background: rgba(0, 0, 0, 0.20);
-  height: 100%;
   header.section-header {
     height: 50px;
     width: 100%;
@@ -203,7 +204,6 @@ main {
   main {
     color: @white;
     font-family: 'Open Sans', Arial, sans-serif;
-    background: @opaque-bg;
     width: 100%;
     max-width: 625px;
     height: 80%;
@@ -227,6 +227,27 @@ main {
     width: 30px;
     height: 30px;
   }
+  .eye-icon {
+    background: url(../icons/eye-open.svg) no-repeat;
+    background-size: 20px;
+    background-position: 6px 3px;
+    width: 30px;
+    height: 30px;
+  }
+  .delete-icon {
+    background: url(../icons/delete.svg) no-repeat;
+    background-size: 15px;
+    background-position: 6px 5px;
+    width: 30px;
+    height: 30px;
+  }
+  .reload-icon {
+    background: url(../icons/reload.svg) no-repeat;
+    background-size: 20px;
+    background-position: 6px 3px;
+    width: 30px;
+    height: 30px;
+  }
 
   section.passwords {
     font-size: 18px;
@@ -237,6 +258,11 @@ main {
     padding: 0;
     input {
       padding-left: 13px;
+      border-top: none;
+      &:hover {
+        background: rgba(0, 0, 0, 0.1);
+        transition: background 130ms ease-in;
+      }
     }
     &::-webkit-scrollbar {
       width: 5px;
@@ -272,6 +298,7 @@ main {
       }
       &.focused {
         background: rgba(0, 0, 0, 0.26);
+        height: 115px;
         transition: background 130ms ease-in;
         .action-container {
           visibility: visible;
@@ -281,12 +308,25 @@ main {
         }
         .show-on-focus {
           display: block;
+          width: 100%;
         }
       }
       ul {
         list-style: none;
         margin: 10px 0 0;
         padding: 0 10px;
+        overflow: auto;
+        max-height: 75px;
+        &::-webkit-scrollbar {
+          width: 5px;
+        }
+        &::-webkit-scrollbar-track {
+          -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.1);
+        }
+        &::-webkit-scrollbar-thumb {
+          background-color: darkgrey;
+          outline: 1px solid slategrey;
+        }
       }
       li {
         text-align: right;
@@ -303,7 +343,8 @@ main {
     .action-container {
       position: absolute;
       right: 10px;
-      top: 0px;
+      padding: 0;
+      top: 10px;
       visibility: hidden;
     }
     p.empty {
@@ -324,6 +365,7 @@ main {
         position: relative;
         display: inline-block;
         width: 100%;
+        margin-top: 10px;
         float: left;
         &:first-child {
           margin-right: 5px;
@@ -335,6 +377,7 @@ main {
         [type=checkbox] {
           width: 20px;
         }
+        margin-top: 15px;
       }
       li {
         width: 32%;
@@ -346,7 +389,7 @@ main {
           margin-bottom: 10px;
           span {
             position: absolute;
-            right: 15px;
+            right: 5px;
             top: -10px;
           }
         }
@@ -380,11 +423,12 @@ main {
       color: @white;
       width: 80%;
       font-size: 15px;
-      margin: 0 auto;
+      margin: 15px auto;
       display: block;
-      background: rgba(0, 0, 0, 0.5);
+      float: none;
+      background: rgba(0, 0, 0, 0.6);
       &:hover, &:focus {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.7);
         transition: background 130ms ease-in;
         color: @white;
       }

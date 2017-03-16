@@ -49,7 +49,13 @@ class AddressSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Address
-        fields = Address._meta.get_all_field_names()
+        fields = (
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'zip_code'
+        )
 
 
 

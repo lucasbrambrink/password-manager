@@ -38,14 +38,6 @@ class AuthenticationView(generics.UpdateAPIView,
     def get(self, request, *args, **kwargs):
         return Response({}, status=status.HTTP_200_OK)
 
-    def put(self, request, *args, **kwargs):
-        if not request.user or not is_authenticated(request.user):
-            return Response(NotAuthenticated.default_detail.capitalize(),
-                            status=NotAuthenticated.status_code)
-
-        Authenticate.initalize_nonce(request, request.user)
-        return Response({}, status=status.HTTP_200_OK)
-
     def post(self, request, *args, **kwargs):
         serializer = AuthenticationSerializer(data=request.data)
         user = None
@@ -65,7 +57,7 @@ class AuthenticationView(generics.UpdateAPIView,
 
 class ProvisionNonceView(generics.GenericAPIView):
     authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAuthenticated)
+    permission_classes = (IsAuthenticated,)
 
     def put(self, request, *args, **kwargs):
         Authenticate.initalize_nonce(request, request.user)
@@ -75,7 +67,8 @@ class ProvisionNonceView(generics.GenericAPIView):
 class PasswordListView(mixins.ListModelMixin,
                        mixins.CreateModelMixin,
                        generics.GenericAPIView):
-    authentication_classes = (TokenAuthentication,SessionAuthentication)
+    authentication_classes = (TokenAuthentication,
+                              SessionAuthentication)
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordSerializer
 

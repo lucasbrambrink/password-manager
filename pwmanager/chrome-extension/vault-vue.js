@@ -4,7 +4,7 @@
 (function() {
 
     var AuthSouce = (function ($) {
-        var BASE_URL = "https://simple-vault.tk";
+        var BASE_URL = "http://127.0.0.1:8000"; //"https://simple-vault.tk";
         var provisionToken = function (csrf_token) {
             $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
                 jqXHR.setRequestHeader('X-CSRFToken', csrf_token);
@@ -147,52 +147,19 @@
             "is-hovering",
             "password-entities",
             "new-password",
-            "show-create-new",
-            "show-delete",
+            "show-index",
             "is-focused",
-            "show-history",
             "domain-name-new"],
         computed: {
             passwordObj: function () {
                 return vmVault.objPasswords[this.lookupKey];
             },
-            showPasswordHistory: {
+            showIndex: {
                 get: function () {
-                    return this.passwordObj.showPasswordHistory;
+                    return this.passwordObj.showIndex;
                 },
-                set: function (value) {
-                    if (this.changePassword || this.showDeleteSection) {
-                        this.changePassword = false;
-                        this.showDeleteSection = 0;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showPasswordHistory = value;
-                }
-            },
-            changePassword: {
-                get: function () {
-                    return this.passwordObj.showCreateNew;
-                },
-                set: function (value) {
-                    if (this.showPasswordHistory || this.showDeleteSection) {
-                        this.showPasswordHistory = false;
-                        this.showDeleteSection = 0;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showCreateNew = value;
-                }
-            },
-            showDeleteSection: {
-                get: function () {
-                    return this.passwordObj.showDelete;
-                },
-                set: function (value) {
-                    if (this.showPasswordHistory || this.changePassword) {
-                        this.showPasswordHistory = false;
-                        this.changePassword = false;
-                    }
-                    this.isFocused = true;
-                    this.passwordObj.showDelete = value;
+                set: function(value) {
+                    return this.passwordObj.showIndex = value;
                 }
             },
             isFocused: {
@@ -211,12 +178,15 @@
                     query: this.passwordEntities[0].guid
                 })
             },
-            toggleDelete: function () {
-                if (this.showDelete > 0) {
-                    this.showDelete = 0;
-                } else {
-                    this.showDelete = 1;
+            setFocus: function(event) {
+                var initialValue = !this.isFocused;
+                if ($(event.target).is('button')) {
+                    initialValue = true;
                 }
+                vmVault.passwords.map(function(p) {
+                    p.isFocused = false;
+                });
+                this.isFocused = initialValue;
             },
             deletePassword: function () {
                 return AuthSouce.service(
@@ -229,13 +199,6 @@
                         vmVault.loadPasswords();
                     }
                 )
-            },
-            setFocus: function(event) {
-                var initialValue = !this.isFocused;
-                vmVault.passwords.map(function(p) {
-                    p.isFocused = false;
-                });
-                this.isFocused = initialValue;
             },
             updatePassword: function () {
                 var selector = '#' + this.lookupKey;
@@ -477,9 +440,7 @@
                 vmVault.passwords = passwords.map(function (password) {
                     password.isHovering = false;
                     password.newPassword = "";
-                    password.showCreateNew = false;
-                    password.showPasswordHistory = false;
-                    password.showDelete = 0;
+                    password.showIndex = 2;
                     password.isFocused = false;
                     password.domainNameNew = password.domainName;
                     obj[password.key] = password;

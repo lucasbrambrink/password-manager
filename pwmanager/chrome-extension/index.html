@@ -4,12 +4,13 @@
     <meta charset="UTF-8">
 
     <title>Simple Vault</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css" />
     <link rel="stylesheet" type="text/css" href="vault-styles.css" />
 
 </head>
 
 <body id="vault" v-cloak>
-    <main>
+    <main id="vault-container">
     <section class="login" v-show="showMainIndex === 1">
         <main>
             <header class="text-center">
@@ -37,7 +38,35 @@
     </section>
 
     <section class="registration" v-show="showMainIndex === 2">
-        <a href="." v-on:click.prevent="showMainIndex = 1">Don't have an account? Sign up.</a>
+        <main>
+            <header class="text-center">
+                <h1>Welcome</h1>
+                <a href="." v-on:click.prevent="showMainIndex = 1">Already have an account? Login in.</a>
+            </header>
+
+            <article class="text-center">
+                <form method="post" class="text-center validate valid" v-on:submit.prevent="submitRegistration">
+                    <div class="">
+                        <input data-validate="required,email" id="id_email"
+                               maxlength="255" name="email" placeholder="Email" type="text"
+                               v-model="register.email">
+                    </div>
+                    <div class="">
+                        <input data-validate="required" id="id_username"
+                               maxlength="255" name="username" placeholder="Username" type="text"
+                               v-model="register.username">
+                    </div>
+
+                    <div class="">
+                        <input data-validate="required" id="id_password" name="password"
+                               placeholder="Password" type="password" required=""
+                               class="valid" v-model="register.password">
+                    </div>
+
+                    <input type="submit" class="btn" value="Submit">
+                </form>
+            </article>
+        </main>
     </section>
 
     <section class="vault" v-show="showMainIndex === 3">
@@ -54,7 +83,7 @@
           <section class="create-password" v-bind:class="{open: showCreatePassword}"
                    v-show="viewNavIndex === 3">
               <header class="section-header">
-                  <h1>Create new Password</h1>
+                  <h4>Create new password</h4>
               </header>
             <form v-on:submit.prevent="createPassword"
                   v-show="viewNavIndex === 3"
@@ -65,7 +94,14 @@
                        v-model="create.domainName"
                        data-validate="required"
                        class="domain-name skip-blur"
-                       placeholder="Domain Name" v-cloak/>
+                       placeholder="Domain name" v-cloak/>
+              </div>
+              <div>
+                <input type="text"
+                       v-model="create.userName"
+                       data-validate="required"
+                       class="user-name skip-blur"
+                       placeholder="User name" v-cloak/>
               </div>
               <div>
                 <input type="text"
@@ -103,10 +139,11 @@
                   </li>
                 </ul>
               </div>
-
-              <button type="submit" class="icon-btn upload-icon"
-                title="Store new password">STORE
-              </button>
+                <div>
+                  <button type="submit" class="icon-btn upload-icon"
+                    title="Store new password">STORE
+                  </button>
+                </div>
             </form>
           </section>
 
@@ -121,9 +158,7 @@
                            :domain-name-new="password.domainName"
                            :is-hovering="password.isHovering"
                            :new-password="password.newPassword"
-                           :show-create-new="password.showCreateNew"
-                           :show-history="password.showPasswordHistory"
-                           :show-delete="password.showDelete"
+                           :show-index="password.showIndex"
                            :is-focused="password.isFocused"
                            :password-entities="password.passwordentitySet">
             </password-item>
@@ -151,28 +186,26 @@
               <div class="action-container">
                 <button v-on:click="requestCurrentPassword"
                         title="Show most recent password"
-                        class="icon-btn">
-                  <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                        class="icon-btn eye-icon">
                 </button>
-                <button v-on:click="changePassword = !changePassword"
+                <button v-on:click="showIndex = 1"
                         title="Replace password"
-                        class="icon-btn"
-                        v-bind:class="{pinned: changePassword}">
-                  <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
+                        class="icon-btn reload-icon"
+                        v-bind:class="{pinned: showIndex === 1}">
                 </button>
-                <button v-on:click="showPasswordHistory = !showPasswordHistory"
+                <button v-on:click="showIndex = 2"
                         title="Show password history"
-                        class="icon-btn password-history" v-bind:class="{pinned: showPasswordHistory}">
+                        class="icon-btn password-history"
+                        v-bind:class="{pinned: showIndex === 2}">
                 </button>
-                <button v-on:click="toggleDelete"
+                <button v-on:click="showIndex = 3"
                         title="Delete password"
-                        class="icon-btn">
-                  <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
+                        class="icon-btn delete-icon">
                 </button>
               </div>
             </header>
 
-            <section class="show-on-focus create-password update-password" v-show="showCreateNew">
+            <section class="show-on-focus create-password update-password" v-show="showIndex === 1">
               <form v-on:submit.prevent="updatePassword"
                     v-bind:id="lookupKey" >
                 <div>
@@ -193,7 +226,8 @@
                 </button>
               </form>
             </section>
-            <section class="show-on-focus" v-show="showHistory">
+
+            <section class="show-on-focus" v-show="showIndex === 2">
               <ul>
                 <password-history-item
                         class=text-right"
@@ -204,16 +238,17 @@
                 </password-history-item>
               </ul>
             </section>
-            <section class="show-on-focus delete-password" v-show="showDelete > 0">
-              <div v-show="showDelete === 1">
+
+            <section class="show-on-focus delete-password" v-show="showIndex > 2">
+              <div v-show="showIndex === 3">
                 <p>Are you sure you want to remove?</p>
-                <button v-on:click="showDelete = 2"
+                <button v-on:click="showIndex = 4"
                         title="Delete password"
                         class="icon-btn remove-icon">
                   Yes
                 </button>
               </div>
-              <div v-show="showDelete === 2">
+              <div v-show="showIndex === 4">
                 <p>Are you absolute sure?</p>
                 <button v-on:click="deletePassword"
                         title="Delete password"

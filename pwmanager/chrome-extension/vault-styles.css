@@ -60,19 +60,20 @@ nav li.active {
 .registration main {
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.43);
   width: 100%;
   max-width: 675px;
-  height: 60%;
-  padding: 5%;
+  height: 100%;
+  padding: 15px;
 }
 .login header,
 .registration header {
   height: 30%;
+  margin-top: 20px;
 }
 .login article,
 .registration article {
   height: 70%;
+  margin-top: 20px;
 }
 .login form,
 .registration form {
@@ -126,25 +127,23 @@ nav li.active {
   background: url(../icons/mail.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
-  width: 65%;
 }
 .login form input[name=password],
 .registration form input[name=password] {
   background: url(../icons/padlock.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
-  width: 65%;
 }
 .login form input[name=username],
 .registration form input[name=username] {
   background: url(../icons/user.svg) no-repeat;
   background-size: 25px;
   background-position: 10px 9px;
-  width: 65%;
 }
 .login form input[type=submit],
 .registration form input[type=submit] {
   margin: 10px 0 0;
+  border-radius: 0;
   background: rgba(0, 0, 0, 0.2);
 }
 .login form input[type=submit]:hover,
@@ -184,9 +183,9 @@ input::-moz-placeholder {
 input:-ms-input-placeholder {
   color: #FCFCFC;
 }
-main {
-  background: rgba(0, 0, 0, 0.2);
-  height: 100%;
+#vault-container {
+  background: rgba(0, 0, 0, 0.3);
+  height: 500px;
 }
 main header.section-header {
   height: 50px;
@@ -207,7 +206,6 @@ main section {
 .vault main {
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.43);
   width: 100%;
   max-width: 625px;
   height: 80%;
@@ -231,6 +229,27 @@ main section {
   width: 30px;
   height: 30px;
 }
+.vault .eye-icon {
+  background: url(../icons/eye-open.svg) no-repeat;
+  background-size: 20px;
+  background-position: 6px 3px;
+  width: 30px;
+  height: 30px;
+}
+.vault .delete-icon {
+  background: url(../icons/delete.svg) no-repeat;
+  background-size: 15px;
+  background-position: 6px 5px;
+  width: 30px;
+  height: 30px;
+}
+.vault .reload-icon {
+  background: url(../icons/reload.svg) no-repeat;
+  background-size: 20px;
+  background-position: 6px 3px;
+  width: 30px;
+  height: 30px;
+}
 .vault section.passwords {
   font-size: 18px;
   overflow-y: auto;
@@ -241,6 +260,11 @@ main section {
 }
 .vault section.passwords input {
   padding-left: 13px;
+  border-top: none;
+}
+.vault section.passwords input:hover {
+  background: rgba(0, 0, 0, 0.1);
+  transition: background 130ms ease-in;
 }
 .vault section.passwords::-webkit-scrollbar {
   width: 5px;
@@ -276,6 +300,7 @@ main section {
 }
 .vault section.passwords article.focused {
   background: rgba(0, 0, 0, 0.26);
+  height: 115px;
   transition: background 130ms ease-in;
 }
 .vault section.passwords article.focused .action-container {
@@ -286,11 +311,24 @@ main section {
 }
 .vault section.passwords article.focused .show-on-focus {
   display: block;
+  width: 100%;
 }
 .vault section.passwords article ul {
   list-style: none;
   margin: 10px 0 0;
   padding: 0 10px;
+  overflow: auto;
+  max-height: 75px;
+}
+.vault section.passwords article ul::-webkit-scrollbar {
+  width: 5px;
+}
+.vault section.passwords article ul::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+}
+.vault section.passwords article ul::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }
 .vault section.passwords article li {
   text-align: right;
@@ -306,7 +344,8 @@ main section {
 .vault section.passwords .action-container {
   position: absolute;
   right: 10px;
-  top: 0px;
+  padding: 0;
+  top: 10px;
   visibility: hidden;
 }
 .vault section.passwords p.empty {
@@ -325,6 +364,7 @@ main section {
   position: relative;
   display: inline-block;
   width: 100%;
+  margin-top: 10px;
   float: left;
 }
 .vault section.create-password form div:first-child {
@@ -333,6 +373,7 @@ main section {
 .vault section.create-password form ul {
   padding: 0;
   list-style: none;
+  margin-top: 15px;
 }
 .vault section.create-password form ul [type=checkbox] {
   width: 20px;
@@ -349,7 +390,7 @@ main section {
 }
 .vault section.create-password form li:first-child span {
   position: absolute;
-  right: 15px;
+  right: 5px;
   top: -10px;
 }
 .vault section.create-password label.error {
@@ -378,13 +419,14 @@ main section {
   color: #FCFCFC;
   width: 80%;
   font-size: 15px;
-  margin: 0 auto;
+  margin: 15px auto;
   display: block;
-  background: rgba(0, 0, 0, 0.5);
+  float: none;
+  background: rgba(0, 0, 0, 0.6);
 }
 .vault section.create-password button[type=submit]:hover,
 .vault section.create-password button[type=submit]:focus {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7);
   transition: background 130ms ease-in;
   color: #FCFCFC;
 }
