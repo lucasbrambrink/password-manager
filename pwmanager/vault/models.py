@@ -204,8 +204,7 @@ class VaultUser(ExternalUserInfo,
         password = self.make_password(raw_password)
         encryption_key = SymmetricEncryption.build_encryption_key(password)
         try:
-            # if type(self.guid_e) is str:
-            self.guid_e = bytes(self.guid_e)#     self.guid_e = self.guid_e.encode('utf-8')
+            self.guid_e = bytes(self.guid_e)
             guid = SymmetricEncryption.decrypt(
                 encryption_key,
                 self.guid_e)

@@ -138,6 +138,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     ('vault', os.path.join(BASE_DIR, 'vault', 'static')),
+    ('chrome', os.path.join(BASE_DIR, 'chrome-extension')),
+
 )
 STATIC_ROOT = os.path.join(BASE_DIR, 'vault', 'root')
 SHELL_PLUS_PRE_IMPORTS = (
