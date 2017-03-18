@@ -1,6 +1,10 @@
 from rest_framework import serializers
 from vault.models import VaultUser, DomainName, ExternalAuthentication, PasswordEntity, VaultException, Address
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 class AuthenticationSerializer(serializers.Serializer):
     email = serializers.CharField(max_length=255)
@@ -101,7 +105,6 @@ class PasswordCreateSerializer(serializers.Serializer):
                                           allow_blank=True,
                                           allow_null=True)
 
-
     def create(self, user, token, user_key):
         assert self.validated_data is not None
         DomainName.objects.create_or_update_password(
@@ -114,14 +117,32 @@ class PasswordCreateSerializer(serializers.Serializer):
             password_guid=self.validated_data['password_guid']
         )
 
+
+class PasswordDeleteSerializer(serializers.Serializer):
+    domain_name = serializers.CharField(max_length=255)
+    password_guid = serializers.CharField(max_length=255,
+                                          allow_blank=True,
+                                          allow_null=True)
+
     @staticmethod
-    def delete(key):
+    def delete(user, domain_name, key):
         try:
             password = ExternalAuthentication.published\
                 .get(key=key)
             password.soft_delete()
+        except ExternalAuthentication.DoesNotExist:
+            log.warning("Unable to find auth object from key: %s" % key)
+
+        try:
+            domain = user.vault.domainname_set\
+                .get(domain_name=domain_name)
+            if not domain.externalauthentication_set\
+                    .filter(is_active=True).count():
+                domain.soft_delete()
         except DomainName.DoesNotExist:
-            pass
+            log.warning("Unable to find domain name domain name: %s" % domain_name)
+
+
 
 
 class PasswordValueSerializer(serializers.Serializer):

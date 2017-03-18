@@ -13,7 +13,8 @@ from .serializers import (
     DomainNameSerializer,
     ExternalAuthenticationSerializer,
     PasswordValueSerializer,
-    PasswordCreateSerializer)
+    PasswordCreateSerializer,
+    PasswordDeleteSerializer)
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
@@ -97,9 +98,14 @@ class DomainNameView(mixins.CreateModelMixin,
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
 
-        serializer = PasswordCreateSerializer(data=request.data)
-        serializer.is_valid()
-        serializer.delete(serializer.data.get("password_guid"))
+        serializer = PasswordDeleteSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response('Bad request. Sorry!',
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.delete(user=request.user,
+                          domain_name=serializer.validated_data.get("domain_name"),
+                          key=serializer.validated_data.get("password_guid"))
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
     def post(self, request, *args, **kwargs):

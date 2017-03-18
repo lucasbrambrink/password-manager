@@ -102,11 +102,16 @@ var passwordItem = Vue.component('password-item', {
             })
         },
         deletePassword: function () {
+            console.log({
+                passwordGuid: this.lookupKey,
+                domainName: this.domainName
+            });
             return AuthSouce.service(
                 "/api/v0/password/create/",
                 "DELETE",
                 {
-                    passwordGuid: this.lookupKey
+                    passwordGuid: this.lookupKey,
+                    domainName: this.domainName
                 },
                 function () {
                     vmVault.loadPasswords();
