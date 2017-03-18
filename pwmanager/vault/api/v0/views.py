@@ -1,5 +1,4 @@
 # from snippets.models import Snippet
-from .serializers import PasswordSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, AllowAny, is_authenticated
 from rest_framework import mixins
@@ -11,7 +10,8 @@ from rest_framework.exceptions import NotAuthenticated
 from .serializers import (
     AuthenticationSerializer,
     VaultUserSerializer,
-    PasswordSerializer,
+    DomainNameSerializer,
+    ExternalAuthenticationSerializer,
     PasswordValueSerializer,
     PasswordCreateSerializer)
 from rest_framework.authtoken.models import Token
@@ -64,17 +64,17 @@ class ProvisionNonceView(generics.GenericAPIView):
         return Response({}, status=status.HTTP_200_OK)
 
 
-class PasswordListView(mixins.ListModelMixin,
-                       mixins.CreateModelMixin,
-                       generics.GenericAPIView):
+class DomainNameListView(mixins.ListModelMixin,
+                         mixins.CreateModelMixin,
+                         generics.GenericAPIView):
     authentication_classes = (TokenAuthentication,
                               SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = PasswordSerializer
+    serializer_class = DomainNameSerializer
 
     def get_queryset(self):
         return self.request.user\
-            .vault.password_set\
+            .vault.domainname_set\
             .filter(is_active=True)
 
     def post(self, request, *args, **kwargs):
@@ -85,9 +85,9 @@ class PasswordListView(mixins.ListModelMixin,
         return self.list(request, *args, **kwargs)
 
 
-class PasswordView(mixins.CreateModelMixin,
-                   mixins.UpdateModelMixin,
-                   generics.GenericAPIView):
+class DomainNameView(mixins.CreateModelMixin,
+                     mixins.UpdateModelMixin,
+                     generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PasswordCreateSerializer
 
@@ -111,13 +111,14 @@ class PasswordView(mixins.CreateModelMixin,
         user = request.user
         token = AuthCache.get_token(key)
         serializer = PasswordCreateSerializer(data=request.data)
-
+        print(serializer.__dict__)
         success = False
         if serializer.is_valid():
             try:
                 serializer.create_or_update(
                     user, token,
                     serializer.validated_data['domain_name'],
+                    serializer.validated_data['username'],
                     serializer.validated_data['password'],
                     user_key,
                     serializer.validated_data['password_guid']
@@ -138,7 +139,6 @@ class PasswordView(mixins.CreateModelMixin,
 class PasswordGetView(generics.GenericAPIView):
     authentication_classes = (TokenAuthentication, SessionAuthentication)
     permission_classes = (IsAuthenticated,)
-    serializer_class = PasswordSerializer
 
     def post(self, request, *args, **kwargs):
         authenticated, nonce, key, user_key = Authenticate.check_authentication(request)

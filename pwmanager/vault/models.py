@@ -20,6 +20,24 @@ import base64
 log = logging.getLogger(__name__)
 
 
+class BaseDataManager(models.Manager):
+
+    def get_queryset(self, *args, **kwargs):
+        return super(BaseDataManager, self)\
+            .get_queryset(*args, **kwargs)\
+            .filter(is_active=True)
+
+
+class BaseDataModel(models.Model):
+    published = BaseDataManager()
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    modified = models.DateTimeField(auto_now_add=True, null=True)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+
+
 class LoginAttempt(models.Model):
     EMPTY = u'Both inputs are required'
     WRONG = u'Unable to authenticate account.'
@@ -32,22 +50,34 @@ class LoginAttempt(models.Model):
     error_msg = models.CharField(max_length=255, default=u'')
 
 
-class PasswordEntity(models.Model):
-    password = models.ForeignKey(to='Password')
+class PasswordEntity(BaseDataModel):
+    external_auth = models.ForeignKey(to='ExternalAuthentication', null=True)
     guid = models.CharField(max_length=255, unique=True)
-    created = models.DateTimeField(auto_now_add=True, null=True)
-    is_active = models.BooleanField(default=True)
 
 
-class PasswordTag(models.Model):
-    password = models.ForeignKey(to='Password')
+class PasswordTag(BaseDataModel):
+    external_auth = models.ForeignKey(to='ExternalAuthentication', null=True)
     value = models.CharField(max_length=255, blank=True, default=u'')
-    created = models.DateTimeField(auto_now_add=True, null=True)
 
 
-class PasswordManager(models.Manager):
+class ExternalAuthentication(BaseDataModel):
+    domain_name = models.ForeignKey(to='DomainName')
+    user_name = models.CharField(max_length=255, blank=True, default=u'')
+    key = models.CharField(max_length=255, unique=True, default=u'')
 
-    def create_password(self, user, token, domain_name, password, user_key, password_guid=None):
+
+class DomainNameManager(models.Manager):
+
+    def create_or_update_password(self, user, token, domain_name, username, password, user_key, password_guid=None):
+        try:
+            obj = DomainName.objects.get(domain_name=domain_name)
+        except DomainName.DoesNotExist:
+            obj = DomainName(
+                vault=user.vault,
+                domain_name=domain_name)
+            obj.save(using=self._db)
+
+        # inject data into vault
         api = user.access_api(token, user_key)
         entity = PasswordEntity(
             guid=GuidSource.generate(),
@@ -56,37 +86,41 @@ class PasswordManager(models.Manager):
         if not success:
             raise VaultException("Unable to write to vault")
 
-        password_obj = None
+        external_auth = None
         if password_guid:
             try:
-                password_obj = Password.objects.get(key=password_guid)
-            except Password.DoesNotExist:
+                external_auth = ExternalAuthentication.objects.get(key=password_guid)
+            except ExternalAuthentication.DoesNotExist:
                 pass
 
-        password_obj = password_obj or self.model(
-            vault=user.vault,
+        if not external_auth:
+            try:
+                external_auth = obj.externalauthentication_set.get(user_name=username)
+            except ExternalAuthentication.DoesNotExist:
+                pass
+
+        external_auth = external_auth or ExternalAuthentication(
+            user_name=username,
             key=GuidSource.generate()
         )
-        password_obj.domain_name = domain_name
-        password_obj.save(using=self._db)
-        entity.password = password_obj
+        external_auth.domain_name = obj
+        external_auth.save(using=self._db)
+
+        entity.password = external_auth
         entity.save(using=self._db)
 
 
-class Password(models.Model):
+class DomainName(BaseDataModel):
     """
     maps to login set
         maintains history via LIFO queue of password entities
     """
-    objects = PasswordManager()
+    objects = DomainNameManager()
     vault = models.ForeignKey(to=u"Vault")
     domain_name = models.CharField(max_length=255)
-    external_unique_identifier = models.CharField(max_length=255, default=u'')
     url = models.CharField(max_length=255, blank=True)
     cookie_value = models.CharField(max_length=255, blank=True)
     key = models.CharField(max_length=255)
-    is_active = models.BooleanField(default=True)
-    created = models.DateTimeField(auto_now_add=True, null=True)
 
     @property
     def current_password(self):
@@ -97,7 +131,7 @@ class Password(models.Model):
         self.save()
 
 
-class Vault(models.Model):
+class Vault(BaseDataModel):
     """
     mount for individual user
     """
@@ -174,6 +208,7 @@ class SecureNote(models.Model):
 
 
 class VaultUser(ExternalUserInfo,
+                BaseDataModel,
                 AbstractBaseUser):
     """
     django user entity that maps 1-to-1 to Vault mount
@@ -182,8 +217,6 @@ class VaultUser(ExternalUserInfo,
     REQUIRED_FIELDS = [u'username', u'password']
     objects = VaultUserManager()
 
-    username = models.CharField(max_length=255, blank=False, default=u'')
-    email = models.EmailField(blank=False, unique=True, default=u'')
     vault = models.OneToOneField(to=Vault,
                                  on_delete=models.CASCADE)
     salt = models.CharField(max_length=255, default=u'')
@@ -191,7 +224,7 @@ class VaultUser(ExternalUserInfo,
     guid_e = models.BinaryField(null=True, blank=True)
     google_authenticator_credentials = models.CharField(max_length=255, default=u'')
     nonce_e = models.CharField(max_length=255, default=u'')
-    is_active = models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.username

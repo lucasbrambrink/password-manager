@@ -1,7 +1,7 @@
 from django.conf.urls import url
 # from .views import
 from rest_framework.authtoken import views
-from .views import PasswordListView, PasswordGetView, PasswordView, AuthenticationView, ProvisionNonceView
+from .views import DomainNameListView, PasswordGetView, DomainNameView, AuthenticationView, ProvisionNonceView
 
 urlpatterns = [
     url(r'^auth/get-token/', AuthenticationView.as_view()),
@@ -10,9 +10,9 @@ urlpatterns = [
         PasswordGetView.as_view(),
         name=u'password'),
     url(r'^password/create/$',
-        PasswordView.as_view(),
+        DomainNameView.as_view(),
         name=u'password-create'),
     url(r'^password/list/$',
-        PasswordListView.as_view(),
+        DomainNameListView.as_view(),
         name=u'password-list'),
 ]

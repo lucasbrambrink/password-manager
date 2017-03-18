@@ -6,7 +6,7 @@ nav {
   height: 40px;
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.43);
+  background: rgba(26, 25, 51, 0.53);
 }
 nav ul {
   list-style: none;
@@ -68,7 +68,7 @@ body.vault {
 .registration main {
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.43);
+  background: rgba(26, 25, 51, 0.53);
   width: 100%;
   max-width: 675px;
   height: 60%;
@@ -161,9 +161,6 @@ body.vault {
   transition: background 130ms ease-in;
   color: #FCFCFC;
 }
-.vault-header {
-  padding: 0 10px;
-}
 .vault .container {
   display: -webkit-flex;
   display: flex;
@@ -176,7 +173,7 @@ body.vault {
 .vault main {
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.43);
+  background: rgba(26, 25, 51, 0.53);
   width: 100%;
   max-width: 625px;
   height: 80%;
@@ -243,6 +240,9 @@ body.vault {
 .vault section.passwords .search-header:hover {
   transition: background 130ms ease-in;
   background: rgba(0, 0, 0, 0.05);
+}
+.vault section.passwords .empty-container {
+  margin: 15px 15px 0;
 }
 .vault section.passwords .password-container {
   overflow-y: auto;
@@ -329,18 +329,17 @@ body.vault {
 .vault section.create-password.open {
   height: 100px;
 }
-.vault section.create-password form {
+.vault section.create-password .position-relative {
   position: relative;
 }
 .vault section.create-password form div {
   display: inline-block;
-  width: 69%;
-  height: 83px;
   float: left;
+  padding: 2.5px 5px;
 }
-.vault section.create-password form div:first-child {
-  width: 29%;
-  margin-right: 5px;
+.vault section.create-password form .row {
+  width: 100%;
+  margin: 0;
 }
 .vault section.create-password form ul {
   padding: 0;
@@ -401,18 +400,23 @@ body.vault {
   background-size: 25px;
   background-position: 10px 9px;
   position: absolute;
-  top: 3px;
-  right: 37px;
+  top: 6px;
+  right: 5px;
 }
 .vault section.create-password .upload-icon {
   height: 47px;
-  width: 47px;
-  position: absolute;
+  width: 250px;
   background: url(../icons/padlock.svg) no-repeat;
-  background-size: 25px;
-  background-position: center;
-  top: 1px;
-  right: 5px;
+  background-size: 22px;
+  background-position: 40px 10px;
+  margin: 0 auto;
+  float: none;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.vault section.create-password .upload-icon:hover {
+  transition: background-color 30ms ease-in;
+  background-color: rgba(0, 0, 0, 0.12);
 }
 .vault section.create-password input[type=submit] {
   margin: 10px 0 0;
@@ -554,4 +558,20 @@ input[type=range]:focus::-ms-fill-lower {
 }
 input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
+}
+.profile-settings {
+  width: 40%;
+  padding: 5px 15px;
+  display: inline-block;
+  border-radius: 2px;
+}
+.profile-settings:hover {
+  transition: background 130ms ease-in;
+  background: rgba(0, 0, 0, 0.15);
+}
+.tooltip-inner {
+  border-radius: 0;
+  font-size: 14px;
+  padding: 10px;
+  width: 180px;
 }

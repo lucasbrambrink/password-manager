@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from vault.models import VaultUser, Password, PasswordEntity, VaultException, Address
+from vault.models import VaultUser, DomainName, ExternalAuthentication, PasswordEntity, VaultException, Address
 
 
 class AuthenticationSerializer(serializers.Serializer):
@@ -31,18 +31,28 @@ class PasswordEntitySerializer(serializers.ModelSerializer):
         fields = ('id', 'created', 'guid', 'created_time')
 
 
-class PasswordSerializer(serializers.ModelSerializer):
+
+class ExternalAuthenticationSerializer(serializers.ModelSerializer):
     passwordentity_set = PasswordEntitySerializer(many=True,
                                                   read_only=True,
                                                   allow_null=True)
 
     class Meta:
-        model = Password
-        fields = ('id',
-                  'domain_name',
-                  'key',
-                  'external_unique_identifier',
+        model = ExternalAuthentication
+        fields = ('key',
+                  'user_name',
                   'passwordentity_set')
+
+
+class DomainNameSerializer(serializers.ModelSerializer):
+    externalauthentication_set = ExternalAuthenticationSerializer(many=True,
+                                                                  read_only=True,
+                                                                  allow_null=True)
+
+    class Meta:
+        model = DomainName
+        fields = ('domain_name',
+                  'externalauthentication_set')
 
 
 class AddressSerializer(serializers.ModelSerializer):
@@ -75,9 +85,6 @@ class ProfileSerializer(serializers.Serializer):
     password_guid = serializers.CharField(max_length=255,
                                           allow_blank=True,
                                           allow_null=True)
-    password_guid = serializers.CharField(max_length=255,
-                                          allow_blank=True,
-                                          allow_null=True)
 
 
 
@@ -88,21 +95,22 @@ class PasswordCreateSerializer(serializers.Serializer):
     VaultException = VaultException
     password = serializers.CharField(max_length=255)
     domain_name = serializers.CharField(max_length=255)
+    username = serializers.CharField(max_length=255)
     password_guid = serializers.CharField(max_length=255,
                                           allow_blank=True,
                                           allow_null=True)
 
     @staticmethod
     def create_or_update(*args):
-        return Password.objects.create_password(*args)
+        return DomainName.objects.create_or_update_password(*args)
 
     @staticmethod
     def delete(key):
         try:
-            password = Password.objects\
+            password = DomainName.objects\
                 .get(key=key)
             password.soft_delete()
-        except Password.DoesNotExist:
+        except DomainName.DoesNotExist:
             pass
 
 

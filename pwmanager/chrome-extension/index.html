@@ -73,7 +73,7 @@
         <nav>
           <ul>
             <li v-on:click="viewNavIndex = 1" class="passwords"
-                v-bind:class="{active: viewNavIndex === 1}">Passwords</li>
+                v-bind:class="{active: showPasswords}">Passwords</li>
             <li v-on:click="viewNavIndex = 2" class="current"
                 v-bind:class="{active: viewNavIndex === 2}">Current</li>
             <li v-on:click="viewNavIndex = 3" class="generate"
@@ -147,7 +147,7 @@
             </form>
           </section>
 
-          <section v-show="viewNavIndex === 1" class="passwords" v-bind:class="{open: showCreatePassword}">
+          <section v-show="viewNavIndex === 1" class="passwords" v-bind:class="{open: viewNavIndex === 1}">
               <header class="section-header">
                   <input type="text" placeholder="Search" v-model="searchTerm">
               </header>

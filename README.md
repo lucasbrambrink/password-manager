@@ -14,6 +14,8 @@ write intro / marketing page
 
 * fix user-gen token (not strong enough)
 * avoid root token completely
+* roll over keys
+
 
 * fix user archive key generation
     * use pbkdf2 (~100000 iterations)
@@ -24,3 +26,4 @@ DONE
     * notes, tags, etc
 DONE
 
+* build FE for extra fields

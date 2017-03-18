@@ -1,15 +1,20 @@
 var AuthSouce = (function ($) {
-    var csrfToken = function () {
+    var BASE_URL = "http://127.0.0.1:8000"; //"https://simple-vault.tk";
+
+    var provisionToken = function (csrf_token) {
         $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
-            var token = $('input[name=csrfmiddlewaretoken]').val();
-            jqXHR.setRequestHeader('X-CSRFToken', token);
+            jqXHR.setRequestHeader('X-CSRFToken', csrf_token);
         });
+    };
+
+    var csrfTokenFromHtml = function () {
+        return $('input[name=csrfmiddlewaretoken]').val();
     };
 
     var callService = function (url, method, data, callback) {
         callback = callback || function () { };
         $.ajax({
-            url: url,
+            url: BASE_URL + url,
             processData: false,
             data: JSON.stringify(data),
             contentType: 'application/json',
@@ -26,7 +31,7 @@ var AuthSouce = (function ($) {
         callback = callback || function () {
             };
         $.ajax({
-            url: url,
+            url: BASE_URL + url,
         }).done(function (response) {
             callback(response)
         }).fail(function (errResponse) {
@@ -35,11 +40,11 @@ var AuthSouce = (function ($) {
     };
 
     return {
-        csrf: csrfToken,
+        BASE_URL: BASE_URL,
+        provisionToken: provisionToken,
+        csrfTokenFromHtml: csrfTokenFromHtml,
         service: callService,
         get: getService
     };
 
-})(jQuery);/**
- * Created by lucasbrambrink on 3/13/17.
- */
+})(jQuery);

@@ -11,85 +11,99 @@
   <header class="vault-header">
     <h1>
       <span class="profile-settings"
-            v-on:click="showProfile = !showProfile">{{ user_name }}</span>
+            v-on:click="showProfile = !showProfile">{{user_name }}</span>
     </h1>
 
     <button v-on:click="toggleShow"
             type="button" class="icon-btn push-right"
             v-bind:title="toggleTitle"
+            data-toggle="tooltip"
             aria-label="Right Align">
       <span class="glyphicon glyphicon"
-            v-bind:class="{'glyphicon-plus': showIndex === 1, 'glyphicon-remove': showIndex === 2}"
-            aria-hidden="true"></span>
+            v-bind:class="{'glyphicon-plus': !showCreateNew, 'glyphicon-remove': showCreateNew}"
+            aria-hidden="true">
+      </span>
     </button>
     <article class="profile-settings" v-show="showProfile">
       <div>
-        <input type="text" v-model=""/>
+        <input type="text"/>
       </div>
     </article>
   </header>
 
-  <section class="create-password" v-bind:class="{open: showIndex === 2}">
+  <section class="create-password" v-bind:class="{open: showCreateNew }">
     <form v-on:submit.prevent="createPassword"
           v-show="showIndex === 2"
           class="generate-password"
           data-never-disabled="true">
-      <div>
-        <input type="text"
-               v-model="create.domainName"
-               data-validate="required"
-               class="domain-name skip-blur"
-               placeholder="Domain Name" v-cloak/>
-      </div>
-      <div>
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
           <input type="text"
-                 v-model="create.userName"
+                 v-model="create.domainName"
                  data-validate="required"
-                 class="user-name skip-blur"
-                 placeholder="Username Or Email" v-cloak/>
+                 class="domain-name skip-blur"
+                 placeholder="Domain Name" v-cloak/>
         </div>
-      <div>
-        <input type="text"
-               placeholder="Password"
-               data-validate="required"
-               class="gen-password skip-blur"
-               v-model="create.password" />
-        <ul>
-          <li>
-            <input type="range"
-              v-model="create.length"
-              min="8"
-              max="36"
-              step="1">
-            <span v-text="create.length"></span>
-          </li>
-          <li>
-            <input id="letters" type="checkbox" value="letters" v-model="create.letters">
-            <label for="letters">Letters</label>
-          </li>
-          <li>
-            <input id="digits" type="checkbox" value="digits" v-model="create.digits">
-            <label for="digits">Digits</label>
-          </li>
-          <li>
-            <input id="symbols" type="checkbox" value="Symbols" v-model="create.symbols">
-            <label for="symbols">Symbols</label>
-          </li>
-        </ul>
+        <div class="col-xs-12 col-sm-6">
+            <input type="text"
+                   v-model="create.username"
+                   data-validate="required"
+                   class="user-name skip-blur"
+                   placeholder="Username Or Email" v-cloak/>
+        </div>
       </div>
-      <button v-on:click.prevent="generatePassword"
+      <div class="row">
+        <div class="col-xs-12 position-relative">
+          <input type="text"
+                 placeholder="Password"
+                 data-validate="required"
+                 class="gen-password skip-blur"
+                 v-model="create.password" />
+          <button v-on:click.prevent="generatePassword"
               title="Generate random password"
+              data-toggle="tooltip"
               class="icon-btn generate-btn">
-        <span class="reload-thin" aria-hidden="true"></span>
-      </button>
+            <span class="reload-thin" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="col-xs-12">
 
-      <button type="submit" class="icon-btn upload-icon"
-        title="Store new password">
-      </button>
+          <ul>
+            <li>
+              <input type="range"
+                v-model="create.length"
+                min="8"
+                max="36"
+                step="1">
+              <span v-text="create.length"></span>
+            </li>
+            <li>
+              <input id="letters" type="checkbox" value="letters" v-model="create.letters">
+              <label for="letters">Letters</label>
+            </li>
+            <li>
+              <input id="digits" type="checkbox" value="digits" v-model="create.digits">
+              <label for="digits">Digits</label>
+            </li>
+            <li>
+              <input id="symbols" type="checkbox" value="Symbols" v-model="create.symbols">
+              <label for="symbols">Symbols</label>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+        <div class="row">
+          <div class="col-xs-12">
+            <button type="submit" class="icon-btn upload-icon"
+              title="Store new password">Store password
+            </button>
+          </div>
+        </div>
     </form>
   </section>
 
-  <section class="passwords" v-bind:class="{open: showIndex === 1}">
+  <section class="passwords" v-bind:class="{open: showPasswords}">
     <header class="search-header" v-show="showIndex === 1">
       <input type="text" v-model="searchTerm" placeholder="Search">
     </header>
@@ -99,13 +113,15 @@
                      :lookup-key="password.key"
                      :domain-name="password.domainName"
                      :domain-name-new="password.domainName"
+                     :user-name="password.userName"
+                     :user-name-new="password.userNameNew"
                      :is-hovering="password.isHovering"
                      :new-password="password.newPassword"
                      :show-index="password.showIndex"
                      :is-focused="password.isFocused"
                      :password-entities="password.passwordentitySet">
       </password-item>
-      <div v-show="isEmpty && hideCreatePassword">
+      <div v-show="isEmpty && showPasswords" class="empty-container">
         <p>Looks like you don't have any passwords yet!</p>
       </div>
     </section>
@@ -123,21 +139,24 @@
       <div class="action-container">
         <button v-on:click="requestCurrentPassword"
                 title="Show most recent password"
+                data-toggle="tooltip"
                 class="icon-btn show-recent">
           <span class="glyphicon glyphicon glyphicon glyphicon-eye-open" aria-hidden="true"></span>
         </button>
         <button v-on:click="viewIndex = 1"
                 title="Replace password"
-                class="icon-btn"
-                v-bind:class="{pinned: viewIndex === 1}">
+                data-toggle="tooltip"
+                class="icon-btn">
           <span class="glyphicon glyphicon glyphicon glyphicon-refresh" aria-hidden="true"></span>
         </button>
         <button v-on:click="viewIndex = 2"
                 title="Show password history"
-                class="icon-btn password-history" v-bind:class="{pinned: viewIndex === 1}">
+                data-toggle="tooltip"
+                class="icon-btn password-history">
         </button>
         <button v-on:click="viewIndex = 3"
                 title="Delete password"
+                data-toggle="tooltip"
                 class="icon-btn">
           <span class="glyphicon glyphicon glyphicon glyphicon-remove" aria-hidden="true"></span>
         </button>
@@ -173,15 +192,14 @@
       </form>
     </section>
     <section class="show-on-focus" v-show="viewIndex === 2">
-      <ul>
-        <password-history-item
+        <external-authentication-item
                 class=text-right"
                 v-for="entity in passwordEntities"
                 :key="entity.guid"
                 :created-time="entity.createdTime"
-                :lookup-key="entity.guid">
-        </password-history-item>
-      </ul>
+                :lookup-key="entity.guid"
+                :history-items="entity.history-items">
+        </external-authentication-item>
     </section>
     <section class="show-on-focus delete-password" v-show="viewIndex > 2">
       <div v-show="viewIndex === 3">
@@ -205,6 +223,23 @@
 </template>
 
 
+<template id="externalAuthenticationItem">
+  <div class=text-right"
+      v-on:click="requestPassword"
+      v-text="createdTime">
+    <ul>
+        <password-history-item
+          class=text-right"
+          v-for="entity in passwordEntities"
+          :key="entity.guid"
+          :created-time="entity.createdTime"
+          :lookup-key="entity.guid"
+          :history-items="entity.history-items">
+        </password-history-item>
+    </ul>
+  </div>
+</template>
+
 <template id="passwordHistoryItem">
   <li class=text-right"
       v-on:click="requestPassword"
@@ -220,7 +255,7 @@
     <script src="{% static 'chrome/js/utils.js' %}"></script>
     <script src="{% static 'chrome/js/vue-mixins.js' %}"></script>
     <script src="{% static 'chrome/js/password-vue.js' %}"></script>
-    <script src="{% static 'chrome/js/vault.js' %}"></script>
+    <script src="{% static 'vault/js/vault.js' %}"></script>
 {% endblock scripts %}
 
 

@@ -8,7 +8,8 @@ var passwordItem = Vue.component('password-item', {
         "new-password",
         "show-index",
         "is-focused",
-        "domain-name-new"],
+        "domain-name-new",
+        "user-name-new"],
     computed: {
         passwordObj: function () {
             return vmVault.objPasswords[this.lookupKey];
@@ -31,7 +32,15 @@ var passwordItem = Vue.component('password-item', {
                 this.passwordObj.isFocused = value;
             }
         },
-
+        showPasswordHistory: function () {
+            return showIndex === 2;
+        },
+        showUpdateForm: function () {
+            return showIndex === 1;
+        },
+        showDelete: function () {
+            return showIndex === 3;
+        }
     },
     methods: {
         requestCurrentPassword: function () {
@@ -91,10 +100,18 @@ var passwordItem = Vue.component('password-item', {
         },
         createPasswordCallback: function (resp) {
             vmVault.createPasswordCallback(resp);
-            this.showPasswordHistory = true;
+            this.showIndex = 2;
             this.isFocused = true;
         }
     }
+});
+
+var externalAuthenticationItem = Vue.component('external-authentication-item', {
+    template: '#externalAuthenticationItem',
+    props: ["lookup-key",
+            "user-name",
+            "created-time",],
+    mixins: [requestPasswordMixin]
 });
 
 var passwordHistoryItem = Vue.component('password-history-item', {
