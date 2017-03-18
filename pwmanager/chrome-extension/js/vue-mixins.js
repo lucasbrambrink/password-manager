@@ -85,6 +85,11 @@ var VmVault = Vue.extend({
                 letters: true,
                 digits: true,
                 symbols: true
+            },
+            profile: {
+                firstName: '',
+                lastName: '',
+                phone: '',
             }
         };
     },
@@ -102,7 +107,8 @@ var VmVault = Vue.extend({
             return this.passwords.length === 0;
         },
         toggleTitle: function () {
-            return this.showIndex == 2 ? this.TITLES.HIDE : this.TITLES.NEW;
+            var original = this.showIndex;
+            return original !== 2 ? this.TITLES.NEW : original;
         },
         showCreateNew: function() {
             return this.showIndex === 2;
@@ -145,7 +151,7 @@ var VmVault = Vue.extend({
             if (response.status !== undefined) {
                 vmVault.error = true;
             } else {
-                vmVault.showCreatePassword = false;
+                vmVault.showIndex = 1;
                 vmVault.loadPasswords();
             }
         },
@@ -204,6 +210,7 @@ var VmVault = Vue.extend({
                 return 0;
             });
             vmVault.objPasswords = obj;
-        }
+        },
+        updateProfile: function() {}
     }
 });

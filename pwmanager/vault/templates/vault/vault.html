@@ -10,10 +10,10 @@
 <main class="vault" id="vault" v-cloak>
   <header class="vault-header">
     <h1>
-      <span class="profile-settings"
+      <span class="profile-settings main-header"
             data-toggle="tooltip"
             title="Profile settings"
-            v-on:click="showProfile = !showProfile">{{user_name }}</span>
+            v-on:click="showIndex = 0">{{user_name }}</span>
     </h1>
 
     <button v-on:click="toggleShow"
@@ -26,12 +26,49 @@
             aria-hidden="true">
       </span>
     </button>
-    <article class="profile-settings" v-show="showProfile">
-      <div>
-        <input type="text"/>
-      </div>
-    </article>
   </header>
+
+  <section class="profile-settings" v-show="showIndex === 0">
+    <form v-on:submit.prevent="updateProfile"
+          class="profile-settings"
+          data-never-disabled="true">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6">
+
+          <input type="text"
+                 v-model="profile.firstName"
+                 name="firstname"
+                 data-validate="required"
+                 class="domain-name skip-blur"
+                 placeholder="First name" v-cloak/>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+          <input type="text"
+                 v-model="profile.lastName"
+                 name="lastname"
+                 data-validate="required"
+                 class="user-name skip-blur"
+                 placeholder="Last name" v-cloak/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <input type="text"
+                 placeholder="Phone"
+                 name="phone"
+                 data-validate="required"
+                 class="gen-password skip-blur"
+                 v-model="profile.Phone" />
+        </div>
+      </div>
+
+      <div class="row">
+        <button type="submit" class="icon-btn upload-icon"
+          title="Update">Update
+        </button>
+      </div>
+    </form>
+  </section>
 
   <section class="create-password" v-bind:class="{open: showCreateNew }">
     <form v-on:submit.prevent="createPassword"
@@ -105,8 +142,8 @@
     </form>
   </section>
 
-  <section class="passwords" v-bind:class="{open: showPasswords}">
-    <header class="search-header" v-show="showIndex === 1">
+  <section class="passwords" v-bind:class="{open: showPasswords}" v-show="showIndex === 1">
+    <header class="search-header">
       <input type="text" v-model="searchTerm" placeholder="Search">
     </header>
     <section class="password-container">

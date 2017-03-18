@@ -1,7 +1,7 @@
 @black: #191919;
 @white: #FCFCFC;
 @weak-white: rgba(255, 255, 255, 0.4);
-@opaque-bg: rgba(26, 25, 51, .53);
+@opaque-bg: rgba(26, 25, 51, .61);
 @error: #ff9494;
 
 
@@ -40,7 +40,7 @@ nav {
 
 body {
   &.login {
-    background: url(../images/cascades_wa-min.jpg) no-repeat center center fixed;
+    background: url(../images/cascade_sunset-min.jpg) no-repeat center center fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -268,6 +268,7 @@ body {
     .resemble-text {
       border: none;
       padding: 0;
+      color: rgba(255, 255, 255, 0.70);
     }
     &.open {
       height: 360px;
@@ -461,6 +462,7 @@ body {
     }
   }
   section.delete-password {
+    height: 30px;
     position: relative;
     p {
       margin: 15px 0 0;
@@ -571,14 +573,16 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 
-.profile-settings {
-  cursor: pointer;
-  padding: 5px 15px;
+section.profile-settings {
   display: inline-block;
   border-radius: 2px;
+  width: 100%;
   &:hover {
     transition: color 130ms ease-in;
     color: darken(@white, 10%);
+  }
+  input {
+    border-bottom: 1px solid @weak-white;
   }
 }
 
@@ -593,6 +597,11 @@ input[type=range]:focus::-ms-fill-upper {
   padding: 10px;
   min-width: 180px;
   background: rgba(0,0,0,0.7);
+}
+
+.main-header {
+  cursor: pointer;
+  padding: 5px 15px;
 }
 
 .external-auth-item {
