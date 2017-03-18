@@ -106,7 +106,7 @@ class DomainNameManager(models.Manager):
         external_auth.domain_name = obj
         external_auth.save(using=self._db)
 
-        entity.password = external_auth
+        entity.external_auth = external_auth
         entity.save(using=self._db)
 
 

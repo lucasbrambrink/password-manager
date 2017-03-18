@@ -1,6 +1,6 @@
 from django.conf.urls import url
 from .views.authentication import AuthenticationView, ChromeExtensionLoginView
-from .views.registration import RegistrationView, ChromeExtensionRegistrationView
+from .views.registration import RegistrationView
 from .views.vault import VaultView
 
 

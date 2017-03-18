@@ -41,6 +41,7 @@ class ExternalAuthenticationSerializer(serializers.ModelSerializer):
         model = ExternalAuthentication
         fields = ('key',
                   'user_name',
+                  'created',
                   'passwordentity_set')
 
 

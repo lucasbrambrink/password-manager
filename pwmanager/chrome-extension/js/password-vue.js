@@ -1,54 +1,104 @@
-var passwordItem = Vue.component('password-item', {
-    template: '#passwordItem',
-    mixins: [requestPasswordMixin],
-    props: ["lookup-key",
-        "domain-name",
-        "is-hovering",
-        "password-entities",
-        "new-password",
-        "show-index",
-        "is-focused",
-        "domain-name-new",
-        "user-name-new"],
+var domainNameItem = Vue.component('domain-name-item', {
+    template: '#domainNameItem',
+    props: ["domain-name",
+            "is-focused",
+            "externalauthentication-set",
+            "created-time",],
     computed: {
-        passwordObj: function () {
-            return vmVault.objPasswords[this.lookupKey];
-        },
-        viewIndex: {
-            get: function () {
-                return this.passwordObj.showIndex;
-            },
-            set: function (value) {
-                this.passwordObj.showIndex = value;
-                if (value === 0)
-                    this.isFocused = true;
-            }
+        domainObj: function () {
+            return vmVault.objPasswords[this.domainName];
         },
         isFocused: {
             get: function () {
-                return this.passwordObj.isFocused;
+                return this.domainObj.isFocused;
             },
             set: function (value) {
-                this.passwordObj.isFocused = value;
+                this.domainObj.isFocused = value;
+            }
+        },
+    },
+    methods: {
+        setFocus: function(event) {
+            var initialValue = !this.isFocused;
+            if ($(event.target).is('.inert-click,span,button,input,li')) {
+                initialValue = true;
+            }
+            vmVault.passwords.map(function(p) {
+                p.isFocused = false;
+            });
+            this.isFocused = initialValue;
+        },
+    }
+
+
+});
+
+var passwordItem = Vue.component('password-item', {
+    template: '#externalAuthenticationItem',
+    mixins: [requestPasswordMixin, tooltipMixin],
+    props: ["domain-name",
+        "lookup-key",
+        "user-name",
+        "is-hovering",
+        "passwordentity-set",
+        "new-password",
+        "show-index"],
+    computed: {
+        passwordObj: function () {
+            return vmVault.objPasswords[this.domainName]
+                .externalAuthObj[this.lookupKey];
+        },
+        viewIndex: {
+            get: function() {},
+            set: function (value) {
+                this.$set(this.passwordObj, 'showIndex', value);
             }
         },
         showPasswordHistory: function () {
-            return showIndex === 2;
+            return this.viewIndex === 2;
         },
         showUpdateForm: function () {
-            return showIndex === 1;
+            return this.viewIndex === 1;
         },
         showDelete: function () {
-            return showIndex === 3;
+            return this.viewIndex === 3;
+        },
+        userNameReadOnly: {
+            get: function () {
+                return this.userName;
+            },
+            set: function(value) {}
+        },
+        userNameNew: {
+            get: function () {
+                return this.passwordObj.userNameNew;
+            },
+            set: function(value) {
+                this.passwordObj.userNameNew = value;
+            }
+        },
+        passwordNew: {
+            get: function () {
+                return this.passwordObj.passwordNew;
+            },
+            set: function(value) {
+                this.passwordObj.passwordNew = value;
+            }
+        },
+        domainNameNew: {
+            get: function () {
+                return this.passwordObj.domainNameNew;
+            },
+            set: function(value) {
+                this.passwordObj.domainNameNew = value;
+            }
         }
     },
     methods: {
         requestCurrentPassword: function () {
-            if (this.isFocused) {
-                this.isFocused = false;
-            }
+            var self = this;
             return this.requestData({
-                query: this.passwordEntities[0].guid
+                query: self.passwordentitySet[0].guid
             })
         },
         deletePassword: function () {
@@ -62,16 +112,6 @@ var passwordItem = Vue.component('password-item', {
                     vmVault.loadPasswords();
                 }
             )
-        },
-        setFocus: function(event) {
-            var initialValue = !this.isFocused;
-            if ($(event.target).is('span, button')) {
-                initialValue = true;
-            }
-            vmVault.passwords.map(function(p) {
-                p.isFocused = false;
-            });
-            this.isFocused = initialValue;
         },
         updatePassword: function () {
             var selector = '#' + this.lookupKey;
@@ -93,26 +133,28 @@ var passwordItem = Vue.component('password-item', {
                 {
                     password: newPassword,
                     passwordGuid: this.lookupKey,
-                    domainName: this.domainNameNew
+                    domainName: this.domainNameNew,
+                    userName: this.userNameNew
                 },
                 this.createPasswordCallback
             )
         },
+        handleChange: function() {},
+        handleClick: function(event) {
+            $(event.target).select();
+            this.viewIndex = 0;
+        },
         createPasswordCallback: function (resp) {
             vmVault.createPasswordCallback(resp);
-            this.showIndex = 2;
-            this.isFocused = true;
+            this.viewIndex = 2;
+        },
+        generatePassword: function () {
+            vmVault.generatePassword();
+            this.$set(this.passwordObj, 'passwordNew', vmVault.create.password);
         }
     }
 });
 
-var externalAuthenticationItem = Vue.component('external-authentication-item', {
-    template: '#externalAuthenticationItem',
-    props: ["lookup-key",
-            "user-name",
-            "created-time",],
-    mixins: [requestPasswordMixin]
-});
 
 var passwordHistoryItem = Vue.component('password-history-item', {
     template: '#passwordHistoryItem',

@@ -25,6 +25,14 @@ var requestPasswordMixin = {
     }
 };
 
+var tooltipMixin = {
+    mounted: function() {
+        $('[data-toggle="tooltip"]').tooltip({
+            trigger: "hover"
+        });
+    },
+};
+
 
 var ContentScriptApi = {
     mounted: function() {
@@ -56,7 +64,6 @@ var ContentScriptApi = {
 
 
 var VmVault = Vue.extend({
-    components: {passwordItem: passwordItem},
     data: function () {
         return {
             guid: '',
@@ -178,12 +185,18 @@ var VmVault = Vue.extend({
             var obj = {};
             vmVault.passwords = passwords.map(function (password) {
                 password.isHovering = false;
-                password.newPassword = "";
-                password.showIndex = 2;
+                password.showIndex = 1;
                 password.isFocused = false;
-                password.domainNameNew = password.domainName;
-                password.userNameNew = password.userName;
-                obj[password.key] = password;
+                password.externalauthenticationSet = password.externalauthenticationSet;
+                var extAuth = {};
+                password.externalauthenticationSet.map(function(ea) {
+                    ea.domainNameNew = password.domainName;
+                    ea.userNameNew = ea.userName;
+                    ea.newPassword = "";
+                    extAuth[ea.key] = ea;
+                });
+                password.externalAuthObj = extAuth;
+                obj[password.domainName] = password;
                 return password;
             }).sort(function(a, b) {
                 if (a.domainName < b.domainName) return -1;

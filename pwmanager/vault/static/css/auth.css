@@ -265,6 +265,10 @@ body.vault {
   border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
 }
+.vault section.passwords .resemble-text {
+  border: none;
+  padding: 0;
+}
 .vault section.passwords.open {
   height: 360px;
 }
@@ -274,10 +278,7 @@ body.vault {
 .vault section.passwords article {
   width: 100%;
   position: relative;
-  padding: 10px 0;
-}
-.vault section.passwords article div {
-  padding: 0 15px;
+  padding: 10px 15px;
   cursor: pointer;
 }
 .vault section.passwords article:hover {
@@ -288,9 +289,12 @@ body.vault {
   visibility: visible;
 }
 .vault section.passwords article.focused {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.35);
   transition: background 130ms ease-in;
   min-height: 90px;
+  -webkit-box-shadow: 1px 1px 3px 0px #191919;
+  -moz-box-shadow: 1px 1px 3px 0px #191919;
+  box-shadow: 1px 1px 3px 0px #191919;
 }
 .vault section.passwords article.focused .action-container {
   visibility: visible;
@@ -429,29 +433,26 @@ body.vault {
   color: #FCFCFC;
 }
 .vault section.update-password {
-  height: 48px;
+  height: 135px;
   position: relative;
+  margin: 15px -10px;
 }
 .vault section.update-password input {
   position: relative;
   margin: 0px 0 0;
   padding: 12px 10px;
 }
-.vault section.update-password form > div {
-  margin: 10px 0 0 0;
-  padding: 0;
-  width: 70%;
-}
-.vault section.update-password form > div:first-child {
-  width: 30%;
-  margin: 10px 0 0 0;
-}
 .vault section.update-password .icon-btn {
-  top: 10px;
-  right: 16px;
+  top: 6px;
+  right: 5px;
 }
 .vault section.update-password label.error {
   display: none;
+}
+.vault section.update-password .upload-icon {
+  width: 100%;
+  margin: 0;
+  background-position: center;
 }
 .vault section.delete-password {
   position: relative;
@@ -560,18 +561,27 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 .profile-settings {
-  width: 40%;
+  cursor: pointer;
   padding: 5px 15px;
   display: inline-block;
   border-radius: 2px;
 }
 .profile-settings:hover {
-  transition: background 130ms ease-in;
-  background: rgba(0, 0, 0, 0.15);
+  transition: color 130ms ease-in;
+  color: #e3e3e3;
+}
+.tooltip {
+  z-index: 9999;
+  position: fixed;
 }
 .tooltip-inner {
   border-radius: 0;
+  height: 40px;
   font-size: 14px;
   padding: 10px;
-  width: 180px;
+  min-width: 180px;
+  background: rgba(0, 0, 0, 0.7);
+}
+.external-auth-item {
+  margin-top: 15px;
 }

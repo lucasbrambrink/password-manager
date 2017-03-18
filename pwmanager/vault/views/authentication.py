@@ -15,6 +15,19 @@ import datetime
 log = logging.getLogger(__name__)
 
 
+class AuthenticationResult(object):
+
+    def __init__(self,
+                 is_authenticated=False,
+                 nonce=None,
+                 key=None,
+                 user_key=None):
+        self.is_authenticated = is_authenticated
+        self.nonce = nonce
+        self.key = key
+        self.user_key = user_key
+
+
 class Authenticate(object):
     """
     continuous exchange of nonce for new nonce
@@ -25,25 +38,26 @@ class Authenticate(object):
 
     @classmethod
     def check_authentication(cls, request):
+        result = AuthenticationResult()
         if not request.user.is_authenticated:
             log.warning('Unauthenticated user request')
-            return False, None, None, None
+            return result
 
         try:
             nonce = request.session.pop('nonce')
         except KeyError:
             log.warning('Request without nonce')
-            return False, None, None, None
+            return result
 
         # check nonce and generate new one
         try:
             authenticated, nonce, key = AuthCache.digest_nonce(nonce)
             if not authenticated:
                 log.warning('Unable to digest nonce')
-                return False, None, None, None
+                return result
         except (InvalidToken, InvalidSignature) as ex:
             log.warning('Unable to process nonce keys')
-            return False, None, None, None
+            return result
 
         try:
             user_key = SymmetricEncryption.decrypt(
@@ -52,12 +66,15 @@ class Authenticate(object):
 
         except (KeyError, InvalidSignature, InvalidToken) as ex:
             log.warning('Unable to retrieve user encryption key')
-            return False, None, None, None
+            return result
 
-
-        # yield new nonce if last one was correct
         cls.store_nonce(request, nonce)
-        return True, nonce, key, user_key
+        return AuthenticationResult(
+            is_authenticated=True,
+            nonce=nonce,
+            key=key,
+            user_key=user_key
+        )
 
     @staticmethod
     def initialize_vault_access_token(user):
@@ -71,10 +88,8 @@ class Authenticate(object):
         nonce = AuthCache.set_nonce(key)
         return nonce
 
-
-
     @classmethod
-    def initalize_nonce(cls, request, user):
+    def initialize_nonce(cls, request, user):
         nonce = cls.initialize_vault_access_token(user)
         cls.store_nonce(request, nonce)
 
@@ -89,7 +104,7 @@ class Authenticate(object):
             EncryptionStore.TRANSIENT_E_KEY,
             encryption_key)
 
-        cls.initalize_nonce(request, user)
+        cls.initialize_nonce(request, user)
 
     @classmethod
     def store_nonce(cls, request, nonce):

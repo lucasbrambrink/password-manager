@@ -60,7 +60,7 @@ class ProvisionNonceView(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     def put(self, request, *args, **kwargs):
-        Authenticate.initalize_nonce(request, request.user)
+        Authenticate.initialize_nonce(request, request.user)
         return Response({}, status=status.HTTP_200_OK)
 
 
@@ -78,8 +78,8 @@ class DomainNameListView(mixins.ListModelMixin,
             .filter(is_active=True)
 
     def post(self, request, *args, **kwargs):
-        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
-        if not authenticated:
+        auth = Authenticate.check_authentication(request)
+        if not auth.is_authenticated:
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
         return self.list(request, *args, **kwargs)
@@ -92,8 +92,8 @@ class DomainNameView(mixins.CreateModelMixin,
     serializer_class = PasswordCreateSerializer
 
     def delete(self, request, *args, **kwargs):
-        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
-        if not authenticated:
+        auth = Authenticate.check_authentication(request)
+        if not auth.is_authenticated:
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
 
@@ -103,13 +103,13 @@ class DomainNameView(mixins.CreateModelMixin,
         return Response({}, status=status.HTTP_202_ACCEPTED)
 
     def post(self, request, *args, **kwargs):
-        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
-        if not authenticated:
+        auth = Authenticate.check_authentication(request)
+        if not auth.is_authenticated:
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
 
         user = request.user
-        token = AuthCache.get_token(key)
+        token = AuthCache.get_token(auth.key)
         serializer = PasswordCreateSerializer(data=request.data)
         print(serializer.__dict__)
         success = False
@@ -120,7 +120,7 @@ class DomainNameView(mixins.CreateModelMixin,
                     serializer.validated_data['domain_name'],
                     serializer.validated_data['username'],
                     serializer.validated_data['password'],
-                    user_key,
+                    auth.user_key,
                     serializer.validated_data['password_guid']
                 )
                 success = True
@@ -141,14 +141,14 @@ class PasswordGetView(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     def post(self, request, *args, **kwargs):
-        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
-        if not authenticated:
+        auth = Authenticate.check_authentication(request)
+        if not auth.is_authenticated:
             return Response(NotAuthenticated.default_detail.capitalize(),
                             status=NotAuthenticated.status_code)
 
         user = request.user
-        token = AuthCache.get_token(key)
-        access = user.access_api(token, user_key)
+        token = AuthCache.get_token(auth.key)
+        access = user.access_api(token, auth.user_key)
         request.data["value"] = None
         serializer = PasswordValueSerializer(data=request.data)
 

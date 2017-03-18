@@ -8,17 +8,12 @@ import logging
 log = logging.getLogger(__name__)
 
 
-
-
 class VaultView(TemplateView):
     template_name = u'vault/vault.html'
 
     def get(self, request, guid, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('auth')
-
-        authenticated, nonce, key, user_key = Authenticate.check_authentication(request)
-        if not authenticated:
+        auth = Authenticate.check_authentication(request)
+        if not auth.is_authenticated:
             return redirect('auth')
 
         vu = VaultUser.objects.get(guid=guid)
