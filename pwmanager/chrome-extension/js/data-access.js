@@ -1,5 +1,5 @@
 var AuthSouce = (function ($) {
-    var BASE_URL = "http://127.0.0.1:8000"; //"https://simple-vault.tk";
+    var BASE_URL = "https://simple-vault.tk";
 
     var provisionToken = function (csrf_token) {
         $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
