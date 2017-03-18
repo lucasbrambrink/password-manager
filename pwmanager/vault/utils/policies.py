@@ -89,7 +89,7 @@ class CreateUserPolicyApi(object):
 
     def __init__(self, user):
         self.user = user
-        self.token = TokenStore.USER_CREATOR_TOKEN
+        self.token = TokenStore.ACCESS_TOKEN #  TokenStore.USER_CREATOR_TOKEN
         self.api = VaultConnection(self.token)
 
     def create_policy_for_user(self):
