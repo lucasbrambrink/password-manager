@@ -124,7 +124,7 @@ var passwordItem = Vue.component('password-item', {
             if (!isValid) {
                 return;
             }
-            var $password = $(selector).find('input');
+            var $password = $(selector).find('input.gen-password');
             var newPassword = $password.val();
             $password.val(newPassword
                 .split('')

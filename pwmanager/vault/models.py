@@ -86,6 +86,7 @@ class DomainNameManager(models.Manager):
         entity = PasswordEntity(
             guid=GuidSource.generate(),
         )
+        log.warning("Saved password: %s" % password)
         success = api.write(entity.guid, password)
         if not success:
             raise VaultException("Unable to write to vault")
