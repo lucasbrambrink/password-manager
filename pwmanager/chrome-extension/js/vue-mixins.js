@@ -130,10 +130,18 @@ var VmVault = Vue.extend({
         showPassword: function (password) {
             window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
         },
-        toggleShow: function() {
+        toggleViewIndex: function(targetIndex, defaultIndex) {
             var original = this.showIndex;
-            if (original === 2) original = 1;
-            this.showIndex = this.showIndex !== 2 ? 2 : original;
+            if (original === targetIndex) original = 1;
+            this.showIndex = this.showIndex !== targetIndex
+                ? targetIndex
+                : original;
+        },
+        toggleProfile: function () {
+            return this.toggleViewIndex(0, 1);
+        },
+        toggleShow: function() {
+            return this.toggleViewIndex(2, 1);
         },
         createPassword: function (event) {
             var selector = 'form.generate-password';
