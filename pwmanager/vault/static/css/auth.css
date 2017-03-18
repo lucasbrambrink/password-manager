@@ -74,6 +74,10 @@ body.vault {
   height: 60%;
   padding: 5%;
 }
+.login main.bg-login,
+.registration main.bg-login {
+  background: rgba(62, 37, 45, 0.37);
+}
 .login header,
 .registration header {
   height: 30%;
@@ -563,7 +567,8 @@ input[type=range]:focus::-ms-fill-upper {
   background: #367ebd;
 }
 section.profile-settings {
-  display: inline-block;
+  padding: 7px;
+  display: block;
   border-radius: 2px;
   width: 100%;
 }
@@ -572,7 +577,37 @@ section.profile-settings:hover {
   color: #e3e3e3;
 }
 section.profile-settings input {
+  border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+}
+section.profile-settings input[name=firstname] {
+  background: url(../icons/user.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
+section.profile-settings input[name=lastname] {
+  background: url(../icons/user.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
+section.profile-settings input[name=phone] {
+  background: url(../icons/phone-call.svg) no-repeat;
+  background-size: 23px;
+  background-position: 10px 9px;
+}
+section.profile-settings input[type=submit] {
+  width: 60%;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  margin: 10px auto;
+  float: none;
+  background: rgba(0, 0, 0, 0.2);
+}
+section.profile-settings input[type=submit]:hover,
+section.profile-settings input[type=submit]:focus {
+  background: rgba(0, 0, 0, 0.3);
+  transition: background 130ms ease-in;
+  color: #FCFCFC;
 }
 .tooltip {
   z-index: 9999;

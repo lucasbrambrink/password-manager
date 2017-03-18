@@ -33,7 +33,7 @@
           class="profile-settings"
           data-never-disabled="true">
       <div class="row">
-        <div class="col-xs-12 col-sm-6">
+        <div class="col-xs-12">
 
           <input type="text"
                  v-model="profile.firstName"
@@ -42,7 +42,9 @@
                  class="domain-name skip-blur"
                  placeholder="First name" v-cloak/>
         </div>
-        <div class="col-xs-12 col-sm-6">
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
           <input type="text"
                  v-model="profile.lastName"
                  name="lastname"
@@ -63,9 +65,8 @@
       </div>
 
       <div class="row">
-        <button type="submit" class="icon-btn upload-icon"
-          title="Update">Update
-        </button>
+        <input type="submit" class="icon-btn upload-icon"
+          title="Update" value="Update" />
       </div>
     </form>
   </section>

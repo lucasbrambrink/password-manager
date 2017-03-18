@@ -2,6 +2,7 @@
 @white: #FCFCFC;
 @weak-white: rgba(255, 255, 255, 0.4);
 @opaque-bg: rgba(26, 25, 51, .61);
+@opaque-red:  rgba(62, 37, 45, 0.37);
 @error: #ff9494;
 
 
@@ -83,6 +84,10 @@ body {
     max-width: 675px;
     height: 60%;
     padding: 5%;
+
+    &.bg-login {
+      background: @opaque-red;
+    }
   }
   header {
     height: 30%;
@@ -574,7 +579,8 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 section.profile-settings {
-  display: inline-block;
+  padding: 7px;
+  display: block;
   border-radius: 2px;
   width: 100%;
   &:hover {
@@ -582,7 +588,37 @@ section.profile-settings {
     color: darken(@white, 10%);
   }
   input {
+    border: none;
     border-bottom: 1px solid @weak-white;
+
+    &[name=firstname] {
+      background: url(../icons/user.svg) no-repeat;
+      background-size: 25px;
+      background-position: 10px 9px;
+    }
+    &[name=lastname] {
+      background: url(../icons/user.svg) no-repeat;
+      background-size: 25px;
+      background-position: 10px 9px;
+    }
+    &[name=phone] {
+      background: url(../icons/phone-call.svg) no-repeat;
+      background-size: 23px;
+      background-position: 10px 9px;
+    }
+  }
+  input[type=submit] {
+    width: 60%;
+    display: block;
+    border: 1px solid @weak-white;
+    margin: 10px auto;
+    float: none;
+    background: rgba(0, 0, 0, 0.2);
+    &:hover, &:focus {
+      background: rgba(0, 0, 0, 0.3);
+      transition: background 130ms ease-in;
+      color: @white;
+    }
   }
 }
 
@@ -607,8 +643,3 @@ section.profile-settings {
 .external-auth-item {
   margin-top: 15px;
 }
-
-//<div class="tooltip fade top in" role="tooltip" id="tooltip515430" style="top: -40px; left: 463.5px; display: block;">
-//  <div class="tooltip-arrow" style="left: 74.7191%;"></div>
-//  <div class="tooltip-inner">Create new password</div>
-//</div>
