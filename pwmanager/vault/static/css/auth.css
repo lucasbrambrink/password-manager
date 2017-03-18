@@ -654,6 +654,14 @@ body.about a,
 body.about a:hover {
   color: #FCFCFC;
 }
+body.about section {
+  margin-top: 45px;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+}
+body.about section:first-child {
+  margin-top: 0;
+  border: none;
+}
 body.about nav {
   background: rgba(26, 25, 51, 0.11);
 }
@@ -673,4 +681,7 @@ body.about main {
 }
 body.about h4 {
   margin-top: 50px;
+}
+body.about .introduction header {
+  margin-bottom: 25px;
 }

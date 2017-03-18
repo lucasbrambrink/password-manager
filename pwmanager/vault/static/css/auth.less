@@ -666,6 +666,14 @@ body.about {
   a, a:hover {
     color: @white;
   }
+  section {
+   margin-top: 45px;
+    border-top: 1px solid @weak-white;
+    &:first-child {
+      margin-top: 0;
+      border: none;
+    }
+  }
   nav {
     background: @opaque-blue-light;
     &:hover {
@@ -690,5 +698,10 @@ body.about {
   }
   h4 {
     margin-top: 50px;
+  }
+  .introduction {
+    header {
+      margin-bottom: 25px;
+    }
   }
 }
