@@ -409,7 +409,7 @@ body.vault {
   background-size: 25px;
   background-position: 10px 9px;
   position: absolute;
-  top: 6px;
+  top: 5px;
   right: 5px;
 }
 .vault section.create-password .upload-icon {
@@ -448,7 +448,7 @@ body.vault {
   padding: 12px 10px;
 }
 .vault section.update-password .icon-btn {
-  top: 6px;
+  top: 5px;
   right: 5px;
 }
 .vault section.update-password label.error {

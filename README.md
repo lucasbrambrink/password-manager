@@ -27,3 +27,6 @@ DONE
 DONE
 
 * build FE for extra fields
+
+
+* build fe tooltip title update module (vue maybe? ...no)

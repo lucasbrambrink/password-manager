@@ -101,14 +101,23 @@ class PasswordCreateSerializer(serializers.Serializer):
                                           allow_blank=True,
                                           allow_null=True)
 
-    @staticmethod
-    def create_or_update(*args):
-        return DomainName.objects.create_or_update_password(*args)
+
+    def create(self, user, token, user_key):
+        assert self.validated_data is not None
+        DomainName.objects.create_or_update_password(
+            user=user,
+            token=token,
+            domain_name=self.validated_data['domain_name'],
+            username=self.validated_data['username'],
+            password=self.validated_data['password'],
+            user_key=user_key,
+            password_guid=self.validated_data['password_guid']
+        )
 
     @staticmethod
     def delete(key):
         try:
-            password = DomainName.objects\
+            password = ExternalAuthentication.published\
                 .get(key=key)
             password.soft_delete()
         except DomainName.DoesNotExist:

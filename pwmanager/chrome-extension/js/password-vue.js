@@ -134,7 +134,7 @@ var passwordItem = Vue.component('password-item', {
                     password: newPassword,
                     passwordGuid: this.lookupKey,
                     domainName: this.domainNameNew,
-                    userName: this.userNameNew
+                    username: this.userNameNew
                 },
                 this.createPasswordCallback
             )

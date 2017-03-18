@@ -34,6 +34,10 @@ class BaseDataModel(models.Model):
     modified = models.DateTimeField(auto_now_add=True, null=True)
     is_active = models.BooleanField(default=True)
 
+    def soft_delete(self):
+        self.is_active = False
+        self.save()
+
     class Meta:
         abstract = True
 
@@ -70,7 +74,7 @@ class DomainNameManager(models.Manager):
 
     def create_or_update_password(self, user, token, domain_name, username, password, user_key, password_guid=None):
         try:
-            obj = DomainName.objects.get(domain_name=domain_name)
+            obj = user.vault.domainname_set.get(domain_name=domain_name)
         except DomainName.DoesNotExist:
             obj = DomainName(
                 vault=user.vault,
@@ -87,17 +91,10 @@ class DomainNameManager(models.Manager):
             raise VaultException("Unable to write to vault")
 
         external_auth = None
-        if password_guid:
-            try:
-                external_auth = ExternalAuthentication.objects.get(key=password_guid)
-            except ExternalAuthentication.DoesNotExist:
-                pass
-
-        if not external_auth:
-            try:
-                external_auth = obj.externalauthentication_set.get(user_name=username)
-            except ExternalAuthentication.DoesNotExist:
-                pass
+        try:
+            external_auth = obj.externalauthentication_set.get(user_name=username)
+        except ExternalAuthentication.DoesNotExist:
+            pass
 
         external_auth = external_auth or ExternalAuthentication(
             user_name=username,
@@ -125,10 +122,6 @@ class DomainName(BaseDataModel):
     @property
     def current_password(self):
         return self.passwordentity_set.objects.first()
-
-    def soft_delete(self):
-        self.is_active = False
-        self.save()
 
 
 class Vault(BaseDataModel):

@@ -115,14 +115,7 @@ class DomainNameView(mixins.CreateModelMixin,
         success = False
         if serializer.is_valid():
             try:
-                serializer.create_or_update(
-                    user, token,
-                    serializer.validated_data['domain_name'],
-                    serializer.validated_data['username'],
-                    serializer.validated_data['password'],
-                    auth.user_key,
-                    serializer.validated_data['password_guid']
-                )
+                serializer.create(user, token, auth.user_key)
                 success = True
             except serializer.VaultException:
                 success = False
