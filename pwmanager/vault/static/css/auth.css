@@ -6,17 +6,32 @@ nav {
   height: 40px;
   color: #FCFCFC;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: rgba(26, 25, 51, 0.61);
+  background: rgba(0, 0, 0, 0.03);
+  position: absolute;
+}
+nav:hover {
+  transition: background 180ms ease-in;
+  background: rgba(216, 189, 198, 0.37);
 }
 nav ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
+nav .logo {
+  position: absolute;
+  left: 5px;
+  top: -2px;
+  padding: 11px 45px;
+  width: 180px;
+  height: 40px;
+  background: url(../icons/padlock.svg) no-repeat;
+  background-size: 25px;
+  background-position: 10px 9px;
+}
 nav li {
   padding: 10px;
   display: inline-block;
-  width: 50px;
   height: 40px;
   float: right;
 }
@@ -627,4 +642,35 @@ section.profile-settings input[type=submit]:focus {
 }
 .external-auth-item {
   margin-top: 15px;
+}
+body.about {
+  background: url(../images/apostles-min.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+body.about a,
+body.about a:hover {
+  color: #FCFCFC;
+}
+body.about nav {
+  background: rgba(26, 25, 51, 0.11);
+}
+body.about nav:hover {
+  transition: background 180ms ease-in;
+  background: rgba(26, 25, 51, 0.41);
+}
+body.about main {
+  color: #FCFCFC;
+  font-family: 'Open Sans', Arial, sans-serif;
+  background: rgba(26, 25, 51, 0.61);
+  width: 100%;
+  margin: 10vh auto;
+  max-width: 675px;
+  height: 75vh;
+  padding: 5%;
+}
+body.about h4 {
+  margin-top: 50px;
 }

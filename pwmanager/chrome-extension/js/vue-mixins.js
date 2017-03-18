@@ -90,6 +90,10 @@ var VmVault = Vue.extend({
                 firstName: '',
                 lastName: '',
                 phone: '',
+            },
+            previousState: {
+                activeDomain: null,
+                authIndexes: {},
             }
         };
     },
@@ -129,6 +133,22 @@ var VmVault = Vue.extend({
     methods: {
         showPassword: function (password) {
             window.prompt("Copy to clipboard: Ctrl+C, Enter", password);
+        },
+        setPreviousState: function() {
+            var active = this.passwords.filter(function(p) {
+                return p.isFocused === true;
+            });
+            if (active.length === 0) {
+                this.previousState.activeDomain = null
+            } else {
+                var domain = active[0];
+                this.previousState.activeDomain = domain.domainName;
+                var indexes = {};
+                domain.externalauthenticationSet.map(function(ea) {
+                    indexes[ea.key] = ea.showIndex;
+                });
+                this.previousState.authIndexes = indexes;
+            }
         },
         toggleViewIndex: function(targetIndex, defaultIndex) {
             var original = this.showIndex;
@@ -194,18 +214,24 @@ var VmVault = Vue.extend({
             )
         },
         loadPasswordCallback: function (passwords) {
+            var self = this;
             if (passwords.status !== undefined) {
                 console.log(passwords);
                 return;
             }
+            self.setPreviousState();
+
             var obj = {};
-            vmVault.passwords = passwords.map(function (password) {
+            self.passwords = passwords.map(function (password) {
                 password.isHovering = false;
                 password.showIndex = 1;
-                password.isFocused = false;
-                password.externalauthenticationSet = password.externalauthenticationSet;
+                password.isFocused = self.previousState.activeDomain === password.domainName;
                 var extAuth = {};
                 password.externalauthenticationSet.map(function(ea) {
+                    ea.showIndex = 0;
+                    if (password.isFocused) {
+                        ea.showIndex = self.previousState.authIndexes[ea.key];
+                    }
                     ea.domainNameNew = password.domainName;
                     ea.userNameNew = ea.userName;
                     ea.newPassword = "";
@@ -219,7 +245,7 @@ var VmVault = Vue.extend({
                 if (a.domainName > b.domainName) return 1;
                 return 0;
             });
-            vmVault.objPasswords = obj;
+            self.objPasswords = obj;
         },
         updateProfile: function() {}
     }

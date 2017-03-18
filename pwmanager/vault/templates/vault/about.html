@@ -1,0 +1,46 @@
+{% extends 'base/base.html' %}
+
+{% block body_class %}about{% endblock %}
+
+{% block nav %}
+
+    {% include 'vault/components/nav.html' %}
+
+{% endblock nav %}
+
+
+{% block body %}
+
+<main>
+    <section>
+        <h3>Design Tenents</h3>
+        <h4>Security by design</h4>
+        <p>
+            It is impossible to lose, use, or abuse data one doesn’t possess.
+            Therefore one designs systems to reduce the amount of sensitive user data
+            stored or possible to be acquired.
+        </p>
+
+        <h4>Encryption works</h4>
+        <p>
+            When designing a system, one prefers security that is
+            enforced by cryptography instead of enforced by software or personnel
+            policy.
+        </p>
+
+        <h4>Comprehension & Transparency</h4>
+        <p>
+            One strives to fully understand all available and implemented tools.
+            Commanding their strengths and weaknesses will maximize
+            the ability to choose the correct tool for a particular task.
+        </p>
+    </section>
+
+
+</main>
+
+{% endblock %}
+
+{% block scripts %}
+
+{% endblock scripts %}

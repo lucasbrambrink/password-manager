@@ -2,6 +2,8 @@
 @white: #FCFCFC;
 @weak-white: rgba(255, 255, 255, 0.4);
 @opaque-bg: rgba(26, 25, 51, .61);
+@opaque-blue-light: rgba(26, 25, 51, .11);
+@opaque-blue-dark: rgba(26, 25, 51, .41);
 @opaque-red:  rgba(62, 37, 45, 0.37);
 @error: #ff9494;
 
@@ -15,17 +17,32 @@ nav {
   height: 40px;
   color: @white;
   font-family: 'Open Sans', Arial, sans-serif;
-  background: @opaque-bg;
+  background: rgba(0,0,0,0.03);
+  position: absolute;
+  &:hover {
+    transition: background 180ms ease-in;
+    background: lighten(@opaque-red, 60%);
+  }
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
   }
+  .logo {
+    position: absolute;
+    left: 5px;
+    top: -2px;
+    padding: 11px 45px;
+    width: 180px;
+    height: 40px;
+    background: url(../icons/padlock.svg) no-repeat;
+    background-size: 25px;
+    background-position: 10px 9px;
+  }
 
   li {
     padding: 10px;
     display: inline-block;
-    width: 50px;
     height: 40px;
     float: right;
 
@@ -642,4 +659,36 @@ section.profile-settings {
 
 .external-auth-item {
   margin-top: 15px;
+}
+
+
+body.about {
+  a, a:hover {
+    color: @white;
+  }
+  nav {
+    background: @opaque-blue-light;
+    &:hover {
+      transition: background 180ms ease-in;
+      background: @opaque-blue-dark;
+    }
+  }
+  background: url(../images/apostles-min.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+  main {
+    color: @white;
+    font-family: 'Open Sans', Arial, sans-serif;
+    background: @opaque-bg;
+    width: 100%;
+    margin: 10vh auto;
+    max-width: 675px;
+    height: 75vh;
+    padding: 5%;
+  }
+  h4 {
+    margin-top: 50px;
+  }
 }

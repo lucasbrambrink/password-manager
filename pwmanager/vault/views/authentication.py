@@ -179,10 +179,11 @@ class ChromeExtensionLoginView(TemplateView):
     template_name = u'vault/components/csrf_token.html'
 
     def get(self, request, *args, **kwargs):
-        """
-        only allow 3 attempts
-        perhaps perform some kind of MFA
-        """
-        # authenticate user
-        # perhaps return json response?
+        return render(request, self.template_name, {})
+
+
+class AboutPageView(TemplateView):
+    template_name = u'vault/about.html'
+
+    def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {})

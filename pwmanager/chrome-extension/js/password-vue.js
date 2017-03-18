@@ -49,7 +49,9 @@ var passwordItem = Vue.component('password-item', {
                 .externalAuthObj[this.lookupKey];
         },
         viewIndex: {
-            get: function() {},
+            get: function() {
+                return this.passwordObj.showIndex;
+            },
             set: function (value) {
                 this.$set(this.passwordObj, 'showIndex', value);
             }
